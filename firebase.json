@@ -1,13 +1,14 @@
 {
-  "hosting": {
-    "source": "build",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
-    "frameworksBackend": {
-      "region": "us-central1"
+  "apphosting": {
+    "source": ".",
+    "rewrites": [
+      {
+        "source": "**",
+        "run": {
+          "serviceId": "cozy-ttrpg-build",
+          "region": "us-central1"
+        }
+      }
+    ]
     }  
-  }
 }
