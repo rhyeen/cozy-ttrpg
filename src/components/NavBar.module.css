@@ -1,0 +1,7 @@
+.wrapper {
+  display: flex;
+  width: 100cqw;
+  height: 3rem;
+  background-color: red;
+  padding: 0.5rem;
+}

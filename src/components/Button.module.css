@@ -1,0 +1,11 @@
+.wrapper {
+  padding: 0.25rem 0.5rem;
+  border: none;
+  background-color: #f0f0f0;
+  cursor: pointer;
+  border-radius: 0.5rem;
+}
+
+.wrapper:hover {
+  background-color: #e0e0e0;
+}
