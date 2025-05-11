@@ -1,14 +1,12 @@
 {
-  "apphosting": {
-    "source": ".",
+  "hosting": {
+    "site": "cozy-ttrpg",
+    "public": "./build",
     "rewrites": [
       {
         "source": "**",
-        "run": {
-          "serviceId": "cozy-ttrpg-build",
-          "region": "us-central1"
-        }
+        "destination": "/index.html"
       }
     ]
-    }  
+  }  
 }
