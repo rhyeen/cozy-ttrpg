@@ -9,7 +9,7 @@ interface Props {
   setUser: (user: any) => void;
 }
 
-const LoginRoute: React.FC<Props> = ({ setUser }) => {
+const LoginPage: React.FC<Props> = ({ setUser }) => {
   const [showEmailPassword, setShowEmailPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -40,5 +40,5 @@ const LoginRoute: React.FC<Props> = ({ setUser }) => {
   );
 }
 
-export default LoginRoute;
+export default LoginPage;
 
