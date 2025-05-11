@@ -1,7 +1,7 @@
 {
   "hosting": {
     "site": "cozy-ttrpg",
-    "public": "./build",
+    "public": "./build/client",
     "rewrites": [
       {
         "source": "**",

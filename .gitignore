@@ -2,3 +2,5 @@
 /node_modules/
 /.react-router/
 /build/
+/.firebase/
+firebase-debug.log
