@@ -1,5 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
+import { connectFunctionsEmulator, getFunctions } from "firebase/functions";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
 // TODO: Replace this with your app's firebase config
@@ -15,9 +16,15 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
+const functions = getFunctions(app, "us-central1");
 
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
-export { auth, googleProvider };
+if (import.meta.env.DEV) {
+  console.log('Running in development mode with emulator');
+  connectFunctionsEmulator(functions, 'localhost', 5001);
+}
+
+export { auth, googleProvider, functions };
 export default app
