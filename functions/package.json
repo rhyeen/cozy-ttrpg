@@ -5,14 +5,15 @@
     "build": "tsc",
     "build:watch": "tsc --watch",
     "build:watch:background": "tsc -w &>/dev/null &",
-    "serve": "npm run build:watch:background && firebase emulators:start --only functions",
+    "serve": "FUNCTIONS_EMULATOR=true npm run build:watch:background && firebase emulators:start --only functions,firestore",
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log"
+    "logs": "firebase functions:log",
+    "predeploy": "npm run lint && npm run build"
   },
   "engines": {
-    "node": "20"
+    "node": "22"
   },
   "main": "lib/index.js",
   "dependencies": {

@@ -2,6 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { connectFunctionsEmulator, getFunctions } from "firebase/functions";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 
 // TODO: Replace this with your app's firebase config
 const firebaseConfig = {
@@ -17,6 +18,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 const functions = getFunctions(app, "us-central1");
+const firestore = getFirestore(app);
 
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
@@ -24,7 +26,8 @@ const googleProvider = new GoogleAuthProvider();
 if (import.meta.env.DEV) {
   console.log('Running in development mode with emulator');
   connectFunctionsEmulator(functions, 'localhost', 5001);
+  connectFirestoreEmulator(firestore, 'localhost', 8080);
 }
 
-export { auth, googleProvider, functions };
-export default app
+export { auth, googleProvider, functions, firestore };
+export default app;
