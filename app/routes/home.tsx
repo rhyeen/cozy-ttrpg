@@ -1,5 +1,6 @@
 import { LoginPage } from '~/pages/Login.page';
 import type { Route } from "./+types/home";
+import { PrimaryLayout } from "~/layouts/PrimaryLayout";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -8,6 +9,11 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
+
 export default function Home() {
-  return <LoginPage />;
+  return (
+    <PrimaryLayout>
+      <LoginPage />
+    </PrimaryLayout>
+  );
 }

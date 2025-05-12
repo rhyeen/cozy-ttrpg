@@ -1,11 +1,28 @@
 .wrapper {
   padding: 0.25rem 0.5rem;
   border: none;
-  background-color: #f0f0f0;
   cursor: pointer;
   border-radius: 0.5rem;
+  transition: background-color 0.2s ease-in-out;
+  min-height: 2.5rem;
 }
 
-.wrapper:hover {
-  background-color: #e0e0e0;
+/* Primary Button Styles */
+.primary {
+  background-color: #007bff; /* Blue */
+  color: #fff; /* White */
+}
+
+.primary:hover {
+  background-color: #0056b3; /* Darker Blue */
+}
+
+/* Secondary Button Styles */
+.secondary {
+  background-color: #e9ecef; /* Light Gray */
+  color: #343a40; /* Dark Gray */
+}
+
+.secondary:hover {
+  background-color: #d3d9df; /* Darker Gray */
 }

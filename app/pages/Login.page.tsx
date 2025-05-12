@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
-import { auth, googleProvider } from '../utils/firebase';
+import { auth } from '../utils/firebase';
 import Button from '../components/Button';
 import Input from '../components/Input';
-import styles from './App.module.css';
-import { signInWithPopup } from 'firebase/auth';
-import NavBar from '../components/NavBar';
+
+import Form from '~/components/Form';
 
 export function LoginPage() {
   const [showEmailPassword, setShowEmailPassword] = useState(false);
@@ -23,28 +22,31 @@ export function LoginPage() {
     console.log('Signing in with email:', email, 'and password:', password);
   };
 
-  const signInWithGoogle = async () => {
-    console.log('Signing in with Google');
-    try {
-      await signInWithPopup(auth, googleProvider);
-      console.log('User signed in');
-    } catch (error) {
-      console.error('Error signing in with Google', error);
-    }
-  };
-
   return (
-    <main className={styles.main}>
-    <NavBar user={user} />
-    <Button onClick={signInWithGoogle}>Sign in with Google</Button>
-    <Button onClick={() => setShowEmailPassword(!showEmailPassword)}>Sign in with Email</Button>
-    {showEmailPassword && (
-      <div>
-        <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        <Button onClick={handleEmailSignIn}>Submit</Button>
-      </div>
-    )}
-    </main>
+    <>
+      {!showEmailPassword &&
+        <Form>
+          <Button type="primary" onClick={() => setShowEmailPassword(!showEmailPassword)}>Sign in with Email</Button>
+        </Form>
+      }
+      {showEmailPassword && (
+        <Form>
+          <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <Button type="primary" onClick={handleEmailSignIn}>Submit</Button>
+          <Button type="secondary" onClick={() => setShowEmailPassword(false)}>Cancel</Button>
+          <Button type="secondary" onClick={() => setShowEmailPassword(false)}>Cancel</Button>
+          <Button type="secondary" onClick={() => setShowEmailPassword(false)}>Cancel</Button>
+          <Button type="secondary" onClick={() => setShowEmailPassword(false)}>Cancel</Button>
+          <Button type="secondary" onClick={() => setShowEmailPassword(false)}>Cancel</Button>
+          <Button type="secondary" onClick={() => setShowEmailPassword(false)}>Cancel</Button>
+          <Button type="secondary" onClick={() => setShowEmailPassword(false)}>Cancel</Button>
+          <Button type="secondary" onClick={() => setShowEmailPassword(false)}>Cancel</Button>
+          <Button type="secondary" onClick={() => setShowEmailPassword(false)}>Cancel</Button>
+          <Button type="secondary" onClick={() => setShowEmailPassword(false)}>Cancel</Button>
+          <Button type="secondary" onClick={() => setShowEmailPassword(false)}>Cancel</Button>
+        </Form>
+      )}
+    </>
   );
 }
