@@ -1,19 +1,13 @@
-import { LoginPage } from '~/pages/Login.page';
 import type { Route } from "./+types/home";
-import { PrimaryLayout } from "~/layouts/PrimaryLayout";
+import { HomePage } from '~/pages/Home.page';
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "New React Router App" },
-    { name: "description", content: "Welcome to React Router!" },
+    { title: "Home Page" },
+    { name: "description", content: "" },
   ];
 }
 
-
 export default function Home() {
-  return (
-    <PrimaryLayout>
-      <LoginPage />
-    </PrimaryLayout>
-  );
+  return <HomePage />;
 }

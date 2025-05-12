@@ -1,19 +1,13 @@
 import React from 'react';
 import styles from './NavBar.module.css';
-import Button from './Button';
+import { useSelector } from 'react-redux';
+import { selectFirebaseUser } from '~/store/userSlice';
 
-interface Props {
-  user: { email: string } | undefined;
-}
-
-const NavBar: React.FC<Props> = ({ user }) => {
+const NavBar: React.FC = () => {
+  const firebaseUser = useSelector(selectFirebaseUser);
   return (
     <nav className={styles.wrapper}>
-      {user ? (
-        <span>{user.email}</span> 
-      ) : (
-        <Button>Sign In</Button>
-      )}
+      {firebaseUser && <span>Welcome, {firebaseUser.email}</span>}
     </nav>
   );
 };

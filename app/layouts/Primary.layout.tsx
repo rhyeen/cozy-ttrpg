@@ -1,20 +1,16 @@
-import React from 'react';
 import NavBar from '../components/NavBar'; // Adjust the import path as necessary
-import styles from './PrimaryLayout.module.css'; 
+import styles from './Primary.layout.module.css'; 
+import { Outlet } from 'react-router';
 
-interface PrimaryLayoutProps {
-  children: React.ReactNode;
-}
-
-export const PrimaryLayout: React.FC<PrimaryLayoutProps> = ({ children }) => {
+export default function PrimaryLayout() {
   return (
     <section className={styles.wrapper}>
-      <NavBar user={{} as any} />
+      <NavBar />
       <main className={styles.scrollWrapper}>
         <section className={styles.content}>
-          {children}
+          <Outlet />
         </section>
       </main>
     </section>
   );
-};
+}
