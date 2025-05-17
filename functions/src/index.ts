@@ -2,6 +2,7 @@ import {onCall} from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
 import {getFirestore} from "firebase-admin/firestore";
 import {initializeApp} from "firebase-admin/app";
+import { CampaignRoute } from './routes/Campaign.route';
 
 // Initialize Firebase Admin SDK
 initializeApp();
@@ -13,6 +14,12 @@ if (process.env.FUNCTIONS_EMULATOR) {
     ssl: false,
   });
 }
+
+const campaignRoute = new CampaignRoute(db);
+
+export const getCampaigns = onCall(async () => {
+  return await campaignRoute.getCampaigns();
+});
 
 export const helloWorld = onCall(async () => {
   const docRef = db.collection('tickerTest').doc('testDoc');

@@ -15,7 +15,8 @@
     "rootDirs": [".", "./.react-router/types"],
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./app/*"]
+      "~/*": ["./app/*"],
+      "@rhyeen/*": ["./shared/src/*"],
     },
     "esModuleInterop": true,
     "verbatimModuleSyntax": true,
@@ -23,5 +24,8 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true
-  }
+  },
+  "references": [
+    { "path": "./shared" }
+  ]
 }

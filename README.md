@@ -1,87 +1,67 @@
-# Welcome to React Router!
+# Cozy TTRPG
 
-A modern, production-ready template for building full-stack React applications using React Router.
-
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
-
-## Features
-
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
+A companion app for a stealth-project cozy TTRPG for both the GM and players.
 
 ## Getting Started
 
+This app has both a front-end app and back-end cloud functions. They both need to be installed
+and ran together.
+
 ### Installation
 
-Install the dependencies:
+Install the app dependencies:
 
 ```bash
 npm install
 ```
 
-### Development
-
-Start the development server with HMR:
+Install the function dependencies:
 
 ```bash
-npm run dev
+npm install -w functions
 ```
 
-Your application will be available at `http://localhost:5173`.
+### Development
+
+Start the app server locally:
+
+```bash
+npm start
+```
+
+In a separate terminal, start the functions and Firestore database locally:
+
+```bash
+npm run serve -w functions
+```
+
+The app, functions, and database will all be on different localhost ports.
+Read the terminal for each command to access the different parts.
 
 ## Building for Production
 
-Create a production build:
-
-```bash
-npm run build
-```
+Build is ran using the standard `npm run build` command in both folders, but
+neither are necessary for deployment.
 
 ## Deployment
 
-### Docker Deployment
-
-To build and run using Docker:
+To deploy, in the root directory run:
 
 ```bash
-docker build -t my-app .
-
-# Run the container
-docker run -p 3000:3000 my-app
+firebase deploy
 ```
 
-The containerized application can be deployed to any platform that supports Docker, including:
+You will need to be logged into firebase (`firebase init`), and have the correct
+project selected, but otherwise, it should perform a build, lint, and test of both
+the frontend and backend then deploy.
 
-- AWS ECS
-- Google Cloud Run
-- Azure Container Apps
-- Digital Ocean App Platform
-- Fly.io
-- Railway
+You can view this project at https://console.firebase.google.com/u/0/project/cozy-ttrpg.
 
-### DIY Deployment
+## Nuances
 
-If you're familiar with deploying Node applications, the built-in app server is production-ready.
+### Shared folder
 
-Make sure to deploy the output of `npm run build`
-
-```
-├── package.json
-├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
-├── build/
-│   ├── client/    # Static assets
-│   └── server/    # Server-side code
-```
-
-## Styling
-
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
-
----
-
-Built with ❤️ using React Router.
+The shared folder provides code that both the app and functions
+utilize. It does this by utilizing workspace symlinking 
+locally and by manually generating the dist folder and moving 
+it when we deploy.

@@ -7,7 +7,7 @@
 }
 
 .scrollWrapper {
-  background-color: blue;
+  background-color: white;
   container-type: inline-size;
   box-sizing: border-box;
   /* Take up the remaining space */
