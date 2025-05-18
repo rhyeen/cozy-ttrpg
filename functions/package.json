@@ -10,13 +10,17 @@
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "predeploy": "npm run lint && npm run build"
+    "predeploy": "npm run build:shared && npm run lint && npm run build",
+    "force:kill": "kill -9 $(lsof -ti:5001,8080,9099,4000,9200,9300)",
+    "force:serve": "npm run force:kill && npm run serve",
+    "build:shared": "npm run -w shared build && cp -r ../shared/dist ./shared"
   },
   "engines": {
     "node": "22"
   },
   "main": "lib/index.js",
   "dependencies": {
+    "@rhyeen/cozy-ttrpg-shared": "^0.0.1",
     "firebase-admin": "^12.6.0",
     "firebase-functions": "^6.0.1"
   },
