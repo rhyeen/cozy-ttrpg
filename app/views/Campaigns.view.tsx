@@ -13,7 +13,7 @@ export function CampaignsView() {
   };
 
   const createCampaign = async () => {
-    const newCampaign = new Campaign('', 'New Campaign', []);
+    const newCampaign = new Campaign('', 'New Campaign', '', []);
     const createdCampaign = await campaignController.createCampaign(newCampaign);
     setCampaigns((prev) => (prev ? [...prev, createdCampaign] : [createdCampaign]));
   };

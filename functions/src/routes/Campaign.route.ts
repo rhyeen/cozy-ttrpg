@@ -11,15 +11,17 @@ export class CampaignRoute extends Route {
     this.service = new CampaignService(db);
   }
 
-  public async getCampaigns(): Promise<HttpsFunction> {
-    const campaigns = await this.service.getCampaigns();
+  public async getCampaigns(
+    request: CallableRequest<any>,
+  ): Promise<HttpsFunction> {
+    const campaigns = await this.service.getCampaigns(this.getUidFromRequest(request));
     return this.handleJsonResponse({ items: campaigns.map(c => c.toJSON()) });
   }
 
   public async createCampaign(
-    data: CallableRequest<any>,
+    request: CallableRequest<any>,
   ): Promise<HttpsFunction> {
-    const campaignJson = data.data.campaign as CampaignJson;
+    const campaignJson = request.data.campaign as CampaignJson;
     if (!campaignJson) {
       throw new HttpsError('invalid-argument', 'Campaign data is required');
     }

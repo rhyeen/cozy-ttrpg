@@ -9,7 +9,11 @@ export class CampaignFactory extends EntityFactory<
     return new Campaign(
       json.id,
       json.name,
-      json.players.map((player) => new Player(player.uid)),
+      json.description,
+      json.players.map((player) => new Player({
+        ...player,
+      })),
+      json,
     );
   }
 }

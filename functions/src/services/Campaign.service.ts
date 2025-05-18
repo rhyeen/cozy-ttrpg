@@ -10,10 +10,12 @@ export class CampaignService extends Service{
   ) {
     super(db);
     this.factory = new CampaignFactory();
-  };
+  }
 
-  public async getCampaigns(): Promise<Campaign[]> {
-    const snapshot = await this.db.collection('campaigns').get();
+  public async getCampaigns(uid: string): Promise<Campaign[]> {
+    const snapshot = await this.db.collection('campaigns')
+      .where('players_uids', 'array-contains', uid)
+      .get();
     const data = snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data(),
@@ -23,7 +25,8 @@ export class CampaignService extends Service{
 
   public async createCampaign(campaign: CampaignJson): Promise<Campaign> {
     const newCampaign = this.factory.fromJSON(campaign);
-    newCampaign.id = newCampaign.generateId();
+    newCampaign.id = Campaign.generateId();
+    newCampaign.players = [];
     await this.db.collection('campaigns').doc(newCampaign.id).set(newCampaign.toJSON());
     return newCampaign;
   }

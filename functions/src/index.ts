@@ -17,12 +17,12 @@ if (process.env.FUNCTIONS_EMULATOR) {
 
 const campaignRoute = new CampaignRoute(db);
 
-export const getCampaigns = onCall(async () => {
-  return await campaignRoute.getCampaigns();
+export const getCampaigns = onCall(async (request) => {
+  return await campaignRoute.getCampaigns(request);
 });
 
-export const createCampaign = onCall(async (data) => {
-  return await campaignRoute.createCampaign(data);
+export const createCampaign = onCall(async (request) => {
+  return await campaignRoute.createCampaign(request);
 });
 
 export const helloWorld = onCall(async () => {
