@@ -1,3 +1,3 @@
-import { CampaignService } from '~/services/Campaign.service';
+import { CampaignController } from '../controllers/Campaign.controller';
 
-export const campaignService = new CampaignService();
+export const campaignController = new CampaignController();

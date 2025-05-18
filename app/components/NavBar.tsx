@@ -1,9 +1,9 @@
 import React from 'react';
 import styles from './NavBar.module.css';
 import { useSelector } from 'react-redux';
-import { selectFirebaseUser } from '~/store/userSlice';
+import { selectFirebaseUser } from '../store/userSlice';
 import Button from './Button';
-import { auth } from '~/utils/firebase';
+import { auth } from '../utils/firebase';
 
 const NavBar: React.FC = () => {
   const firebaseUser = useSelector(selectFirebaseUser);

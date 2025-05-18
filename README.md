@@ -45,7 +45,21 @@ neither are necessary for deployment.
 
 ## Deployment
 
-To deploy, in the root directory run:
+To deploy, you must first make sure you have publish the latest `/shared`
+code to `@rhyeen/cozy-ttrpg-shared`. Update `/shared/package.json`
+
+```bash
+npm run predeploy
+npm publish
+```
+
+Then in app and functions, run:
+
+```bash
+npm i npm i @rhyeen/cozy-ttrpg-shared@latest
+```
+
+Next, in the root directory run:
 
 ```bash
 firebase deploy
@@ -62,6 +76,7 @@ You can view this project at https://console.firebase.google.com/u/0/project/coz
 ### Shared folder
 
 The shared folder provides code that both the app and functions
-utilize. It does this by utilizing workspace symlinking 
-locally and by manually generating the dist folder and moving 
-it when we deploy.
+utilize. It would seem that we should do this through npm workspaces
+but workspaces doesn't play nice with firebase functions for some
+reason. Instead, we use a more standard symlinking approach.
+This closer mimics what we have to do when publishing `/shared` anyway.

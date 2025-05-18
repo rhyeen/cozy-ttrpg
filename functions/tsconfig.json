@@ -8,17 +8,10 @@
     "outDir": "lib",
     "sourceMap": true,
     "strict": true,
-    "target": "es2017",
-    "paths": {
-      "~/*": ["./src/*"],
-      "@rhyeen/*": ["../shared/src/*"]
-    }
+    "target": "es2017"
   },
   "compileOnSave": true,
   "include": [
     "src"
-  ],
-  "references": [
-    { "path": "../shared" }
   ]
 }

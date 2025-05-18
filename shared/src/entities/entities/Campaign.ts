@@ -1,5 +1,6 @@
 import { Entity } from './Entity';
 import type { CampaignJson, PlayerJson } from '../json/Campaign.json';
+import { generateId } from '../../utils/idGenerator';
 
 export class Player extends Entity<PlayerJson> {
   public uid: string;
@@ -50,5 +51,9 @@ export class Campaign extends Entity<CampaignJson> {
       this.name,
       this.players.map((player) => player.copy()),
     );
+  }
+
+  public generateId(): string {
+    return generateId('CPM');
   }
 }

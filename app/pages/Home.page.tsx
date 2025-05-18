@@ -1,4 +1,4 @@
-import { CampaignsView } from '~/views/Campaigns.view';
+import { CampaignsView } from '../views/Campaigns.view';
 
 export function HomePage() {
   return (

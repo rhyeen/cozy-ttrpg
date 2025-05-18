@@ -2,24 +2,19 @@
   "name": "cozy-ttrpg",
   "private": true,
   "type": "module",
-  "workspaces": [
-    "app",
-    "functions",
-    "shared"
-  ],
   "scripts": {
-    "build:shared": "npm run -w shared build",
     "build": "react-router build",
     "dev": "react-router dev",
     "start": "npm run dev",
     "serve": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc",
-    "predeploy": "npm run build:shared && npm run typecheck && npm run build"
+    "predeploy": "npm run typecheck && npm run build"
   },
   "dependencies": {
     "@react-router/node": "^7.5.3",
     "@react-router/serve": "^7.5.3",
     "@reduxjs/toolkit": "^2.8.1",
+    "@rhyeen/cozy-ttrpg-shared": "^0.0.1",
     "firebase": "^11.7.1",
     "isbot": "^5.1.27",
     "react": "^19.1.0",

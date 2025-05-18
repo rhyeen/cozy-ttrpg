@@ -6,3 +6,5 @@
 firebase-debug.log
 firestore-debug.log
 /shared/dist/
+/shared/node_modules/
+tsconfig.tsbuildinfo

@@ -21,6 +21,10 @@ export const getCampaigns = onCall(async () => {
   return await campaignRoute.getCampaigns();
 });
 
+export const createCampaign = onCall(async (data) => {
+  return await campaignRoute.createCampaign(data);
+});
+
 export const helloWorld = onCall(async () => {
   const docRef = db.collection('tickerTest').doc('testDoc');
   
