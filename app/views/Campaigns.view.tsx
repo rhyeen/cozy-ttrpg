@@ -24,7 +24,7 @@ export function CampaignsView() {
   }, []);
 
   if (!campaigns) {
-    return <Loading type="spinner" />;
+    return <Loading type="spinner" page />;
   }
 
   return (

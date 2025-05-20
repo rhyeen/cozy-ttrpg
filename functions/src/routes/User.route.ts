@@ -14,7 +14,7 @@ export class UserRoute extends Route {
     request: CallableRequest<any>,
   ): Promise<HttpsFunction> {
     const user = await this.service.getUser(this.getUidFromRequest(request));
-    return this.handleJsonResponse({ item: user?.toJSON() });
+    return this.handleJsonResponse({ item: user?.toJSON() || null });
   }
 
   public async createSelfAsUser(

@@ -7,9 +7,13 @@ import Menu from './Menu';
 import AccountCircleIcon from './Icons/AccountCircle';
 import DoorOpenIcon from './Icons/DoorOpen';
 import FaceIcon from './Icons/Face';
+import { useNavigate } from 'react-router';
+import IconButton from './IconButton';
+import CottageIcon from './Icons/Cottage';
 
 const NavBar: React.FC = () => {
   const firebaseUser = useSelector(selectFirebaseUser);
+  const navigate = useNavigate();
 
   const logout = async () => {
     await auth.signOut();
@@ -19,7 +23,9 @@ const NavBar: React.FC = () => {
   if (firebaseUser) {
     menuItems.push(...[{
       label: 'Profile',
-      onClick: () => {},
+      onClick: () => {
+        navigate('/profile');
+      },
       icon: <AccountCircleIcon />,
     },
     {
@@ -41,7 +47,9 @@ const NavBar: React.FC = () => {
   return (
     <nav className={styles.wrapper}>
       <div className={styles.left}>
-        {firebaseUser.email}
+        <IconButton onClick={() => navigate('/')}>
+          <CottageIcon />
+        </IconButton>
       </div>
       <div className={styles.right}>
         <Menu
