@@ -5,15 +5,22 @@ interface ButtonProps {
   children: React.ReactNode;
   onClick: () => void;
   type: 'primary' | 'secondary';
+  submit?: boolean;
 }
 
-const Button: React.FC<ButtonProps> = ({ children, onClick, type = 'primary' }) => {
+const Button: React.FC<ButtonProps> = ({
+  children,
+  onClick,
+  type,
+  submit = false,
+}) => {
   const buttonClass = type === 'secondary' ? styles.secondary : styles.primary;
 
   return (
     <button
       onClick={onClick}
       className={`${styles.wrapper} ${buttonClass}`}
+      type={submit ? 'submit' : 'button'}
     >
       <div className={styles.innerWrapper}>
         {children}

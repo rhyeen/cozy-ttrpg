@@ -9,5 +9,12 @@
   z-index: 400;
   justify-content: space-between;
   align-items: center;
-  column-gap: 1rem;
+  gap: 1rem;
+}
+
+.right,
+.left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }

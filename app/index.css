@@ -14,6 +14,8 @@ body {
   font-family: "Fredoka", sans-serif;
   font-optical-sizing: auto;
   font-weight: 500;
+  color: #403b34;
+  line-height: auto;
   font-style: normal;
   font-variation-settings: "wdth" 100;
   -webkit-font-smoothing: antialiased;
@@ -28,6 +30,7 @@ code {
 h1, h2, h3, h4, h5, h6 {
   font-family: "Sour Gummy", sans-serif;
   font-weight: 700;
+  line-height: 1;
 }
 
 /* Remove default margin and padding */
@@ -38,11 +41,6 @@ details, summary, menu, canvas, progress, video, audio,
 iframe, embed, object {
   margin: 0;
   padding: 0;
-}
-
-/* Set a default line-height */
-body {
-  line-height: 1.5;
 }
 
 /* Remove list styles (bullets/numbers) on lists */
@@ -89,5 +87,5 @@ input, button, textarea, select {
 
 /* Unfortunately, Fredoka sits a bit low, so we have to adjust for it. */
 :root {
-  --fredoka-baseline-fix: -0.1em;
+  --fredoka-baseline-fix: 0.1em;
 }

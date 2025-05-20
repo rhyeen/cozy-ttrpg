@@ -18,10 +18,18 @@ npm install
 Install the function dependencies:
 
 ```bash
-npm install -w functions
+cd functions
+npm install
 ```
 
 ### Development
+
+Start up the shared folder for build watch and symlinking to the app and functions:
+
+```bash
+cd shared
+npm run link
+```
 
 Start the app server locally:
 
@@ -32,7 +40,8 @@ npm start
 In a separate terminal, start the functions and Firestore database locally:
 
 ```bash
-npm run serve -w functions
+cd functions
+npm run serve
 ```
 
 The app, functions, and database will all be on different localhost ports.

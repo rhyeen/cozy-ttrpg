@@ -1,5 +1,6 @@
 .wrapper {
   padding: 0.5rem;
+  color: #403b34;
   border: 0.125rem solid #c4bead;
   border-radius: 0.5rem;
   transition: all 0.2s ease-in-out;

@@ -6,7 +6,7 @@
   animation: bblFadInOut 1.8s infinite ease-in-out;
 }
 .ellipsis {
-  color: red;
+  color: #d9e80a;
   font-size: 7px;
   position: relative;
   text-indent: -9999em;
@@ -49,7 +49,7 @@
   content: '';
   width: 192px;
   height: 4.8px;
-  background: red;
+  background: #d9e80a;
   position: absolute;
   top: 0;
   left: 0;
@@ -73,7 +73,7 @@
 
 
 .spinner {
-  color: red;
+  color: #d9e80a;
   font-size: 10px;
   width: 1em;
   height: 1em;

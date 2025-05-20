@@ -5,6 +5,8 @@ import Button from '../components/Button';
 import Input from '../components/Input';
 import Header from '../components/Header';
 import Form from '../components/Form';
+import Section from 'app/components/Section';
+import Paragraph from 'app/components/Paragraph';
 
 export function LoginPage() {
   const [showEmailPassword, setShowEmailPassword] = useState(false);
@@ -36,12 +38,17 @@ export function LoginPage() {
   return (
     <>
       {!showEmailPassword &&
-        <Form>
-          <Button type="primary" onClick={() => setShowEmailPassword(!showEmailPassword)}>Sign in with Email</Button>
-        </Form>
+        <Section align="center">
+          <Header type="h2">Welcome to Cozy TTRPG!</Header>
+          <Paragraph>This is an extremely early stage project. There will be bugs. We may wipe all data at any time.</Paragraph>
+          <Paragraph>Sign in to get started!</Paragraph>
+          <Form>
+            <Button type="primary" onClick={() => setShowEmailPassword(!showEmailPassword)}>Sign in with Email</Button>
+          </Form>
+        </Section>
       }
       {showEmailPassword && (
-        <Form>
+        <Form onSubmit={isLogin ? handleEmailLogin : handleEmailSignUp}>
           <Header type="h2">{isLogin ? 'Login' : 'Sign Up'}</Header> {/* Title based on state */}
           <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} /> 
           <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} /> 
@@ -53,7 +60,11 @@ export function LoginPage() {
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
           )}
-          <Button type="primary" onClick={isLogin ? handleEmailLogin : handleEmailSignUp}> 
+          <Button
+            type="primary"
+            onClick={isLogin ? handleEmailLogin : handleEmailSignUp}
+            submit
+          >
             {isLogin ? 'Login' : 'Sign Up'} {/* Button text based on state */}
           </Button>
           <Button type="secondary" onClick={() => setIsLogin(!isLogin)}> 
