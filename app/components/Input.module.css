@@ -1,12 +1,12 @@
 .wrapper {
   padding: 0.5rem;
-  border: 1px solid #ccc;
+  border: 0.125rem solid #c4bead;
   border-radius: 0.5rem;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease-in-out;
 }
 
 .wrapper:focus {
   outline: none;
-  border-color: #007bff;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 5px rgba(0, 123, 255, 0.25);
+  border-color: #d9e80a;
+  box-shadow: inset 0 0 0.25rem #e5f017;
 }

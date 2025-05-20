@@ -3,6 +3,7 @@ import { Campaign } from '@rhyeen/cozy-ttrpg-shared';
 import { campaignController } from '../utils/services';
 import Loading from '../components/Loading';
 import Button from 'app/components/Button';
+import Header from 'app/components/Header';
 
 export function CampaignsView() {
   const [campaigns, setCampaigns] = useState<Campaign[] | undefined>();
@@ -29,7 +30,7 @@ export function CampaignsView() {
   return (
     <>
       {campaigns.map((campaign) => (
-        <h2 key={campaign.id}>{campaign.name}</h2>
+        <Header type="h3" key={campaign.id}>{campaign.name}</Header>
       ))}
       <Button type={campaigns.length ? 'secondary' : 'primary'} onClick={createCampaign}>
         Create Campaign

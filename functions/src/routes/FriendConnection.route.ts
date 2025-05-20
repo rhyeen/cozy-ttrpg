@@ -1,7 +1,6 @@
 import { firestore } from 'firebase-admin';
 import { Route } from './Route';
 import { FriendConnectionService } from '../services/FriendConnection.service';
-import { Friend, FriendJson } from '@rhyeen/cozy-ttrpg-shared';
 import { CallableRequest, HttpsError, HttpsFunction } from 'firebase-functions/https';
 
 export class FriendConnectionRoute extends Route {
@@ -24,13 +23,13 @@ export class FriendConnectionRoute extends Route {
   public async inviteFriend(
     request: CallableRequest<any>,
   ): Promise<HttpsFunction> {
-    const friendJson = request.data.friend as FriendJson;
-    if (!friendJson) {
-      throw new HttpsError('invalid-argument', 'friend data object is required');
+    const email = request.data.email;
+    if (!email) {
+      throw new HttpsError('invalid-argument', 'email is required');
     }
     const connection = await this.service.inviteFriend(
       this.getUidFromRequest(request),
-      new Friend(friendJson),
+      email,
     );
     return this.handleJsonResponse({ connection: connection.toJSON() });
   }

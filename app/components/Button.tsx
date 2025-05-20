@@ -15,7 +15,9 @@ const Button: React.FC<ButtonProps> = ({ children, onClick, type = 'primary' }) 
       onClick={onClick}
       className={`${styles.wrapper} ${buttonClass}`}
     >
- {children}
+      <div className={styles.innerWrapper}>
+        {children}
+      </div>
     </button>
   );
 };

@@ -3,9 +3,8 @@ import { auth } from '../utils/firebase';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import Button from '../components/Button';
 import Input from '../components/Input';
-import Header from '~/components/Header';
-
-import Form from '~/components/Form';
+import Header from '../components/Header';
+import Form from '../components/Form';
 
 export function LoginPage() {
   const [showEmailPassword, setShowEmailPassword] = useState(false);

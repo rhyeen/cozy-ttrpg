@@ -1,6 +1,7 @@
 import { firestore } from 'firebase-admin';
 import { Service } from './Service';
 import { User, UserFactory } from '@rhyeen/cozy-ttrpg-shared';
+import { HttpsError } from 'firebase-functions/https';
 
 export class UserService extends Service{
   private factory: UserFactory;
@@ -25,6 +26,13 @@ export class UserService extends Service{
     email?: string,
     displayName?: string,
   ): Promise<User> {
+    const [ existingUserByUid, existingUserByEmail ] = await Promise.all([
+      this.getUser(uid),
+      email ? this.searchUserByEmail(email) : Promise.resolve(null),
+    ]);
+    if (existingUserByUid || existingUserByEmail) {
+      throw new HttpsError('already-exists', 'User already exists');
+    }
     const user = new User(
       uid,
       email || '',
@@ -46,5 +54,18 @@ export class UserService extends Service{
     user.updatedAt = new Date();
     await this.db.collection('users').doc(user.uid).set(user.toJSON());
     return user;
+  }
+
+  public async searchUserByEmail(
+    email: string,
+  ): Promise<User | null> {
+    const snapshot = await this.db.collection('users')
+      .where('email', '==', email)
+      .get();
+    if (snapshot.empty) {
+      return null;
+    }
+    const data = snapshot.docs[0].data();
+    return this.factory.fromJSON({ id: snapshot.docs[0].id, ...data } as any);
   }
 }

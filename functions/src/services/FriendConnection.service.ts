@@ -2,16 +2,19 @@ import { firestore } from 'firebase-admin';
 import { Service } from './Service';
 import { Friend, FriendConnection, FriendConnectionFactory } from '@rhyeen/cozy-ttrpg-shared';
 import { HttpsError } from 'firebase-functions/https';
+import { UserService } from './User.service';
 
 export class FriendConnectionService extends Service{
   private factory: FriendConnectionFactory;
+  private userService: UserService;
 
   constructor(
     db: firestore.Firestore,
   ) {
     super(db);
     this.factory = new FriendConnectionFactory();
-  };
+    this.userService = new UserService(db);
+  }
 
   public async getFriendConnections(
     uid: string,
@@ -35,9 +38,20 @@ export class FriendConnectionService extends Service{
 
   public async inviteFriend(
     uid: string,
-    friend: Friend,
+    email: string,
   ): Promise<FriendConnection> {
-    const friendJson = friend.toJSON();
+    const [ existingFriends, friendUser ] = await Promise.all([
+      this.getFriendConnections(uid, 'both'),
+      this.userService.searchUserByEmail(email),
+    ]);
+    if (!friendUser) {
+      throw new HttpsError('not-found', 'Email not found');
+    }
+    if (existingFriends.some(f => {
+      return f.invitedBy.uid === friendUser.uid || f.invited.uid === friendUser.uid;
+    })) {
+      throw new HttpsError('already-exists', 'Friend connection already exists');
+    }
     const friendConnection = new FriendConnection(
       FriendConnection.generateId(),
       new Friend({
@@ -50,11 +64,12 @@ export class FriendConnectionService extends Service{
         },
       }),
       new Friend({
-        uid: friendJson.uid,
+        uid: friendUser.uid,
         approvedAt: null,
         deniedAt: null,
         otherFriendViewableContext: {
-          ...friendJson.otherFriendViewableContext,
+          nickname: '',
+          note: '',
         },
       }),
     );

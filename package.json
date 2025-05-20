@@ -11,6 +11,7 @@
     "predeploy": "npm run typecheck && npm run build"
   },
   "dependencies": {
+    "@base-ui-components/react": "^1.0.0-alpha.8",
     "@react-router/node": "^7.5.3",
     "@react-router/serve": "^7.5.3",
     "@reduxjs/toolkit": "^2.8.1",

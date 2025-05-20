@@ -1,28 +1,70 @@
 .wrapper {
-  padding: 0.25rem 0.5rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  transition: all 0.2s ease-in-out;
+  background: none;
   border: none;
+}
+
+.wrapper:hover {
+  padding-bottom: 0rem;
+}
+
+.wrapper:focus {
+  outline: none;
+}
+
+.wrapper .innerWrapper {
+  padding: 0.25rem 0.5rem;
+  padding-top: calc(0.25rem + 0.125rem + var(--fredoka-baseline-fix));
+  border: 0.125rem solid #c4bead; /* Light Gray */
+  box-shadow: 0 0.125rem 0 #c4bead;
+  margin-top: -0.25rem;
   cursor: pointer;
+  
   border-radius: 0.5rem;
   transition: background-color 0.2s ease-in-out;
   min-height: 2.5rem;
+  transition: all 0.2s ease-in-out;
 }
 
-/* Primary Button Styles */
-.primary {
-  background-color: #007bff; /* Blue */
-  color: #fff; /* White */
+.wrapper:hover .innerWrapper {
+  margin-top: 0;
+  box-shadow: 0 0rem 0 #c4bead;
 }
 
-.primary:hover {
-  background-color: #0056b3; /* Darker Blue */
+.wrapper:active .innerWrapper{
+  border-color: #c4bead;
 }
 
-/* Secondary Button Styles */
-.secondary {
-  background-color: #e9ecef; /* Light Gray */
-  color: #343a40; /* Dark Gray */
+.wrapper:focus .innerWrapper {
+  border-color: #d9e80a;
+  box-shadow: 0 0 0.5rem #e5f017;
+  outline: none;
 }
 
-.secondary:hover {
-  background-color: #d3d9df; /* Darker Gray */
+.primary .innerWrapper {
+  background-color: #5e6f34;
+  border-color: #38361a;
+  box-shadow: 0 0.125rem 0 #38361a;
+  color: #fff;
+}
+
+.primary:hover .innerWrapper {
+  background-color: #474e2d;
+}
+
+.primary:active .innerWrapper,
+.primary:focus .innerWrapper {
+  border-color: #c5b808;
+  box-shadow: 0 0 0.5rem #c5b808;
+}
+
+.secondary .innerWrapper {
+  background-color: #eeefe9;
+  color: #403b34;
+}
+
+.secondary:hover .innerWrapper {
+  background-color: #d6d6c7;
 }

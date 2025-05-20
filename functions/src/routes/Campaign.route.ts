@@ -25,7 +25,79 @@ export class CampaignRoute extends Route {
     if (!campaignJson) {
       throw new HttpsError('invalid-argument', 'Campaign data is required');
     }
-    const campaign = await this.service.createCampaign(campaignJson);
+    const campaign = await this.service.createCampaign(
+      this.getUidFromRequest(request),
+      campaignJson,
+    );
     return this.handleJsonResponse({ item: campaign.toJSON() });
+  }
+
+  public async addPlayer(
+    request: CallableRequest<any>,
+  ): Promise<HttpsFunction> {
+    const campaignId = request.data.campaignId;
+    const playerUid = request.data.playerUid;
+    if (!campaignId || !playerUid) {
+      throw new HttpsError('invalid-argument', 'Campaign ID and Player UID are required');
+    }
+    await this.service.addPlayer(
+      this.getUidFromRequest(request),
+      playerUid,
+      campaignId,
+    );
+    return this.handleOkResponse();
+  }
+
+  public async removePlayer(
+    request: CallableRequest<any>,
+  ): Promise<HttpsFunction> {
+    const campaignId = request.data.campaignId;
+    const playerUid = request.data.playerUid;
+    if (!campaignId || !playerUid) {
+      throw new HttpsError('invalid-argument', 'Campaign ID and Player UID are required');
+    }
+    await this.service.removePlayer(
+      this.getUidFromRequest(request),
+      playerUid,
+      campaignId,
+    );
+    return this.handleOkResponse();
+  }
+
+  public async updateSelfPlayerStatus(
+    request: CallableRequest<any>,
+  ): Promise<HttpsFunction> {
+    const campaignId = request.data.campaignId;
+    const status = request.data.status;
+    if (!campaignId || !status) {
+      throw new HttpsError('invalid-argument', 'campaignId and status are required');
+    }
+    if (status !== 'approved' && status !== 'denied') {
+      throw new HttpsError('invalid-argument', 'status must be "approved" or "denied"');
+    }
+    await this.service.updatePlayerStatus(
+      this.getUidFromRequest(request),
+      campaignId,
+      status,
+    );
+    return this.handleOkResponse();
+  }
+
+  public async updatePlayerScopes(
+    request: CallableRequest<any>,
+  ): Promise<HttpsFunction> {
+    const campaignId = request.data.campaignId;
+    const playerUid = request.data.playerUid;
+    const scopes = request.data.scopes;
+    if (!campaignId || !playerUid || !scopes) {
+      throw new HttpsError('invalid-argument', 'campaignId, playerUid and scopes are required');
+    }
+    await this.service.updatePlayerScopes(
+      this.getUidFromRequest(request),
+      playerUid,
+      campaignId,
+      scopes,
+    );
+    return this.handleOkResponse();
   }
 }
