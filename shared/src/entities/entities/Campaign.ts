@@ -16,14 +16,14 @@ export class Player extends Entity<PlayerJson> {
     super();
     this.uid = json.uid;
     this.invitedBy = json.invitedBy;
-    this.invitedAt = copyDate(json.invitedAt);
-    this.approvedAt = copyDate(json.approvedAt);
-    this.deniedAt = copyDate(json.deniedAt);
-    this.deletedAt = copyDate(json.deletedAt);
+    this.invitedAt = json.invitedAt ? copyDate(json.invitedAt) : null;
+    this.approvedAt = json.approvedAt ? copyDate(json.approvedAt) : null;
+    this.deniedAt = json.deniedAt ? copyDate(json.deniedAt) : null;
+    this.deletedAt = json.deletedAt ? copyDate(json.deletedAt) : null;
     this.scopes = [...json.scopes];
   }
 
-  public toJSON(): PlayerJson {
+  public toJSON(toStore: boolean): PlayerJson {
     return {
       uid: this.uid,
       invitedBy: this.invitedBy,
@@ -36,7 +36,7 @@ export class Player extends Entity<PlayerJson> {
   }
 
   public copy(): Player {
-    return new Player(this.toJSON());
+    return new Player(this.toJSON(true));
   }
 }
 
@@ -60,14 +60,14 @@ export class Campaign extends DocumentEntity<CampaignJson> {
     this.description = description;
   }
 
-  public toJSON(): CampaignJson {
+  public toJSON(toStore: boolean): CampaignJson {
     return {
       name: this.name,
-      players: this.players.map((player) => player.toJSON()),
+      players: this.players.map((player) => player.toJSON(toStore)),
       id: this.id,
       description: this.description,
       ...this.copyDocumentJson(),
-      players_uids: this.players.map((player) => player.uid),
+      players_uids: toStore ? this.players.map((player) => player.uid) : [],
     };
   }
 

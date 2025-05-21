@@ -1,7 +1,7 @@
 import { DocumentJson } from '../json/Json';
 
 export abstract class Entity<JsonT> {
-  public abstract toJSON(): JsonT;
+  public abstract toJSON(toStore: boolean): JsonT;
   public abstract copy(): Entity<JsonT>;
 }
 

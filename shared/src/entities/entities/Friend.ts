@@ -23,7 +23,7 @@ export class Friend extends Entity<FriendJson> {
     };
   }
 
-  public toJSON(): FriendJson {
+  public toJSON(toStore: boolean): FriendJson {
     return {
       uid: this.uid,
       approvedAt: this.approvedAt,
@@ -33,7 +33,7 @@ export class Friend extends Entity<FriendJson> {
   }
 
   public copy(): Friend {
-    return new Friend(this.toJSON());
+    return new Friend(this.toJSON(true));
   }
 }
 
@@ -54,11 +54,11 @@ export class FriendConnection extends DocumentEntity<FriendConnectionJson> {
     this.invitedBy = invitedBy;
   }
 
-  public toJSON(): FriendConnectionJson {
+  public toJSON(toStore: boolean): FriendConnectionJson {
     return {
       id: this.id,
-      invited: this.invited.toJSON(),
-      invitedBy: this.invitedBy.toJSON(),
+      invited: this.invited.toJSON(toStore),
+      invitedBy: this.invitedBy.toJSON(toStore),
       ...this.copyDocumentJson(),
     };
   }

@@ -15,7 +15,7 @@ export class CampaignRoute extends Route {
     request: CallableRequest<any>,
   ): Promise<HttpsFunction> {
     const campaigns = await this.service.getCampaigns(this.getUidFromRequest(request));
-    return this.handleJsonResponse({ items: campaigns.map(c => c.toJSON()) });
+    return this.handleJsonResponse({ items: campaigns.map(c => c.toJSON(false)) });
   }
 
   public async createCampaign(
@@ -29,7 +29,7 @@ export class CampaignRoute extends Route {
       this.getUidFromRequest(request),
       campaignJson,
     );
-    return this.handleJsonResponse({ item: campaign.toJSON() });
+    return this.handleJsonResponse({ item: campaign.toJSON(false) });
   }
 
   public async addPlayer(

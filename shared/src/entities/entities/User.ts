@@ -19,7 +19,7 @@ export class User extends DocumentEntity<UserJson> {
     this.displayName = displayName;
   }
 
-  public toJSON(): UserJson {
+  public toJSON(toStore: boolean): UserJson {
     return {
       ...this.copyDocumentJson(),
       uid: this.uid,

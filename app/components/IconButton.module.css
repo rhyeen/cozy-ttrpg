@@ -22,3 +22,10 @@
   border-color: #c4bead;
   background-color: #eeefe9;
 }
+
+.barWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}

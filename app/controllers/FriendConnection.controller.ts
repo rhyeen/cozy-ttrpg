@@ -1,5 +1,5 @@
-import type { FriendConnection, FriendConnectionJson, PlayerScope } from '@rhyeen/cozy-ttrpg-shared';
-import { friendConnectionFactory } from '../utils/factories';
+import type { FriendConnection, FriendConnectionJson, PlayerScope, User, UserJson } from '@rhyeen/cozy-ttrpg-shared';
+import { friendConnectionFactory, userFactory } from '../utils/factories';
 import { Controller } from './Controller';
 
 export class FriendConnectionController extends Controller {
@@ -7,12 +7,18 @@ export class FriendConnectionController extends Controller {
     super();
   }
 
-  public async getFriendConnections(): Promise<FriendConnection[]> {
+  public async getFriendConnections(): Promise<{
+    friendConnections: FriendConnection[];
+    users: User[];
+  }> {
     const result = await this.callFirebase<
       undefined,
-      { items: FriendConnectionJson[] }
+      { friendConnections: FriendConnectionJson[]; users: UserJson[] }
     >('getFriendConnections', undefined);
-    return result.items.map(i => friendConnectionFactory.fromJSON(i));
+    return {
+      friendConnections: result.friendConnections.map(i => friendConnectionFactory.fromJSON(i)),
+      users: result.users.map(i => userFactory.fromJSON(i))
+    };
   }
 
   public async inviteFriend(

@@ -5,6 +5,7 @@ import {initializeApp} from "firebase-admin/app";
 import { CampaignRoute } from './routes/Campaign.route';
 import { UserRoute } from './routes/User.route';
 import { FriendConnectionRoute } from './routes/FriendConnection.route';
+import { CharacterRoute } from './routes/Character.route';
 
 // Initialize Firebase Admin SDK
 initializeApp();
@@ -20,6 +21,23 @@ if (process.env.FUNCTIONS_EMULATOR) {
 const campaignRoute = new CampaignRoute(db);
 const userRoute = new UserRoute(db);
 const friendConnectionRoute = new FriendConnectionRoute(db);
+const characterRoute = new CharacterRoute(db);
+
+export const getSelfCharacters = onCall(async (request) => {
+  return await characterRoute.getSelfCharacters(request);
+});
+
+export const createSelfCharacter = onCall(async (request) => {
+  return await characterRoute.createSelfCharacter(request);
+});
+
+export const getCampaignCharacters = onCall(async (request) => {
+  return await characterRoute.getCampaignCharacters(request);
+});
+
+export const updateCharacter = onCall(async (request) => {
+  return await characterRoute.updateCharacter(request);
+});
 
 export const getCampaigns = onCall(async (request) => {
   return await campaignRoute.getCampaigns(request);

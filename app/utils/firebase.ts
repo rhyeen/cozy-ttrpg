@@ -24,7 +24,7 @@ const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
 if (import.meta.env.DEV) {
-  console.log('Running in development mode with emulator');
+  console.info('Running in development mode with emulator');
   connectFunctionsEmulator(functions, 'localhost', 5001);
   connectFirestoreEmulator(firestore, 'localhost', 8080);
 }

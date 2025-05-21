@@ -6,6 +6,8 @@ interface ButtonProps {
   onClick: () => void;
   type: 'primary' | 'secondary';
   submit?: boolean;
+  disabled?: boolean;
+  loading?: boolean;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -13,6 +15,8 @@ const Button: React.FC<ButtonProps> = ({
   onClick,
   type,
   submit = false,
+  disabled = false,
+  loading = false,
 }) => {
   const buttonClass = type === 'secondary' ? styles.secondary : styles.primary;
 
@@ -21,6 +25,7 @@ const Button: React.FC<ButtonProps> = ({
       onClick={onClick}
       className={`${styles.wrapper} ${buttonClass}`}
       type={submit ? 'submit' : 'button'}
+      disabled={disabled || loading}
     >
       <div className={styles.innerWrapper}>
         {children}

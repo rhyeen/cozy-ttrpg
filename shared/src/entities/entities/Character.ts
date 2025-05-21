@@ -1,6 +1,7 @@
 import { DocumentJson } from '../json/Json';
 import { CharacterJson } from '../json/Character.json';
 import { DocumentEntity } from './Entity';
+import { generateId } from '../../utils/idGenerator';
 
 export class Character extends DocumentEntity<CharacterJson> {
   public id: string;
@@ -25,7 +26,7 @@ export class Character extends DocumentEntity<CharacterJson> {
     this.nickname = nickname;
   }
 
-  public toJSON(): CharacterJson {
+  public toJSON(toStore: boolean): CharacterJson {
     return {
       ...this.copyDocumentJson(),
       id: this.id,
@@ -45,5 +46,9 @@ export class Character extends DocumentEntity<CharacterJson> {
       this.nickname,
       this.copyDocumentJson(),
     );
+  }
+
+  public static generateId(): string {
+    return generateId('CH', 20);
   }
 }

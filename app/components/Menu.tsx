@@ -13,20 +13,21 @@ export interface MenuItemProps {
 
 interface MenuProps {
   items: MenuItemProps[];
+  icon?: React.ReactNode;
 }
 
-const Menu: React.FC<MenuProps> = ({ items }) => {
+const Menu: React.FC<MenuProps> = ({ items, icon }) => {
   const [ open, setOpen ] = React.useState(false);
 
   return (
     <BaseMenu.Root onOpenChange={setOpen}>
       <BaseMenu.Trigger className={styles.trigger}>
         <IconButton asDiv onClick={() => {}} active={open}>
-          <MenuIcon />
+          {icon || <MenuIcon />}
         </IconButton>
       </BaseMenu.Trigger>
       <BaseMenu.Portal>
-        <BaseMenu.Positioner className={styles.positioner}>
+        <BaseMenu.Positioner className={styles.positioner} sideOffset={-3}>
           <BaseMenu.Popup className={styles.popup}>
             {items.map((item, index) => {
               if (item.separator) {

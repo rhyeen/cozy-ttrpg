@@ -19,7 +19,7 @@ export class CampaignController extends Controller {
     const result = await this.callFirebase<
       { campaign: CampaignJson },
       { item: CampaignJson }
-    >('createCampaign', { campaign: campaign.toJSON() });
+    >('createCampaign', { campaign: campaign.toJSON(false) });
     return campaignFactory.fromJSON(result.item);
   }
 

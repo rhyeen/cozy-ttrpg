@@ -10,7 +10,7 @@ export default defineConfig({
     preserveSymlinks: true,
     alias:{
       // @NOTE: This should work for both local when symlinked and when published, since it's the same file either way.
-      '@rhyeen/cozy-ttrpg-shared' : path.resolve(__dirname, './node_modules/@rhyeen/cozy-ttrpg-shared/dist/index.js'),
+      // '@rhyeen/cozy-ttrpg-shared' : path.resolve(__dirname, './node_modules/@rhyeen/cozy-ttrpg-shared/dist/index.js'),
     },
   },
 });

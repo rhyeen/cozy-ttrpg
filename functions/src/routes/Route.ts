@@ -26,7 +26,7 @@ export class Route {
     if (res) {
       res.status(200).send({ result: null });
     }
-    return null;
+    return { result: { data: null } };
   }
 
   protected handleErrorResponse = (

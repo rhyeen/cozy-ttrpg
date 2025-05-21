@@ -5,33 +5,79 @@ import Button from '../components/Button';
 import Input from '../components/Input';
 import Header from '../components/Header';
 import Form from '../components/Form';
-import Section from 'app/components/Section';
-import Paragraph from 'app/components/Paragraph';
+import Section from '../components/Section';
+import Paragraph from '../components/Paragraph';
+import { Validator, ValidatorError } from '../utils/validator';
 
 export function LoginPage() {
   const [showEmailPassword, setShowEmailPassword] = useState(false);
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState(''); 
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [password, setPassword] = useState('');
+  const [passwordError, setPasswordError] = useState<string | null>(null);
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [isLogin, setIsLogin] = useState(true); // Added state for toggling login/signup
+  const [confirmPasswordError, setConfirmPasswordError] = useState<string | null>(null);
+  const [isLogin, setIsLogin] = useState(true);
+  const [loading, setLoading] = useState(false);
   
+  const isValidInput = () => {
+    let hasError = false;
+    try {
+      Validator.assertValidEmail(email);
+    } catch (error) {
+      if (error instanceof ValidatorError) {
+        setEmailError(error.genericMessage);
+        hasError = true;
+      }
+    }
+    try {
+      Validator.assertValidPassword(password);
+    } catch (error) {
+      if (error instanceof ValidatorError) {
+        setPasswordError(error.genericMessage);
+        hasError = true;
+      }
+    }
+    if (!isLogin) {
+      if (password !== confirmPassword) {
+        setConfirmPasswordError('Passwords do not match');
+        hasError = true;
+      }
+    }
+    if (hasError) {
+      return false;
+    }
+    setEmailError(null);
+    setPasswordError(null);
+    setConfirmPasswordError(null);
+    return !hasError;
+  }
+
   const handleEmailSignUp = async () => {
-    if (password !== confirmPassword) {
-      console.error('Passwords do not match');
+    if (!isValidInput()) {
       return;
     }
     try {
+      setLoading(true);
       await createUserWithEmailAndPassword(auth, email, password);
     } catch (error) {
       console.error('Error signing up with email and password:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleEmailLogin = async () => {
+    if (!isValidInput()) {
+      return;
+    }
     try {
+      setLoading(true);
       await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
       console.error('Error signing in with email and password:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -58,18 +104,32 @@ export function LoginPage() {
               type="email"
               label="Email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setEmailError(null);
+              }}
+              required
+              loading={loading}
+              error={emailError}
             />
             <Input
               type="password"
               label="Password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setPasswordError(null);
+              }}
+              required
+              loading={loading}
+              error={passwordError}
             />
             <Button
               type="primary"
               onClick={handleEmailLogin}
               submit
+              loading={loading}
+              disabled={!!emailError || !!passwordError}
             >
               Login
             </Button>
@@ -96,18 +156,44 @@ export function LoginPage() {
               type="email"
               label="Email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setEmailError(null);
+              }}
+              required
+              loading={loading}
+              error={emailError}
             />
             <Input
               type="password"
               label="Password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setPasswordError(null);
+              }}
+              required
+              loading={loading}
+              error={passwordError}
+            />
+            <Input
+              type="password"
+              label="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => {
+                setConfirmPassword(e.target.value);
+                setConfirmPasswordError(null);
+              }}
+              required
+              loading={loading}
+              error={confirmPasswordError}
             />
             <Button
               type="primary"
               onClick={ handleEmailSignUp}
               submit
+              loading={loading}
+              disabled={!!emailError || !!passwordError || !!confirmPasswordError}
             >
               Sign Up
             </Button>

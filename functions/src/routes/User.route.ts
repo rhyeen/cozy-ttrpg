@@ -14,7 +14,7 @@ export class UserRoute extends Route {
     request: CallableRequest<any>,
   ): Promise<HttpsFunction> {
     const user = await this.service.getUser(this.getUidFromRequest(request));
-    return this.handleJsonResponse({ item: user?.toJSON() || null });
+    return this.handleJsonResponse({ item: user?.toJSON(false) || null });
   }
 
   public async createSelfAsUser(
@@ -28,7 +28,7 @@ export class UserRoute extends Route {
       this.getUserFromRequest(request).email || undefined,
       `${data.displayName}` || undefined,
     );
-    return this.handleJsonResponse({ item: user.toJSON() });
+    return this.handleJsonResponse({ item: user.toJSON(false) });
   }
 
   public async updateSelfAsUser(
@@ -44,6 +44,6 @@ export class UserRoute extends Route {
     if (!user) {
       throw new HttpsError('not-found', 'User not found');
     }
-    return this.handleJsonResponse({ item: user?.toJSON() });
+    return this.handleJsonResponse({ item: user?.toJSON(false) });
   }
 }

@@ -7,6 +7,7 @@ import Section from 'app/components/Section';
 import Input from 'app/components/Input';
 import Form from 'app/components/Form';
 import type { SaveState } from 'app/components/Icons/SaveState';
+import { Validator, ValidatorError } from 'app/utils/validator';
 
 export function ProfileView() {
   const [user, setUser] = useState<User | null | undefined>();
@@ -24,17 +25,13 @@ export function ProfileView() {
   };
 
   const invalidDisplayName = (displayName: string | undefined) => {
-    if (!displayName) {
-      setDisplayNameError('Display name is required');
-      return true;
-    }
-    if (displayName.length < 3) {
-      setDisplayNameError('Display name must be at least 3 characters');
-      return true;
-    }
-    if (displayName.length > 20) {
-      setDisplayNameError('Display name must be less than 20 characters');
-      return true;
+    try {
+      Validator.assertValidName(displayName ?? '');
+    } catch (error) {
+      if (error instanceof ValidatorError) {
+        setDisplayNameError(error.genericMessage);
+        return true;
+      }
     }
     setDisplayNameError(null);
     return false;

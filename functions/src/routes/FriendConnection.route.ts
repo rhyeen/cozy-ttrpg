@@ -13,11 +13,13 @@ export class FriendConnectionRoute extends Route {
   public async getFriendConnections(
     request: CallableRequest<any>,
   ): Promise<HttpsFunction> {
-    const connections = await this.service.getFriendConnections(
+    const connections = await this.service.getFriendConnectionsAndContext(
       this.getUidFromRequest(request),
-      'both',
     );
-    return this.handleJsonResponse({ items: connections.map(c => c.toJSON()) });
+    return this.handleJsonResponse({
+      friendConnections: connections.friendConnections.map(c => c.toJSON(false)),
+      users: connections.users.map(u => u.toJSON(false)),
+    });
   }
 
   public async inviteFriend(
@@ -31,7 +33,7 @@ export class FriendConnectionRoute extends Route {
       this.getUidFromRequest(request),
       email,
     );
-    return this.handleJsonResponse({ connection: connection.toJSON() });
+    return this.handleJsonResponse({ connection: connection.toJSON(false) });
   }
 
   public async updateFriendStatus(
@@ -78,9 +80,7 @@ export class FriendConnectionRoute extends Route {
     }
     if (
       !data.context ||
-      typeof data.context !== 'object' ||
-      !data.context.nickname ||
-      !data.context.note
+      typeof data.context !== 'object'
     ) {
       throw new HttpsError('invalid-argument', 'context is required');
     }

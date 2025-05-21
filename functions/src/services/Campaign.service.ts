@@ -55,7 +55,7 @@ export class CampaignService extends Service{
         scopes: [ PlayerScope.Owner, PlayerScope.GameMaster ],
       }),
     ];
-    await this.db.collection('campaigns').doc(newCampaign.id).set(newCampaign.toJSON());
+    await this.db.collection('campaigns').doc(newCampaign.id).set(newCampaign.toJSON(true));
     return newCampaign;
   }
 
@@ -92,7 +92,7 @@ export class CampaignService extends Service{
       scopes: [ PlayerScope.Player ],
     });
     await campaignRef.update({
-      players: firestore.FieldValue.arrayUnion(newPlayer.toJSON()),
+      players: firestore.FieldValue.arrayUnion(newPlayer.toJSON(true)),
     });
   }
 
@@ -117,7 +117,7 @@ export class CampaignService extends Service{
       player.approvedAt = null;
     }
     await this.db.collection('campaigns').doc(campaignId).set({
-      players: existingCampaign.players.map(p => p.toJSON()),
+      players: existingCampaign.players.map(p => p.toJSON(true)),
     });
   }
 
@@ -160,7 +160,7 @@ export class CampaignService extends Service{
     }
     player.scopes = scopes;
     await this.db.collection('campaigns').doc(campaignId).set({
-      players: existingCampaign.players.map(p => p.toJSON()),
+      players: existingCampaign.players.map(p => p.toJSON(true)),
     });
   }
 

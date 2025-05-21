@@ -21,13 +21,13 @@ export class CharacterController extends Controller {
     return result.items ? result.items.map(characterFactory.fromJSON) : [];
   }
 
-  public async createSelfAsCharacter(
+  public async createSelfCharacter(
     details: CreateSelfAsCharacterRequest,
   ): Promise<Character> {
     const result = await this.callFirebase<
       CreateSelfAsCharacterRequest,
       { item: CharacterJson }
-    >('createSelfAsCharacter', {
+    >('createSelfCharacter', {
       name: details.name,
       nickname: details.nickname,
       campaignId: details.campaignId,
@@ -43,5 +43,17 @@ export class CharacterController extends Controller {
       { items: CharacterJson[] }
     >('getCampaignCharacters', { campaignId });
     return result.items.map(characterFactory.fromJSON);
+  }
+
+  public async updateCharacter(
+    character: Character,
+  ): Promise<Character> {
+    const result = await this.callFirebase<
+      { character: CharacterJson },
+      { item: CharacterJson }
+    >('updateCharacter', {
+      character: character.toJSON(false),
+    });
+    return characterFactory.fromJSON(result.item);
   }
 }

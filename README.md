@@ -92,4 +92,10 @@ This closer mimics what we have to do when publishing `/shared` anyway.
 
 #### Shared folder changes not being picked up by Vite
 
-While Vite is running, go to its `vite.config.ts` and just update something on it. For example, change `preserveSymlinks` to `false`, save, then back to `true`. This flushes the Vite caches and reretrieves the dependencies.
+While Vite is running, go to its `vite.config.ts` and just update something on it.
+
+For example, comment out the alias line `'@rhyeen/cozy-ttrpg-shared' : pat...`, save, then readd it (sometimes, it actually only works if you don't add it back in. Go figures....).
+
+This flushes the Vite caches and reretrieves the dependencies.
+
+If you aren't sure if the newest shared code is coming through, go to `shared/src/index.ts` and update the console.info there with a new version number and see if it comes through on the console.

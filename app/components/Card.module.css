@@ -1,0 +1,33 @@
+.wrapper {
+  padding-bottom: 0.125rem;
+  width: 100%;
+}
+
+.innerWrapper {
+  border-radius: 1rem;
+  background-color: canvas;
+  border: 0.125rem solid #c4bead;
+  box-shadow: 0 0.125rem 0 #c4bead;
+  padding: 1rem;
+  transition: all 0.2s ease-in-out;
+  min-height: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.clickable .innerWrapper:hover {
+  margin-top: 0;
+  box-shadow: 0 0rem 0 #c4bead;
+  translate: 0 0.125rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

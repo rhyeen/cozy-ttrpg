@@ -1,6 +1,6 @@
 import { firestore } from 'firebase-admin';
 import { Service } from './Service';
-import { Friend, FriendConnection, FriendConnectionFactory } from '@rhyeen/cozy-ttrpg-shared';
+import { Friend, FriendConnection, FriendConnectionFactory, User } from '@rhyeen/cozy-ttrpg-shared';
 import { HttpsError } from 'firebase-functions/https';
 import { UserService } from './User.service';
 
@@ -16,9 +16,44 @@ export class FriendConnectionService extends Service{
     this.userService = new UserService(db);
   }
 
-  public async getFriendConnections(
+  public async getFriendConnectionsAndContext(
     uid: string,
-    inviteType: 'invited' | 'invitedBy' | 'both', 
+  ): Promise<{
+    friendConnections: FriendConnection[];
+    users: User[];
+  }> {
+    const friendConnections = await this.getFriendConnections(uid, 'both');
+    const userContexts = await Promise.all(friendConnections.map(async (friendConnection) => {
+      const friend = friendConnection.invited.uid === uid ? friendConnection.invitedBy : friendConnection.invited;
+      const self = friendConnection.invited.uid === uid ? friendConnection.invited : friendConnection.invitedBy;
+      // @NOTE: Remove the private context from own object.
+      self.otherFriendViewableContext = {
+        nickname: '',
+        note: '',
+      };
+      const user = await this.userService.getUser(friend.uid);
+      return { user, friend, self, friendConnection };
+    }));
+    const scopedUsers: User[] = [];
+    for (const userContext of userContexts) {
+      if (!userContext.user) {
+        continue;
+      }
+      const scopedUser = new User(userContext.user.uid, userContext.user.email, '');
+      if (userContext.self.approvedAt && userContext.friend.approvedAt) {
+        scopedUser.displayName = userContext.user.displayName;
+      }
+      scopedUsers.push(scopedUser);
+    }
+    return {
+      friendConnections,
+      users: scopedUsers,
+    };
+  }
+
+  private async getFriendConnections(
+    uid: string,
+    inviteType: 'invited' | 'invitedBy' | 'both',
   ): Promise<FriendConnection[]> {
     if (inviteType === 'both') {
       const res = await Promise.all([
@@ -52,17 +87,11 @@ export class FriendConnectionService extends Service{
     })) {
       throw new HttpsError('already-exists', 'Friend connection already exists');
     }
+    if (friendUser.uid === uid) {
+      throw new HttpsError('invalid-argument', 'You cannot invite yourself');
+    }
     const friendConnection = new FriendConnection(
       FriendConnection.generateId(),
-      new Friend({
-        uid,
-        approvedAt: new Date(),
-        deniedAt: null,
-        otherFriendViewableContext: {
-          nickname: '',
-          note: '',
-        },
-      }),
       new Friend({
         uid: friendUser.uid,
         approvedAt: null,
@@ -72,8 +101,17 @@ export class FriendConnectionService extends Service{
           note: '',
         },
       }),
+      new Friend({
+        uid,
+        approvedAt: new Date(),
+        deniedAt: null,
+        otherFriendViewableContext: {
+          nickname: '',
+          note: '',
+        },
+      }),
     );
-    await this.db.collection('friendConnections').doc(friendConnection.id).set(friendConnection.toJSON());
+    await this.db.collection('friendConnections').doc(friendConnection.id).set(friendConnection.toJSON(true));
     return friendConnection;
   }
 

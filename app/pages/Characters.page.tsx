@@ -1,4 +1,4 @@
-import { CharactersView } from 'app/views/Characters.view';
+import { CharactersView } from '../views/Characters.view';
 
 export function CharactersPage() {
   return (

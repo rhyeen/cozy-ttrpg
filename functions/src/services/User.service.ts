@@ -13,8 +13,8 @@ export class UserService extends Service{
     this.factory = new UserFactory();
   }
 
-  public async getUser(id: string): Promise<User | null> {
-    const doc = await this.db.collection('users').doc(id).get();
+  public async getUser(uid: string): Promise<User | null> {
+    const doc = await this.db.collection('users').doc(uid).get();
     if (!doc.exists) {
       return null;
     }
@@ -38,7 +38,7 @@ export class UserService extends Service{
       email || '',
       displayName || '',
     );
-    await this.db.collection('users').doc(user.uid).set(user.toJSON());
+    await this.db.collection('users').doc(user.uid).set(user.toJSON(true));
     return user;
   }
 
@@ -52,7 +52,7 @@ export class UserService extends Service{
     }
     user.displayName = displayName || user.displayName;
     user.updatedAt = new Date();
-    await this.db.collection('users').doc(user.uid).set(user.toJSON());
+    await this.db.collection('users').doc(user.uid).set(user.toJSON(true));
     return user;
   }
 

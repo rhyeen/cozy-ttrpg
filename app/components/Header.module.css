@@ -1,6 +1,6 @@
 /* app/components/Header.module.css */
 
-.h1, .h2, .h3, .h4, .h5, .h6 {
+.h1, .h2, .h3, .h6 {
   text-transform: uppercase;
   color: #474e2d;
 }
@@ -14,7 +14,7 @@
 }
 
 .h3 {
-  font-size: 1.75rem;
+  font-size: 1.5rem;
 }
 
 .h4 {
