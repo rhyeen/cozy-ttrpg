@@ -4,6 +4,7 @@
   background: none;
   border: none;
   box-sizing: border-box;
+  max-width: 20rem;
 }
 
 .wrapper:focus {

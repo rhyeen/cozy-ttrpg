@@ -36,47 +36,92 @@ export function LoginPage() {
   };
 
   return (
-    <>
+    <Section>
       {!showEmailPassword &&
         <Section align="center">
           <Header type="h2">Welcome to Cozy TTRPG!</Header>
           <Paragraph>This is an extremely early stage project. There will be bugs. We may wipe all data at any time.</Paragraph>
           <Paragraph>Sign in to get started!</Paragraph>
-          <Form>
+          <Form align="center">
             <Button type="primary" onClick={() => setShowEmailPassword(!showEmailPassword)}>Sign in with Email</Button>
           </Form>
         </Section>
       }
-      {showEmailPassword && (
-        <Form onSubmit={isLogin ? handleEmailLogin : handleEmailSignUp}>
-          <Header type="h2">{isLogin ? 'Login' : 'Sign Up'}</Header> {/* Title based on state */}
-          <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} /> 
-          <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} /> 
-          {!isLogin && (
+      {showEmailPassword && isLogin && (
+        <Section>
+          <Form
+            align="center"
+            onSubmit={handleEmailLogin}
+          >
+            <Header type="h2">Login</Header>
+            <Input
+              type="email"
+              label="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
             <Input
               type="password"
-              placeholder="Confirm Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              label="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
-          )}
-          <Button
-            type="primary"
-            onClick={isLogin ? handleEmailLogin : handleEmailSignUp}
-            submit
-          >
-            {isLogin ? 'Login' : 'Sign Up'} {/* Button text based on state */}
-          </Button>
-          <Button type="secondary" onClick={() => setIsLogin(!isLogin)}> 
-            {isLogin ? 'Switch to Sign Up' : 'Switch to Login'} {/* Toggle button */}
-          </Button>
-          <Button type="secondary" onClick={() => {
-            setShowEmailPassword(false); setIsLogin(true);
-          }}> 
-            Cancel
-          </Button>
-        </Form>
+            <Button
+              type="primary"
+              onClick={handleEmailLogin}
+              submit
+            >
+              Login
+            </Button>
+            <Button type="secondary" onClick={() => setIsLogin(!isLogin)}> 
+              Switch to Sign Up
+            </Button>
+            <Button type="secondary" onClick={() => {
+              setShowEmailPassword(false); setIsLogin(true);
+            }}> 
+              Cancel
+            </Button>
+          </Form>
+        </Section>
       )}
-    </>
+      {/* @NOTE: Intentionally repeated here so it can get the animation refresh from Section. */}
+      {showEmailPassword && !isLogin && (
+        <Section>
+          <Form
+            align="center"
+            onSubmit={handleEmailSignUp}
+          >
+            <Header type="h2">Sign Up</Header>
+            <Input
+              type="email"
+              label="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <Input
+              type="password"
+              label="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <Button
+              type="primary"
+              onClick={ handleEmailSignUp}
+              submit
+            >
+              Sign Up
+            </Button>
+            <Button type="secondary" onClick={() => setIsLogin(!isLogin)}> 
+              Switch to Login
+            </Button>
+            <Button type="secondary" onClick={() => {
+              setShowEmailPassword(false); setIsLogin(true);
+            }}>
+              Cancel
+            </Button>
+          </Form>
+        </Section>
+      )}
+    </Section>
   );
 }

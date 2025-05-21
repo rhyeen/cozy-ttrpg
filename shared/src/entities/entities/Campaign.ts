@@ -1,4 +1,4 @@
-import { DocumentEntity, Entity } from './Entity';
+import { copyDate, DocumentEntity, Entity } from './Entity';
 import type { CampaignJson, PlayerJson, PlayerScope } from '../json/Campaign.json';
 import { generateId } from '../../utils/idGenerator';
 import { DocumentJson } from '../json/Json';
@@ -16,10 +16,10 @@ export class Player extends Entity<PlayerJson> {
     super();
     this.uid = json.uid;
     this.invitedBy = json.invitedBy;
-    this.invitedAt = json.invitedAt;
-    this.approvedAt = json.approvedAt;
-    this.deniedAt = json.deniedAt;
-    this.deletedAt = json.deletedAt;
+    this.invitedAt = copyDate(json.invitedAt);
+    this.approvedAt = copyDate(json.approvedAt);
+    this.deniedAt = copyDate(json.deniedAt);
+    this.deletedAt = copyDate(json.deletedAt);
     this.scopes = [...json.scopes];
   }
 

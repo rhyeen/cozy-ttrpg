@@ -10,6 +10,7 @@ import FaceIcon from './Icons/Face';
 import { useNavigate } from 'react-router';
 import IconButton from './IconButton';
 import CottageIcon from './Icons/Cottage';
+import SupervisedUserCircleIcon from './Icons/SupervisedUserCircle';
 
 const NavBar: React.FC = () => {
   const firebaseUser = useSelector(selectFirebaseUser);
@@ -30,8 +31,17 @@ const NavBar: React.FC = () => {
     },
     {
       label: 'Characters',
-      onClick: () => {},
+      onClick: () => {
+        navigate('/characters');
+      },
       icon: <FaceIcon />,
+    },
+    {
+      label: 'Friends',
+      onClick: () => {
+        navigate('/friends');
+      },
+      icon: <SupervisedUserCircleIcon />,
     },
     {
       label: 'Logout',

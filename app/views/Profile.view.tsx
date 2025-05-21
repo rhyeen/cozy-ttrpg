@@ -6,9 +6,13 @@ import Header from 'app/components/Header';
 import Section from 'app/components/Section';
 import Input from 'app/components/Input';
 import Form from 'app/components/Form';
+import type { SaveState } from 'app/components/Icons/SaveState';
 
 export function ProfileView() {
   const [user, setUser] = useState<User | null | undefined>();
+  const [initialUser, setInitialUser] = useState<User | null | undefined>();
+  const [displayNameError, setDisplayNameError] = useState<string | null>(null);
+  const [displayNameSaveState, setDisplayNameSaveState] = useState<SaveState>('hide');
 
   const getProfile = async () => {
     let result = await userController.getSelfAsUser();
@@ -16,12 +20,43 @@ export function ProfileView() {
       result = await userController.createSelfAsUser({ displayName: '' });
     }
     setUser(result);
+    setInitialUser(result);
+  };
+
+  const invalidDisplayName = (displayName: string | undefined) => {
+    if (!displayName) {
+      setDisplayNameError('Display name is required');
+      return true;
+    }
+    if (displayName.length < 3) {
+      setDisplayNameError('Display name must be at least 3 characters');
+      return true;
+    }
+    if (displayName.length > 20) {
+      setDisplayNameError('Display name must be less than 20 characters');
+      return true;
+    }
+    setDisplayNameError(null);
+    return false;
   };
 
   const updateProfile = async () => {
+    if (user?.displayName === initialUser?.displayName) return;
+    if (invalidDisplayName(user?.displayName)) {
+      return;
+    }
     if (!user) return;
-    const updatedUser = await userController.updateSelfAsUser(user);
-    setUser(updatedUser);
+    setDisplayNameSaveState('saving');
+    try {
+      const updatedUser = await userController.updateSelfAsUser(user);
+      setDisplayNameSaveState('success');
+      setUser(updatedUser);
+      setInitialUser(updatedUser);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      setDisplayNameError('Unexpected error while saving.');
+      setDisplayNameSaveState('error');
+    }
   };
 
   useEffect(() => {
@@ -38,13 +73,13 @@ export function ProfileView() {
       <Form>
         <Input
           type="email"
-          placeholder="Email"
+          label="Email"
           value={user.email}
-          disabled
+          readOnly
         />
         <Input
           type="text"
-          placeholder="Display Name"
+          label="Display Name"
           value={user.displayName}
           onChange={(e) => {
             const _user = user.copy();
@@ -52,6 +87,10 @@ export function ProfileView() {
             setUser(_user);
           }}
           onBlur={updateProfile}
+          error={displayNameError}
+          onInput={() => setDisplayNameError(null)}
+          saveState={displayNameSaveState}
+          onStateChange={setDisplayNameSaveState}
         />
       </Form>
     </Section>

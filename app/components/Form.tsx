@@ -4,9 +4,10 @@ import styles from './Form.module.css';
 interface FormProps {
   children: React.ReactNode;
   onSubmit?: () => void;
+  align?: 'center';
 }
 
-const Form: React.FC<FormProps> = ({ children, onSubmit }) => {
+const Form: React.FC<FormProps> = ({ children, onSubmit, align }) => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     if (onSubmit) {
       event.preventDefault();
@@ -15,7 +16,11 @@ const Form: React.FC<FormProps> = ({ children, onSubmit }) => {
   };
 
   return (
-    <form className={styles.wrapper} onSubmit={handleSubmit}>
+    <form
+      className={styles.wrapper}
+      onSubmit={handleSubmit}
+      style={{ alignSelf: align }}
+    >
       {children}
     </form>
   );

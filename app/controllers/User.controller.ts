@@ -35,7 +35,7 @@ export class UserController extends Controller {
     const result = await this.callFirebase<
       UpdateSelfAsUserRequest,
       { item: UserJson }
-    >('updateSelfAsUser', { displayName: user.displayName });
+    >('updateSelfAsUser', { displayName: user.displayName.trim() });
     return userFactory.fromJSON(result.item);
   }
 }

@@ -1,14 +1,55 @@
 import React, { type InputHTMLAttributes } from 'react';
 import styles from './Input.module.css';
+import ErrorIcon from './Icons/Error';
+import SaveStateIcon, { type SaveState } from './Icons/SaveState';
 
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {}
+interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+  label: string;
+  error?: string | null;
+  saveState?: SaveState;
+  onStateChange?: (state: SaveState) => void;
+  icon?: React.ReactNode;
+}
 
-const Input: React.FC<InputProps> = ({ ...props }) => {
+const Input: React.FC<InputProps> = ({ label, ...props }) => {
+  const icon = (
+    props.icon ||
+    (props.error && props.saveState !== 'error' ? <ErrorIcon /> : null) ||
+    (props.saveState && props.onStateChange ? (
+      <SaveStateIcon
+        state={props.saveState}
+        onStateChange={props.onStateChange}
+      />
+    ) : null)
+  );
+
   return (
-    <input
-      className={styles.wrapper}
-      {...props}
-    />
+    <div className={`${styles.wrapper} ${props.error ? styles.error : ''}`}>
+      <label className={styles.label}>
+        <span className={styles.textLabel}>{label}</span>
+        <div className={styles.inputWrapper}>
+          <input
+            className={styles.input}
+            type={props.type || 'text'}
+            placeholder={props.placeholder}
+            onChange={props.onChange}
+            value={props.value}
+            onBlur={props.onBlur}
+            onFocus={props.onFocus}
+            onInput={props.onInput}
+            readOnly={props.readOnly}
+            disabled={props.disabled}
+            required={props.required}
+            autoComplete={props.autoComplete}
+            autoFocus={props.autoFocus}
+            maxLength={props.maxLength}
+            minLength={props.minLength}
+          />
+          {!!icon && <div className={styles.icon}>{icon}</div>}
+        </div>
+        {!!props.error && <span className={styles.helper}>{props.error}</span>}
+      </label>
+    </div>
   );
 };
 

@@ -89,3 +89,7 @@ utilize. It would seem that we should do this through npm workspaces
 but workspaces doesn't play nice with firebase functions for some
 reason. Instead, we use a more standard symlinking approach.
 This closer mimics what we have to do when publishing `/shared` anyway.
+
+#### Shared folder changes not being picked up by Vite
+
+While Vite is running, go to its `vite.config.ts` and just update something on it. For example, change `preserveSymlinks` to `false`, save, then back to `true`. This flushes the Vite caches and reretrieves the dependencies.

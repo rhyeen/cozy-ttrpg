@@ -9,3 +9,7 @@ export * from './factory/Friend.factory';
 export * from './json/User.json';
 export * from './entities/User';
 export * from './factory/User.factory';
+
+export * from './json/Character.json';
+export * from './entities/Character';
+export * from './factory/Character.factory';

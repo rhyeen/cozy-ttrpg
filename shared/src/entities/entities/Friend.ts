@@ -1,7 +1,7 @@
 import { generateId } from '../../utils/idGenerator';
 import { FriendConnectionJson, FriendJson } from '../json/Friend.json';
 import { DocumentJson } from '../json/Json';
-import { DocumentEntity, Entity } from './Entity';
+import { copyDate, DocumentEntity, Entity } from './Entity';
 
 export class Friend extends Entity<FriendJson> {
   public uid: string;
@@ -15,8 +15,8 @@ export class Friend extends Entity<FriendJson> {
   constructor(json: FriendJson) {
     super();
     this.uid = json.uid;
-    this.approvedAt = json.approvedAt ? new Date(json.approvedAt) : null;
-    this.deniedAt = json.deniedAt ? new Date(json.deniedAt) : null;
+    this.approvedAt = json.approvedAt ? copyDate(json.approvedAt) : null;
+    this.deniedAt = json.deniedAt ? copyDate(json.deniedAt) : null;
     this.otherFriendViewableContext = {
       nickname: json.otherFriendViewableContext.nickname,
       note: json.otherFriendViewableContext.note,

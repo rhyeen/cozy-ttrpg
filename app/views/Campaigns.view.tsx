@@ -4,6 +4,7 @@ import { campaignController } from '../utils/services';
 import Loading from '../components/Loading';
 import Button from 'app/components/Button';
 import Header from 'app/components/Header';
+import Section from 'app/components/Section';
 
 export function CampaignsView() {
   const [campaigns, setCampaigns] = useState<Campaign[] | undefined>();
@@ -28,13 +29,13 @@ export function CampaignsView() {
   }
 
   return (
-    <>
+    <Section>
       {campaigns.map((campaign) => (
         <Header type="h3" key={campaign.id}>{campaign.name}</Header>
       ))}
       <Button type={campaigns.length ? 'secondary' : 'primary'} onClick={createCampaign}>
         Create Campaign
       </Button>
-    </>
+    </Section>
   );
 }
