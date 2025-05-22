@@ -47,7 +47,9 @@ const Input: React.FC<InputProps> = ({ label, ...props }) => {
             maxLength={props.maxLength}
             minLength={props.minLength}
           />
-          {!!icon && <div className={styles.icon}>{icon}</div>}
+          {!!icon && (
+            <div className={`${styles.icon} ${props.saveState === 'hide' ? styles.hide : ''}`}>{icon}</div>
+          )}
         </div>
         {!!props.error && <span className={styles.helper}>{props.error}</span>}
         {!!props.helper && !props.error && <span className={styles.helper}>{props.helper}</span>}

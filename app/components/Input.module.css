@@ -68,6 +68,11 @@
   right: 0.45rem;
   padding: 0.125rem;
   background-color: canvas;
+  transition: all 0.3s ease-in-out;
+}
+
+.icon.hide {
+  background-color: transparent;
 }
 
 .icon > svg {

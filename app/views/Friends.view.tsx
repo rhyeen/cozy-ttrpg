@@ -11,6 +11,10 @@ import Input from 'app/components/Input';
 import { Validator, ValidatorError } from 'app/utils/validator';
 import { FirebaseError } from 'firebase/app';
 import { FriendView } from './Friend.view';
+import SettingsIcon from 'app/components/Icons/Settings';
+import Menu from 'app/components/Menu';
+import HeartBrokenIcon from 'app/components/Icons/HeartBroken';
+import HeartIcon from 'app/components/Icons/Heart';
 
 export function FriendsView() {
   const [friends, setFriends] = useState<FriendConnection[] | undefined>();
@@ -18,6 +22,7 @@ export function FriendsView() {
   const [addFriend, setAddFriend] = useState(false);
   const [friendEmail, setFriendEmail] = useState('');
   const [friendEmailError, setFriendEmailError] = useState<string | null>(null);
+  const [viewDeniedFriends, setViewDeniedFriends] = useState(false);
 
   const getFriends = async () => {
     const result = await friendConnectionController.getFriendConnections();
@@ -85,10 +90,29 @@ export function FriendsView() {
     return <Loading type="spinner" page />;
   }
 
+  const filteredFriends = friends.filter((friend) => {
+    if (viewDeniedFriends) return true;
+    return !friend.invited.deniedAt && !friend.invitedBy.deniedAt;
+  });
+
   return (
     <Section>
-      <Header type="h2">Friends</Header>
-      {friends.map((friendConnection) => (
+      <Header type="h2">
+        Friends
+        <Menu
+          icon={<SettingsIcon />}
+          items={[
+            {
+              label: viewDeniedFriends ? 'View Approved' : 'View Denied',
+              onClick: () => {
+                setViewDeniedFriends(!viewDeniedFriends);
+              },
+              icon: viewDeniedFriends ? <HeartIcon /> : <HeartBrokenIcon />,
+            },
+          ]}
+        />
+      </Header>
+      {filteredFriends.map((friendConnection) => (
         <FriendView
           key={friendConnection.id}
           friendConnection={friendConnection}
@@ -130,7 +154,7 @@ export function FriendsView() {
         </Section>
       ) : (
         <Button
-          type={friends.length ? 'secondary' : 'primary'}
+          type={filteredFriends.length ? 'secondary' : 'primary'}
           onClick={() => {
             setAddFriend(true);
             setFriendEmail('');

@@ -1,0 +1,24 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.item {
+  display: inline-block;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.item:nth-child(even) {
+  background-color: #f0f0f0;
+}
+
+.key {
+  font-weight: bold;
+  color: #474e2d;
+  padding-right: 0.5rem;
+}
+
+.value {
+  color: #5e6f34;
+}

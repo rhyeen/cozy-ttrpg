@@ -8,6 +8,7 @@ interface ButtonProps {
   submit?: boolean;
   disabled?: boolean;
   loading?: boolean;
+  asComponent?: React.ElementType;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -17,11 +18,13 @@ const Button: React.FC<ButtonProps> = ({
   submit = false,
   disabled = false,
   loading = false,
+  asComponent = 'button',
 }) => {
+  const Component = asComponent;
   const buttonClass = type === 'secondary' ? styles.secondary : styles.primary;
 
   return (
-    <button
+    <Component
       onClick={onClick}
       className={`${styles.wrapper} ${buttonClass}`}
       type={submit ? 'submit' : 'button'}
@@ -30,7 +33,7 @@ const Button: React.FC<ButtonProps> = ({
       <div className={styles.innerWrapper}>
         {children}
       </div>
-    </button>
+    </Component>
   );
 };
 
