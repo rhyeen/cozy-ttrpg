@@ -23,7 +23,7 @@ export function CharactersView() {
 
   return (
     <Section>
-      <Header type="h2">Characters</Header>
+      <Header type="h1">Characters</Header>
       {characters.map((character) => (
         <Header type="h3" key={character.id}>{character.name}</Header>
       ))}

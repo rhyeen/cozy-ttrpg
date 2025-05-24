@@ -32,6 +32,37 @@ export class CampaignRoute extends Route {
     return this.handleJsonResponse({ item: campaign.toJSON(false) });
   }
 
+  public async deleteCampaign(
+    request: CallableRequest<any>,
+  ): Promise<HttpsFunction> {
+    const campaignId = request.data.campaignId;
+    if (!campaignId) {
+      throw new HttpsError('invalid-argument', 'Campaign ID is required');
+    }
+    await this.service.deleteCampaign(
+      this.getUidFromRequest(request),
+      campaignId,
+    );
+    return this.handleOkResponse();
+  }
+
+  public async updateCampaign(
+    request: CallableRequest<any>,
+  ): Promise<HttpsFunction> {
+    const campaignJson = request.data.campaign as CampaignJson;
+    if (!campaignJson) {
+      throw new HttpsError('invalid-argument', 'Campaign ID and data are required');
+    }
+    if (!campaignJson.id) {
+      throw new HttpsError('invalid-argument', 'Campaign ID is required');
+    }
+    const campaign = await this.service.updateCampaign(
+      this.getUidFromRequest(request),
+      campaignJson,
+    );
+    return this.handleJsonResponse({ item: campaign.toJSON(false) });
+  }
+
   public async addPlayer(
     request: CallableRequest<any>,
   ): Promise<HttpsFunction> {

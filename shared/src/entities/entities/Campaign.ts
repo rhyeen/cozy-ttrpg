@@ -66,8 +66,8 @@ export class Campaign extends DocumentEntity<CampaignJson> {
       players: this.players.map((player) => player.toJSON(toStore)),
       id: this.id,
       description: this.description,
-      ...this.copyDocumentJson(),
       players_uids: toStore ? this.players.map((player) => player.uid) : [],
+      ...this.copyDocumentJson(),
     };
   }
 

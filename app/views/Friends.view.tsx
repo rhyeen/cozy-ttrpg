@@ -10,7 +10,7 @@ import Divider from 'app/components/Divider';
 import Input from 'app/components/Input';
 import { Validator, ValidatorError } from 'app/utils/validator';
 import { FirebaseError } from 'firebase/app';
-import { FriendView } from './Friend.view';
+import { FriendCard } from './Friend.card';
 import SettingsIcon from 'app/components/Icons/Settings';
 import Menu from 'app/components/Menu';
 import HeartBrokenIcon from 'app/components/Icons/HeartBroken';
@@ -97,8 +97,7 @@ export function FriendsView() {
 
   return (
     <Section>
-      <Header type="h2">
-        Friends
+      <Header type="h1" icon={
         <Menu
           icon={<SettingsIcon />}
           items={[
@@ -111,9 +110,11 @@ export function FriendsView() {
             },
           ]}
         />
+      }>
+        Friends
       </Header>
       {filteredFriends.map((friendConnection) => (
-        <FriendView
+        <FriendCard
           key={friendConnection.id}
           friendConnection={friendConnection}
           friendUsers={friendUsers}

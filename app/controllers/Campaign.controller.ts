@@ -23,6 +23,21 @@ export class CampaignController extends Controller {
     return campaignFactory.fromJSON(result.item);
   }
 
+  public async updateCampaign(campaign: Campaign): Promise<Campaign> {
+    const result = await this.callFirebase<
+      { campaign: CampaignJson },
+      { item: CampaignJson }
+    >('updateCampaign', { campaign: campaign.toJSON(false) });
+    return campaignFactory.fromJSON(result.item);
+  }
+
+  public async deleteCampaign(campaignId: string): Promise<void> {
+    await this.callFirebase<{ campaignId: string }, undefined>(
+      'deleteCampaign',
+      { campaignId },
+    );
+  }
+
   public async addPlayer(
     campaignId: string,
     playerUid: string,

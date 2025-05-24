@@ -12,6 +12,14 @@ import "./index.css";
 
 import type { Route } from "./+types/root";
 import ProtectedRoute from "./ProtectedRoute";
+import { PrimaryLayoutForChildren } from './layouts/Primary.layout';
+import Header from './components/Header';
+import Paragraph from './components/Paragraph';
+import Section from './components/Section';
+import Divider from './components/Divider';
+import Button from './components/Button';
+import { Toast } from '@base-ui-components/react';
+import ToastViewPort from './components/ToastViewPort';
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -50,9 +58,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
 export default function App() {
   return (
     <Provider store={store}>
-      <ProtectedRoute>
-        <Outlet />
-      </ProtectedRoute>
+      <Toast.Provider>
+        <ProtectedRoute>
+          <Outlet />
+        </ProtectedRoute>
+        <ToastViewPort />
+      </Toast.Provider>
     </Provider>
   );
 }
@@ -63,7 +74,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let stack: string | undefined;
 
   if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? "404" : "Error";
+    message = error.status === 404 ? "404 Not Found" : "Error";
     details =
       error.status === 404
         ? "The requested page could not be found."
@@ -74,14 +85,21 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <main className="pt-16 p-4 container mx-auto">
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre className="w-full p-4 overflow-x-auto">
-          <code>{stack}</code>
-        </pre>
-      )}
-    </main>
+    <Provider store={store}>
+      <PrimaryLayoutForChildren>
+        <Section>
+          <Header type="h1">{message}</Header>
+          <Paragraph>{details}</Paragraph>
+          {stack && <Divider />}
+          {stack && <Paragraph>{stack}</Paragraph>}
+          <Button
+            type="primary"
+            onClick={() => window.location.href = '/'}
+          >
+            Back to Safety
+          </Button>
+        </Section>
+      </PrimaryLayoutForChildren>
+    </Provider>
   );
 }

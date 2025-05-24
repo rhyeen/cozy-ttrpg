@@ -18,6 +18,8 @@ import KeyValue from 'app/components/KeyValue';
 import Modal from 'app/components/Modal';
 import HeartIcon from 'app/components/Icons/Heart';
 import Button from 'app/components/Button';
+import Paragraph from 'app/components/Paragraph';
+import { useFriend } from 'app/utils/hooks/useFriend';
 
 interface Props {
   friendConnection: FriendConnection;
@@ -25,10 +27,10 @@ interface Props {
   friendUsers: User[];
 }
 
-export const FriendView: React.FC<Props> = ({
+export const FriendCard: React.FC<Props> = ({
   friendConnection,
   friendUsers,
-  onSetFriendConnection
+  onSetFriendConnection,
 }) => {
   const [ editFriend, setEditFriend ] = useState(false);
   const [ denyFriend, setDenyFriend ] = useState(false);
@@ -42,18 +44,11 @@ export const FriendView: React.FC<Props> = ({
   const [ loading, setLoading ] = useState(false);
 
   useEffect(() => {
-    setFriendNickname(friend.otherFriendViewableContext.nickname);
-    setFriendNote(friend.otherFriendViewableContext.note);
+    setFriendNickname(friend.friend.otherFriendViewableContext.nickname);
+    setFriendNote(friend.friend.otherFriendViewableContext.note);
   }, [ editFriend ]);
 
-  const firebaseUser = useSelector(selectFirebaseUser);
-  const friend = (
-    friendConnection.invited.uid === firebaseUser?.uid ? friendConnection.invitedBy : friendConnection.invited
-  );
-  const friendUser = friendUsers.find(u => u.uid === friend.uid);
-  const self = (
-    friendConnection.invited.uid === firebaseUser?.uid ? friendConnection.invited : friendConnection.invitedBy
-  );
+  const friend = useFriend(friendConnection, friendUsers);
 
   const editFriendHandler = async (saving: 'nickname' | 'note') => {
     const setSaveState = saving === 'nickname' ? setFriendNicknameSaveState : setFriendNoteSaveState;
@@ -62,15 +57,15 @@ export const FriendView: React.FC<Props> = ({
     try {
       await friendConnectionController.updateFriendContext(
         friendConnection.id,
-        self.uid === friendConnection.invited.uid ? 'invited' : 'invitedBy',
+        friend.selfAsFriend.uid === friendConnection.invited.uid ? 'invited' : 'invitedBy',
         {
-          ...friend.otherFriendViewableContext,
+          ...friend.friend.otherFriendViewableContext,
           nickname: friendNickname,
           note: friendNote,
         },
       );
       const updatedFriendConnection = await friendConnection.copy();
-      if (self.uid === friendConnection.invited.uid) {
+      if (friend.selfAsFriend.uid === friendConnection.invited.uid) {
         updatedFriendConnection.invitedBy.otherFriendViewableContext.nickname = friendNickname;
         updatedFriendConnection.invitedBy.otherFriendViewableContext.note = friendNote;
       } else {
@@ -91,12 +86,12 @@ export const FriendView: React.FC<Props> = ({
     try {
       await friendConnectionController.updateFriendStatus(
         friendConnection.id,
-        self.uid === friendConnection.invited.uid ? 'invited' : 'invitedBy',
+        friend.selfAsFriend.uid === friendConnection.invited.uid ? 'invited' : 'invitedBy',
         status,
       );
       const updatedFriendConnection = await friendConnection.copy();
       if (status === 'approved') {
-        if (self.uid === friendConnection.invited.uid) {
+        if (friend.selfAsFriend.uid === friendConnection.invited.uid) {
           updatedFriendConnection.invited.approvedAt = new Date();
           updatedFriendConnection.invited.deniedAt = null;
         } else {
@@ -104,7 +99,7 @@ export const FriendView: React.FC<Props> = ({
           updatedFriendConnection.invitedBy.deniedAt = null;
         }
       } else {
-        if (self.uid === friendConnection.invited.uid) {
+        if (friend.selfAsFriend.uid === friendConnection.invited.uid) {
           updatedFriendConnection.invited.deniedAt = new Date();
           updatedFriendConnection.invited.approvedAt = null;
         } else {
@@ -126,8 +121,8 @@ export const FriendView: React.FC<Props> = ({
       <Card>
         <Card.Header>
           <Card.Header.Left>
-            <Header type="h4">{friend.otherFriendViewableContext.nickname || friendUser?.displayName || 'Unnamed Friend'}</Header>
-            <p>{friend.otherFriendViewableContext.note || friendUser?.email || friendConnection.id}</p>
+            <Header type="h4">{friend.friendDisplayName}</Header>
+            <Paragraph>{friend.friendNote}</Paragraph>
           </Card.Header.Left>
           <Card.Header.Right>
             <IconButton.Bar>
@@ -149,22 +144,22 @@ export const FriendView: React.FC<Props> = ({
                     icon: <ReceiptLongIcon />,
                   },
                   {
-                    label: self.approvedAt ? 'Deny Friendship' : 'Approve Friendship',
+                    label: friend.selfAsFriend.approvedAt ? 'Deny Friendship' : 'Approve Friendship',
                     onClick: () => {
-                      if (self.approvedAt) {
+                      if (friend.selfAsFriend.approvedAt) {
                         setDenyFriend(true);
                       } else {
                         updateFriendStatus('approved');
                       }
                     },
-                    icon: self.approvedAt ? <HeartBrokenIcon /> : <HeartIcon />,
+                    icon: friend.selfAsFriend.approvedAt ? <HeartBrokenIcon /> : <HeartIcon />,
                   },
                 ]}
               />
             </IconButton.Bar>
           </Card.Header.Right>
         </Card.Header>
-        {editFriend || viewFriend || !self.approvedAt ? (
+        {editFriend || viewFriend || !friend.selfAsFriend.approvedAt ? (
           <Card.Body>
             {editFriend && (
               <Form>
@@ -202,17 +197,17 @@ export const FriendView: React.FC<Props> = ({
               <KeyValue>
                 <KeyValue.Item
                   itemKey="Name"
-                  itemValue={friendUser?.displayName || 'Unknown'}
+                  itemValue={friend.friendAsUser?.displayName || 'Unknown'}
                   align="left"
                 />
                 <KeyValue.Item
                   itemKey="Email"
-                  itemValue={friendUser?.email || 'Unknown'}
+                  itemValue={friend.friendAsUser?.email || 'Unknown'}
                   align="left"
                 />
                 <KeyValue.Item
                   itemKey="UID"
-                  itemValue={friendUser?.uid || 'Unknown'}
+                  itemValue={friend.friendAsUser?.uid || 'Unknown'}
                   align="left"
                 />
                 <KeyValue.Item
@@ -225,51 +220,51 @@ export const FriendView: React.FC<Props> = ({
                   itemValue={friendConnection.createdAt.toLocaleString()}
                   align="left"
                 />
-                {!friend.deniedAt && (
+                {!friend.friend.deniedAt && (
                   <KeyValue.Item
                     itemKey="Approved At"
-                    itemValue={friend.approvedAt?.toLocaleString() || 'Pending'}
+                    itemValue={friend.friend.approvedAt?.toLocaleString() || 'Pending'}
                     align="left"
                   />
                 )}
-                {friend.deniedAt && (
+                {friend.friend.deniedAt && (
                   <KeyValue.Item
                     itemKey="Denied At"
-                    itemValue={friend.deniedAt.toLocaleString()}
+                    itemValue={friend.friend.deniedAt.toLocaleString()}
                     align="left"
                   />
                 )}
-                {friend.otherFriendViewableContext.nickname && (
+                {friend.friend.otherFriendViewableContext.nickname && (
                   <KeyValue.Item
                     itemKey="Your Nickname"
-                    itemValue={friend.otherFriendViewableContext.nickname || 'Unknown'}
+                    itemValue={friend.friend.otherFriendViewableContext.nickname || 'Unknown'}
                     align="left"
                   />
                 )}
-                {friend.otherFriendViewableContext.note && (
+                {friend.friend.otherFriendViewableContext.note && (
                   <KeyValue.Item
                     itemKey="Your Note"
-                    itemValue={friend.otherFriendViewableContext.note || 'Unknown'}
+                    itemValue={friend.friend.otherFriendViewableContext.note || 'Unknown'}
                     align="left"
                   />
                 )}
-                {self.approvedAt && (
+                {friend.selfAsFriend.approvedAt && (
                   <KeyValue.Item
                     itemKey="You Approved At"
-                    itemValue={self.approvedAt.toLocaleString()}
+                    itemValue={friend.selfAsFriend.approvedAt.toLocaleString()}
                     align="left"
                   />
                 )}
-                {self.deniedAt && (
+                {friend.selfAsFriend.deniedAt && (
                   <KeyValue.Item
                     itemKey="You Denied At"
-                    itemValue={self.deniedAt.toLocaleString()}
+                    itemValue={friend.selfAsFriend.deniedAt.toLocaleString()}
                     align="left"
                   />
                 )}
               </KeyValue>
             )}
-            {!self.approvedAt && !editFriend && !viewFriend && (
+            {!friend.selfAsFriend.approvedAt && !editFriend && !viewFriend && (
               <Button
                 type="primary"
                 onClick={() => updateFriendStatus('approved')}

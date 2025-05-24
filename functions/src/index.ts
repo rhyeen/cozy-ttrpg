@@ -43,6 +43,14 @@ export const getCampaigns = onCall(async (request) => {
   return await campaignRoute.getCampaigns(request);
 });
 
+export const updateCampaign = onCall(async (request) => {
+  return await campaignRoute.updateCampaign(request);
+});
+
+export const deleteCampaign = onCall(async (request) => {
+  return await campaignRoute.deleteCampaign(request);
+});
+
 export const createCampaign = onCall(async (request) => {
   return await campaignRoute.createCampaign(request);
 });

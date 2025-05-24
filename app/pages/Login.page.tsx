@@ -85,7 +85,7 @@ export function LoginPage() {
     <Section>
       {!showEmailPassword &&
         <Section align="center">
-          <Header type="h2">Welcome to Cozy TTRPG!</Header>
+          <Header type="h1">Welcome to Cozy TTRPG!</Header>
           <Paragraph>This is an extremely early stage project. There will be bugs. We may wipe all data at any time.</Paragraph>
           <Paragraph>Sign in to get started!</Paragraph>
           <Form align="center">
@@ -99,7 +99,7 @@ export function LoginPage() {
             align="center"
             onSubmit={handleEmailLogin}
           >
-            <Header type="h2">Login</Header>
+            <Header type="h1">Login</Header>
             <Input
               type="email"
               label="Email"
@@ -151,7 +151,7 @@ export function LoginPage() {
             align="center"
             onSubmit={handleEmailSignUp}
           >
-            <Header type="h2">Sign Up</Header>
+            <Header type="h1">Sign Up</Header>
             <Input
               type="email"
               label="Email"

@@ -66,7 +66,7 @@ export function ProfileView() {
 
   return (
     <Section>
-      <Header type="h2">Profile</Header>
+      <Header type="h1">Profile</Header>
       <Form>
         <Input
           type="email"

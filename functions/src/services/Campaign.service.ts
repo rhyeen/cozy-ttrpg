@@ -38,6 +38,26 @@ export class CampaignService extends Service{
     return this.factory.fromJSON(snapshot.data() as any);
   }
 
+  public async deleteCampaign(
+    uid: string,
+    campaignId: string,
+  ): Promise<void> {
+    const existingCampaign = await this.getCampaign(campaignId, uid);
+    if (!existingCampaign) {
+      throw new HttpsError('not-found', 'Campaign not found');
+    }
+    const player = existingCampaign.players.find(p => p.uid === uid);
+    if (!player) {
+      throw new HttpsError('not-found', 'Player not found');
+    }
+    if (!player.scopes.includes(PlayerScope.Owner)) {
+      throw new HttpsError('permission-denied', 'You are not allowed to delete this campaign');
+    }
+    await this.db.collection('campaigns').doc(campaignId).set({
+      deletedAt: new Date(),
+    }, { merge: true });
+  }
+
   public async createCampaign(
     uid: string,
     campaign: CampaignJson
@@ -57,6 +77,32 @@ export class CampaignService extends Service{
     ];
     await this.db.collection('campaigns').doc(newCampaign.id).set(newCampaign.toJSON(true));
     return newCampaign;
+  }
+
+  public async updateCampaign(
+    uid: string,
+    campaign: CampaignJson,
+  ): Promise<Campaign> {
+    const existingCampaign = await this.getCampaign(campaign.id, uid);
+    if (!existingCampaign) {
+      throw new HttpsError('not-found', 'Campaign not found');
+    }
+    const selfPlayer = existingCampaign.players.find(p => p.uid === uid);
+    if (!selfPlayer) {
+      throw new HttpsError('not-found', 'You are not a player in this campaign');
+    }
+    if (
+      !selfPlayer.scopes.includes(PlayerScope.Owner) &&
+      !selfPlayer.scopes.includes(PlayerScope.GameMaster)
+    ) {
+      throw new HttpsError('permission-denied', 'You are not allowed to update this campaign');
+    }
+    const updatedCampaign = this.factory.fromJSON(campaign);
+    updatedCampaign.id = existingCampaign.id;
+    updatedCampaign.name = campaign.name;
+    updatedCampaign.description = campaign.description;
+    await this.db.collection('campaigns').doc(existingCampaign.id).set(updatedCampaign.toJSON(true));
+    return updatedCampaign;
   }
 
   public async addPlayer(

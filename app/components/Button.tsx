@@ -4,7 +4,7 @@ import styles from './Button.module.css';
 interface ButtonProps {
   children: React.ReactNode;
   onClick: () => void;
-  type: 'primary' | 'secondary';
+  type: 'primary' | 'secondary' | 'smallText' | 'icon';
   submit?: boolean;
   disabled?: boolean;
   loading?: boolean;
@@ -21,12 +21,10 @@ const Button: React.FC<ButtonProps> = ({
   asComponent = 'button',
 }) => {
   const Component = asComponent;
-  const buttonClass = type === 'secondary' ? styles.secondary : styles.primary;
-
   return (
     <Component
       onClick={onClick}
-      className={`${styles.wrapper} ${buttonClass}`}
+      className={`${styles.wrapper} ${styles[type]}`}
       type={submit ? 'submit' : 'button'}
       disabled={disabled || loading}
     >
