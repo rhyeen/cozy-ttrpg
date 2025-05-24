@@ -71,7 +71,7 @@ export const PlayerCard: React.FC<Props> = ({
     setScopeSpectator(player?.scopes.includes(PlayerScope.Spectator) || false);
   }, [firebaseUser?.uid, playerUid, players]);
 
-  const canEditScopes = (
+  const canEdit = (
     selfAsPlayer?.scopes.includes(PlayerScope.Owner) ||
     selfAsPlayer?.scopes.includes(PlayerScope.GameMaster)
   );
@@ -189,9 +189,16 @@ export const PlayerCard: React.FC<Props> = ({
       onClick: () => navigate(`/`),
       icon: <FaceIcon />,
     });
-    if (!isSelf) {
+    if (!isSelf && canEdit) {
       items.push({
         label: 'Remove from Campaign',
+        onClick: onRemovePlayer,
+        icon: <DeleteIcon />,
+      });
+    }
+    if (!canEdit && isSelf) {
+      items.push({
+        label: 'Leave Campaign',
         onClick: onRemovePlayer,
         icon: <DeleteIcon />,
       });
@@ -208,7 +215,7 @@ export const PlayerCard: React.FC<Props> = ({
         </Card.Header.Left>
         <Card.Header.Right>
           <IconButton.Bar>
-            {canEditScopes && (
+            {canEdit && (
               <IconButton
                 onClick={() => setEditScopes(!editScopes)}
               >

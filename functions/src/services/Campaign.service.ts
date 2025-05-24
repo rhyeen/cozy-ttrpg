@@ -237,7 +237,8 @@ export class CampaignService extends Service{
     }
     if (
       !userPlayer.scopes.includes(PlayerScope.Owner) &&
-      !userPlayer.scopes.includes(PlayerScope.GameMaster)
+      !userPlayer.scopes.includes(PlayerScope.GameMaster) &&
+      uid !== playerUid
     ) {
       throw new HttpsError('permission-denied', 'You are not allowed to remove players');
     }

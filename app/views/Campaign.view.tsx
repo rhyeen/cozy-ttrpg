@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Campaign } from '@rhyeen/cozy-ttrpg-shared';
+import { Campaign, PlayerScope } from '@rhyeen/cozy-ttrpg-shared';
 import Header from 'app/components/Header';
 import Modal from 'app/components/Modal';
 import SettingsIcon from 'app/components/Icons/Settings';
@@ -19,6 +19,8 @@ import Button from 'app/components/Button';
 import Card from 'app/components/Card';
 import Paragraph from 'app/components/Paragraph';
 import ErrorIcon from 'app/components/Icons/Error';
+import { useSelector } from 'react-redux';
+import { selectFirebaseUser } from 'app/store/userSlice';
 
 interface Props {
   campaign: Campaign;
@@ -31,6 +33,7 @@ export function CampaignView({
 }: Props) {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const firebaseUser = useSelector(selectFirebaseUser);
   const [deleteCampaign, setDeleteCampaign] = useState(false);
   const [campaignName, setCampaignName] = useState('');
   const [campaignNameError, setCampaignNameError] = useState<string | null>(null);
@@ -38,6 +41,10 @@ export function CampaignView({
   const [campaignDescription, setCampaignDescription] = useState('');
   const [campaignDescriptionError, setCampaignDescriptionError] = useState<string | null>(null);
   const [campaignDescriptionSaveState, setCampaignDescriptionSaveState] = useState<SaveState>('hide');
+  const selfAsPlayer = campaign.players.find((p) => p.uid === firebaseUser?.uid);
+  const isOwner = selfAsPlayer?.scopes.includes(PlayerScope.Owner);
+  const isGameMaster = selfAsPlayer?.scopes.includes(PlayerScope.GameMaster);
+  const canEdit = isOwner || isGameMaster;
   
   useEffect(() => {
     if (campaign) {
@@ -47,7 +54,7 @@ export function CampaignView({
   }, [campaign]);
 
   const editCampaignHandler = async (field: 'name' | 'description') => {
-    if (!campaign) return;
+    if (!campaign || !canEdit) return;
     const setSaveState = field === 'name' ? setCampaignNameSaveState : setCampaignDescriptionSaveState;
     const errorState = field === 'name' ? setCampaignNameError : setCampaignDescriptionError;
     setSaveState('saving');
@@ -92,7 +99,7 @@ export function CampaignView({
       }>Campaigns</Header>
       <Header
         type="h1"
-        icon={
+        icon={canEdit ? (
           <Menu
             icon={<SettingsIcon />}
             items={[
@@ -115,7 +122,7 @@ export function CampaignView({
               },
             ]}
           />
-        }
+        ) : undefined}
       >Campaign</Header>
       {playerCount < 2 && 
         <Card onClick={() => navigate(`/campaigns/${campaign.id}/players`)}>
@@ -149,7 +156,7 @@ export function CampaignView({
           type="secondary"
           onClick={() => navigate(`/campaigns/${campaign.id}/players`)}
         >
-          {`Manage Players (${playerCount})`}
+          {canEdit ? `Manage Players (${playerCount})` : 'View Players'}
         </Button>
       )}
       <Form>
@@ -166,6 +173,7 @@ export function CampaignView({
           saveState={campaignNameSaveState}
           onStateChange={setCampaignNameSaveState}
           error={campaignNameError}
+          readOnly={!canEdit}
         />
         <Input
           type="text"
@@ -179,6 +187,7 @@ export function CampaignView({
           saveState={campaignDescriptionSaveState}
           onStateChange={setCampaignDescriptionSaveState}
           error={campaignDescriptionError}
+          readOnly={!canEdit}
         />
       </Form>
       <Modal

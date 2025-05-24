@@ -44,6 +44,7 @@ export const PlayersView: React.FC<Props> = ({
   const selfAsPlayer = campaign.players.find((p) => p.uid === firebaseUser?.uid);
   const isOwner = selfAsPlayer?.scopes.includes(PlayerScope.Owner);
   const isGameMaster = selfAsPlayer?.scopes.includes(PlayerScope.GameMaster);
+  const canEdit = isOwner || isGameMaster;
   const [friendEmail, setFriendEmail] = useState('');
   const [friendEmailError, setFriendEmailError] = useState<string | null>(null);
   const [invitingPlayer, setInvitingPlayer] = useState(false);
@@ -74,13 +75,19 @@ export const PlayersView: React.FC<Props> = ({
   };
 
   const handleRemovePlayer = async (uid: string) => {
-    if (uid === firebaseUser?.uid) return;
+    // @NOTE: You cannot remove yourself from the campaign if you are the owner or GM of it.
+    const isSelf = uid === firebaseUser?.uid;
+    if (isSelf && canEdit) return;
     setLoading(true);
     try {
       await campaignController.removePlayer(campaign.id, uid);
       const updatedCampaign = campaign.copy();
       updatedCampaign.players = updatedCampaign.players.filter((p) => p.uid !== uid);
       onSetCampaign(updatedCampaign);
+      if (isSelf) {
+        // If the user is removing themselves, navigate back to the campaigns list
+        navigate('/campaigns');
+      }
     } catch (error) {
       toastManager.add({
         title: 'Unexpected Error',
@@ -144,7 +151,7 @@ export const PlayersView: React.FC<Props> = ({
               loading={loading}
             />
           ))}
-          {(isOwner || isGameMaster) && !invitingPlayer && (
+          {canEdit && !invitingPlayer && (
             <Button
               type={campaign.players.length < 2 ? 'primary' : 'secondary'}
               onClick={() => {
