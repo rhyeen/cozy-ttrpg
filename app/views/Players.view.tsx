@@ -31,6 +31,7 @@ export const PlayersView: React.FC<Props> = ({
       <Header type="h1">Players</Header>
       {campaign.players.map((player) => (
         <PlayerCard
+          key={player.uid}
           campaign={campaign}
           playerUid={player.uid}
           players={campaign.players}

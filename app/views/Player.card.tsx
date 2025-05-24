@@ -1,7 +1,8 @@
 import { Toast } from '@base-ui-components/react';
-import { Campaign, FriendConnection, Player, PlayerScope, User } from '@rhyeen/cozy-ttrpg-shared';
+import { Campaign, expandScope, FriendConnection, Player, PlayerScope, User } from '@rhyeen/cozy-ttrpg-shared';
 import Button from 'app/components/Button';
 import Card from 'app/components/Card';
+import Divider from 'app/components/Divider';
 import Form from 'app/components/Form';
 import Header from 'app/components/Header';
 import IconButton from 'app/components/IconButton';
@@ -13,6 +14,7 @@ import SupervisedUserCircleIcon from 'app/components/Icons/SupervisedUserCircle'
 import Loading from 'app/components/Loading';
 import Menu from 'app/components/Menu';
 import Paragraph from 'app/components/Paragraph';
+import Radio from 'app/components/Radio';
 import Section from 'app/components/Section';
 import Switch from 'app/components/Switch';
 import { selectFirebaseUser } from 'app/store/userSlice';
@@ -32,11 +34,6 @@ interface Props {
   friendConnections: FriendConnection[];
 }
 
-interface ScopeSet {
-  checked: boolean;
-  loading: boolean;
-}
-
 export const PlayerCard: React.FC<Props> = ({
   playerUid,
   players,
@@ -53,10 +50,12 @@ export const PlayerCard: React.FC<Props> = ({
   const [scopeGameMaster, setScopeGameMaster] = useState<boolean>(false);
   const [scopeOwner, setScopeOwner] = useState<boolean>(false);
   const [scopePlayer, setScopePlayer] = useState<boolean>(false);
+  const [scopeSpectator, setScopeSpectator] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [player, setPlayer] = useState<Player | undefined>(undefined);
   const [selfAsPlayer, setSelfAsPlayer] = useState<Player | undefined>(undefined);
+  const [advancedScopes, setAdvancedScopes] = useState(false);
 
   useEffect(() => {
     const player = players.find((p) => p.uid === playerUid);
@@ -66,6 +65,7 @@ export const PlayerCard: React.FC<Props> = ({
     setScopeGameMaster(player?.scopes.includes(PlayerScope.GameMaster) || false);
     setScopeOwner(player?.scopes.includes(PlayerScope.Owner) || false);
     setScopePlayer(player?.scopes.includes(PlayerScope.Player) || false);
+    setScopeSpectator(player?.scopes.includes(PlayerScope.Spectator) || false);
   }, [firebaseUser?.uid, playerUid, players]);
 
   const canEditScopes = (
@@ -82,12 +82,12 @@ export const PlayerCard: React.FC<Props> = ({
   };
 
   if (!player) {
-    return <Loading key={playerUid} type="spinner" page />;
+    return <Loading type="spinner" page />;
   }
 
   if (!friend && !friendIsSelf) {
     return (
-      <Section key={playerUid}>
+      <Section>
         <Header type="h5">Not a friend</Header>
         <Button
           type="secondary"
@@ -101,7 +101,7 @@ export const PlayerCard: React.FC<Props> = ({
 
   if (!friend?.selfAsFriend.approvedAt && !friendIsSelf) {
     return (
-      <Section key={playerUid}>
+      <Section>
         <Header type="h5">Not a friend</Header>
         <Button
           type="secondary"
@@ -121,56 +121,58 @@ export const PlayerCard: React.FC<Props> = ({
         return 'Game Master';
       case PlayerScope.Owner:
         return 'Owner';
+      case PlayerScope.Spectator:
+        return 'Spectator';
       default:
         throw new Error(`Unknown scope: ${scope}`);
     }
   };
 
   const handleScopeChange = async (scope: PlayerScope, checked: boolean) => {
-    let setScopeState;
-    switch (scope) {
-      case PlayerScope.Owner:
-        setScopeState = setScopeOwner;
-        break;
-      case PlayerScope.GameMaster:
-        setScopeState = setScopeGameMaster;
-        break;
-      case PlayerScope.Player:
-        setScopeState = setScopePlayer;
-        break;
-      default:
-        throw new Error(`Unknown scope: ${scope}`);
-    }
-    setLoading(true);
-    try {
-      const updatedScopes = checked
+    const updatedScopes = checked
         ? [...player.scopes, scope]
         : player.scopes.filter((s) => s !== scope);
+    await updateScopes(updatedScopes);
+  };
+
+  const updateScopes = async (scopes: PlayerScope[]) => {
+    setLoading(true);
+    try {
       const updatedPlayer = new Player({
         ...player.toJSON(true),
-        scopes: updatedScopes,
+        scopes,
       });
-      await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate delay for UI feedback
       await campaignController.updatePlayerScopes(
         campaign.id,
         playerUid,
-        updatedScopes,
+        scopes,
       );
       onSetPlayer(updatedPlayer);
-      setScopeState(checked);
     } catch (error) {
-      console.error(`Error updating scope ${scope}:`, error);
+      console.error(`Error updating scopes ${scopes}:`, error);
       toastManager.add({
         title: 'Unexpected Error',
-        description: `Failed to update scope: "${getScopeName(scope)}".`,
+        description: `Failed to update scopes.`,
       });
     } finally {
       setLoading(false);
     }
   };
 
+  const getUnexpandedScopeValue = () => {
+    if (scopeOwner) return PlayerScope.Owner;
+    if (scopeGameMaster) return PlayerScope.GameMaster;
+    if (scopePlayer) return PlayerScope.Player;
+    return PlayerScope.Spectator;
+  };
+
+  const handleUnexpandedScopeChange = async (value: string) => {
+    const expandedScopes = expandScope(value as PlayerScope);
+    await updateScopes(expandedScopes);
+  };
+
   return (
-    <Card key={playerUid}>
+    <Card>
       <Card.Header>
         <Card.Header.Left>
           <Header type="h4">{friend?.friendDisplayName || 'This is you'}</Header>
@@ -211,41 +213,99 @@ export const PlayerCard: React.FC<Props> = ({
       {editScopes && (
         <Card.Body>
           <Form>
-            <Header type="h5">Edit Scopes</Header>
+            <Header type="h5">Edit Permissions</Header>
             <Switch
-              checked={scopeOwner}
-              onCheckedChange={(checked) => {
-                handleScopeChange(PlayerScope.Owner, checked);
-              }}
-              disabled={(
-                !friend ||
-                friend?.friendIsSelf ||
-                !selfAsPlayer?.scopes.includes(PlayerScope.Owner)
-              )}
-              loading={loading}
-            >Owner</Switch>
-            <Switch
-              checked={scopeGameMaster}
-              onCheckedChange={(checked) => {
-                handleScopeChange(PlayerScope.GameMaster, checked);
-              }}
-              disabled={(
-                !selfAsPlayer?.scopes.includes(PlayerScope.Owner) &&
-                !selfAsPlayer?.scopes.includes(PlayerScope.GameMaster)
-              )}
-              loading={loading}
-            >Game Master</Switch>
-            <Switch
-              checked={scopePlayer}
-              onCheckedChange={(checked) => {
-                handleScopeChange(PlayerScope.Player, checked);
-              }}
-              disabled={(
-                !selfAsPlayer?.scopes.includes(PlayerScope.Owner) &&
-                !selfAsPlayer?.scopes.includes(PlayerScope.GameMaster)
-              )}
-              loading={loading || true}
-            >Player</Switch>
+              checked={advancedScopes}
+              onCheckedChange={setAdvancedScopes}
+            >
+              <Paragraph>Show Advanced Options</Paragraph>
+              <Paragraph type="caption">(Not Recommended)</Paragraph>
+            </Switch>
+            {advancedScopes ? (
+              <>
+                <Switch
+                  checked={scopeOwner}
+                  onCheckedChange={(checked) => {
+                    handleScopeChange(PlayerScope.Owner, checked);
+                  }}
+                  disabled={(
+                    !friend ||
+                    friend?.friendIsSelf ||
+                    !selfAsPlayer?.scopes.includes(PlayerScope.Owner)
+                  )}
+                  loading={loading}
+                >Owner</Switch>
+                <Switch
+                  checked={scopeGameMaster}
+                  onCheckedChange={(checked) => {
+                    handleScopeChange(PlayerScope.GameMaster, checked);
+                  }}
+                  disabled={(
+                    !selfAsPlayer?.scopes.includes(PlayerScope.Owner) &&
+                    !selfAsPlayer?.scopes.includes(PlayerScope.GameMaster)
+                  )}
+                  loading={loading}
+                >Game Master</Switch>
+                <Switch
+                  checked={scopePlayer}
+                  onCheckedChange={(checked) => {
+                    handleScopeChange(PlayerScope.Player, checked);
+                  }}
+                  disabled={(
+                    !selfAsPlayer?.scopes.includes(PlayerScope.Owner) &&
+                    !selfAsPlayer?.scopes.includes(PlayerScope.GameMaster)
+                  )}
+                  loading={loading}
+                >Player</Switch>
+                <Switch
+                  checked={scopeSpectator}
+                  onCheckedChange={(checked) => {
+                    handleScopeChange(PlayerScope.Spectator, checked);
+                  }}
+                  disabled={(
+                    !selfAsPlayer?.scopes.includes(PlayerScope.Owner) &&
+                    !selfAsPlayer?.scopes.includes(PlayerScope.GameMaster)
+                  )}
+                  loading={loading}
+                >Spectator</Switch>
+              </>
+            ) : (
+              <>
+                <Radio
+                  value={getUnexpandedScopeValue()}
+                  onValueChange={handleUnexpandedScopeChange}
+                  loading={loading}
+                  disabled={!friend || friend.friendIsSelf}
+                  label={!friend || friend.friendIsSelf ? 'Cannot change own permissions' : ''}
+                >
+                  <Radio.Item
+                    value={PlayerScope.Owner}
+                    disabled={!selfAsPlayer?.scopes.includes(PlayerScope.Owner)}
+                  >Owner</Radio.Item>
+                  <Radio.Item
+                    value={PlayerScope.GameMaster}
+                    disabled={(
+                      !selfAsPlayer?.scopes.includes(PlayerScope.GameMaster) &&
+                      !selfAsPlayer?.scopes.includes(PlayerScope.Owner)
+                    )}
+                  >Game Master</Radio.Item>
+                  <Radio.Item
+                    value={PlayerScope.Player}
+                    disabled={(
+                      !selfAsPlayer?.scopes.includes(PlayerScope.GameMaster) &&
+                      !selfAsPlayer?.scopes.includes(PlayerScope.Owner)
+                    )}
+                  >Player</Radio.Item>
+                  <Radio.Item
+                    value={PlayerScope.Spectator}
+                    disabled={(
+                      !selfAsPlayer?.scopes.includes(PlayerScope.GameMaster) &&
+                      !selfAsPlayer?.scopes.includes(PlayerScope.Owner)
+                    )}
+                  >Spectator</Radio.Item>
+                </Radio>
+              </>
+            )}
           </Form>
         </Card.Body>
       )}

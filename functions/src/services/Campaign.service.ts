@@ -1,6 +1,6 @@
 import { firestore } from 'firebase-admin';
 import { Service } from './Service';
-import { Campaign, CampaignFactory, CampaignJson, Player, PlayerScope } from '@rhyeen/cozy-ttrpg-shared';
+import { Campaign, CampaignFactory, CampaignJson, expandScope, Player, PlayerScope } from '@rhyeen/cozy-ttrpg-shared';
 import { HttpsError } from 'firebase-functions/https';
 
 export class CampaignService extends Service{
@@ -72,7 +72,7 @@ export class CampaignService extends Service{
         approvedAt: new Date(),
         deniedAt: null,
         deletedAt: null,
-        scopes: [ PlayerScope.Owner, PlayerScope.GameMaster ],
+        scopes: expandScope(PlayerScope.Owner),
       }),
     ];
     await this.db.collection('campaigns').doc(newCampaign.id).set(newCampaign.toJSON(true));
@@ -162,7 +162,7 @@ export class CampaignService extends Service{
       player.deniedAt = new Date();
       player.approvedAt = null;
     }
-    await this.db.collection('campaigns').doc(campaignId).set({
+    await this.db.collection('campaigns').doc(campaignId).update({
       players: existingCampaign.players.map(p => p.toJSON(true)),
     });
   }
@@ -191,8 +191,8 @@ export class CampaignService extends Service{
     ) {
       throw new HttpsError('permission-denied', 'You are not allowed to update player scopes');
     }
-    if (playerUid === uid) {
-      throw new HttpsError('permission-denied', 'You cannot update your own scopes');
+    if (playerUid === uid && !scopes.includes(PlayerScope.Owner) && userPlayer.scopes.includes(PlayerScope.Owner)) {
+      throw new HttpsError('permission-denied', 'You cannot update your own owner scope');
     }
     if (scopes.includes(PlayerScope.Owner) && !userPlayer.scopes.includes(PlayerScope.Owner)) {
       throw new HttpsError('permission-denied', 'You cannot assign an owner scope to a player if you are not an owner');
@@ -205,7 +205,7 @@ export class CampaignService extends Service{
       throw new HttpsError('permission-denied', 'You cannot assign a GM scope to a player if you are not a GM or an owner');
     }
     player.scopes = scopes;
-    await this.db.collection('campaigns').doc(campaignId).set({
+    await this.db.collection('campaigns').doc(campaignId).update({
       players: existingCampaign.players.map(p => p.toJSON(true)),
     });
   }

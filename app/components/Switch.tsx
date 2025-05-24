@@ -15,7 +15,7 @@ const Switch: React.FC<SwitchProps> = ({
 }) => {
 
   return (
-    <div className={`${styles.wrapper} ${loading ? styles.loading : ''}`}>
+    <div className={`${styles.wrapper} ${loading || disabled ? styles.disabled : ''}`}>
       <BaseSwitch.Root
         className={styles.switch}
         checked={checked}

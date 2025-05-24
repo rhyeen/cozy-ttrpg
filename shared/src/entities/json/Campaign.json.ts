@@ -4,6 +4,33 @@ export enum PlayerScope {
   Owner = 'owner',
   GameMaster = 'gm',
   Player = 'player',
+  Spectator = 'spectator',
+}
+
+export function expandScope(
+  scope: PlayerScope | PlayerScope[],
+): PlayerScope[] {
+  if (Array.isArray(scope)) {
+    return expandScope(scope.map(s => s)).flat();
+  }
+  const scopes = [PlayerScope.Spectator];
+  if (scope === PlayerScope.Spectator) {
+    return scopes;
+  }
+  scopes.push(PlayerScope.Player);
+  if (scope === PlayerScope.Player) {
+    return scopes;
+  }
+  scopes.push(PlayerScope.GameMaster);
+  if (scope === PlayerScope.GameMaster) {
+    return scopes;
+  }
+  scopes.push(PlayerScope.Owner);
+  if (scope === PlayerScope.Owner) {
+    return scopes;
+  }
+  // If we reach here, it means the scope is not recognized
+  throw new Error(`Unknown scope: ${scope}`);
 }
 
 export interface PlayerJson {

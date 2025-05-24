@@ -10,6 +10,7 @@
 .scrollWrapper {
   border-radius: 1rem;
   background-color: white;
+  border: 1rem solid white;
   container-type: inline-size;
   box-sizing: border-box;
   /* Take up the remaining space */
@@ -22,7 +23,7 @@
 
 .content {
   background-color: white;
-  padding: 2rem 1rem;
+  padding: 1rem 0rem;
   width: 100%;
   box-sizing: border-box;
   display: flex;

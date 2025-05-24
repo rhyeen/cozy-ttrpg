@@ -1,0 +1,80 @@
+.radioGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 0.5rem;
+}
+
+.caption {
+  font-weight: 600;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.radio {
+  box-sizing: border-box;
+  display: flex;
+  width: 1.25rem;
+  height: 1.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 100%;
+  outline: 0 solid #d9e80a;
+  padding: 0;
+  margin: 0;
+  border: 0.125rem solid #5e6f34;
+  transition: all 0.125s ease-in-out;
+
+  &[data-unchecked] {
+    border: 0.125rem solid #c4bead;
+    background-color: transparent;
+  }
+
+  &[data-checked] {
+    background-color: #5e6f34;
+  }
+
+  &[data-checked]:active {
+    outline-width: 0.125rem;
+  }
+
+  &[data-unchecked]:active {
+    outline-width: 0.125rem;
+  }
+
+  &:focus-visible {
+    outline-width: 0.125rem;
+  }
+}
+
+.indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.125s ease-in-out;
+  opacity: 1;
+
+  &[data-unchecked] {
+    opacity: 0;
+  }
+
+  &::before {
+    content: '';
+    border-radius: 100%;
+    width: 0.5rem;
+    height: 0.5rem;
+    background-color: canvas;
+  }
+}
+
+.radioGroup.loading,
+.radioGroup:disabled,
+.radioGroup.disabled {
+  filter: grayscale(100%);
+  opacity: 0.5;
+}
