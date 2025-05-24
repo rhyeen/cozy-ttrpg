@@ -30,8 +30,10 @@ interface Props {
   playerUid: string;
   players: Player[];
   onSetPlayer: (player: Player) => void;
+  onRemovePlayer: () => void;
   friendUsers: User[];
   friendConnections: FriendConnection[];
+  loading?: boolean;
 }
 
 export const PlayerCard: React.FC<Props> = ({
@@ -41,6 +43,7 @@ export const PlayerCard: React.FC<Props> = ({
   friendUsers,
   friendConnections,
   campaign,
+  onRemovePlayer,
 }) => {
   const toastManager = Toast.useToastManager();
   const firebaseUser = useSelector(selectFirebaseUser);
@@ -171,6 +174,31 @@ export const PlayerCard: React.FC<Props> = ({
     await updateScopes(expandedScopes);
   };
 
+  const getMenuItems = () => {
+    const items = [];
+    const isSelf = !friend || friend.friendIsSelf;
+    if (!isSelf) {
+      items.push({
+        label: 'Friend Info',
+        onClick: () => navigate(`/`),
+        icon: <SupervisedUserCircleIcon />,
+      });
+    }
+    items.push({
+      label: 'Characters',
+      onClick: () => navigate(`/`),
+      icon: <FaceIcon />,
+    });
+    if (!isSelf) {
+      items.push({
+        label: 'Remove from Campaign',
+        onClick: onRemovePlayer,
+        icon: <DeleteIcon />,
+      });
+    }
+    return items;
+  };
+
   return (
     <Card>
       <Card.Header>
@@ -189,23 +217,8 @@ export const PlayerCard: React.FC<Props> = ({
             )}
             <Menu
               icon={<SettingsIcon />}
-              items={[
-                {
-                  label: 'View Friend Details',
-                  onClick: () => navigate(`/`),
-                  icon: <SupervisedUserCircleIcon />,
-                },
-                {
-                  label: 'View Characters',
-                  onClick: () => navigate(`/`),
-                  icon: <FaceIcon />,
-                },
-                {
-                  label: 'Remove from Campaign',
-                  onClick: () => navigate(`/`),
-                  icon: <DeleteIcon />,
-                },
-              ]}
+              items={getMenuItems()}
+              loading={loading}
             />
           </IconButton.Bar>
         </Card.Header.Right>

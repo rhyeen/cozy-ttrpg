@@ -2,6 +2,7 @@ import { firestore } from 'firebase-admin';
 import { Service } from './Service';
 import { Campaign, CampaignFactory, CampaignJson, expandScope, Player, PlayerScope } from '@rhyeen/cozy-ttrpg-shared';
 import { HttpsError } from 'firebase-functions/https';
+import { FieldValue } from 'firebase-admin/firestore';
 
 export class CampaignService extends Service{
   private factory: CampaignFactory;
@@ -109,23 +110,26 @@ export class CampaignService extends Service{
     uid: string,
     playerUid: string,
     campaignId: string,
-  ): Promise<void> {
+  ): Promise<Player> {
     const existingCampaign = await this.getCampaign(campaignId, uid);
     if (!existingCampaign) {
       throw new HttpsError('not-found', 'Campaign not found');
     }
-    const player = existingCampaign.players.find(p => p.uid === playerUid);
-    if (!player) {
-      throw new HttpsError('not-found', 'Player not found');
+    const selfPlayer = existingCampaign.players.find(p => p.uid === uid);
+    if (!selfPlayer) {
+      throw new HttpsError('not-found', 'You are not a player in this campaign');
     }
     if (
-      !player.scopes.includes(PlayerScope.Owner) &&
-      !player.scopes.includes(PlayerScope.GameMaster)
+      !selfPlayer.scopes.includes(PlayerScope.Owner) &&
+      !selfPlayer.scopes.includes(PlayerScope.GameMaster)
     ) {
       throw new HttpsError('permission-denied', 'You are not allowed to add players');
     }
     if (playerUid === uid) {
       throw new HttpsError('permission-denied', 'You cannot add yourself to the campaign');
+    }
+    if (existingCampaign.players.some(p => p.uid === playerUid)) {
+      throw new HttpsError('already-exists', 'Player already exists in the campaign');
     }
     const campaignRef = this.db.collection('campaigns').doc(campaignId);
     const newPlayer = new Player({
@@ -135,18 +139,20 @@ export class CampaignService extends Service{
       approvedAt: null,
       deniedAt: null,
       deletedAt: null,
-      scopes: [ PlayerScope.Player ],
+      scopes: expandScope(PlayerScope.Player),
     });
     await campaignRef.update({
-      players: firestore.FieldValue.arrayUnion(newPlayer.toJSON(true)),
+      players: FieldValue.arrayUnion(newPlayer.toJSON(true)),
+      players_uids: FieldValue.arrayUnion(playerUid),
     });
+    return newPlayer;
   }
 
   public async updatePlayerStatus(
     uid: string,
     campaignId: string,
     status: 'approved' | 'denied',
-  ) {
+  ): Promise<Player>{
     const existingCampaign = await this.getCampaign(campaignId, uid);
     if (!existingCampaign) {
       throw new HttpsError('not-found', 'Campaign not found');
@@ -165,6 +171,7 @@ export class CampaignService extends Service{
     await this.db.collection('campaigns').doc(campaignId).update({
       players: existingCampaign.players.map(p => p.toJSON(true)),
     });
+    return player;
   }
 
   public async updatePlayerScopes(
@@ -172,7 +179,7 @@ export class CampaignService extends Service{
     playerUid: string,
     campaignId: string,
     scopes: PlayerScope[],
-  ) {
+  ): Promise<Player> {
     const existingCampaign = await this.getCampaign(campaignId, uid);
     if (!existingCampaign) {
       throw new HttpsError('not-found', 'Campaign not found');
@@ -208,6 +215,7 @@ export class CampaignService extends Service{
     await this.db.collection('campaigns').doc(campaignId).update({
       players: existingCampaign.players.map(p => p.toJSON(true)),
     });
+    return player;
   }
 
   public async removePlayer(
@@ -219,27 +227,31 @@ export class CampaignService extends Service{
     if (!existingCampaign) {
       throw new HttpsError('not-found', 'Campaign not found');
     }
+    const userPlayer = existingCampaign.players.find(p => p.uid === uid);
     const player = existingCampaign.players.find(p => p.uid === playerUid);
     if (!player) {
       throw new HttpsError('not-found', 'Player not found');
     }
+    if (!userPlayer) {
+      throw new HttpsError('not-found', 'User\'s player not found');
+    }
     if (
-      !player.scopes.includes(PlayerScope.Owner) &&
-      !player.scopes.includes(PlayerScope.GameMaster)
+      !userPlayer.scopes.includes(PlayerScope.Owner) &&
+      !userPlayer.scopes.includes(PlayerScope.GameMaster)
     ) {
       throw new HttpsError('permission-denied', 'You are not allowed to remove players');
     }
     if (
       playerUid === uid &&
-      (player.scopes.includes(PlayerScope.Owner) || player.scopes.includes(PlayerScope.GameMaster))
+      (userPlayer.scopes.includes(PlayerScope.Owner) || userPlayer.scopes.includes(PlayerScope.GameMaster))
     ) {
       throw new HttpsError('permission-denied', 'You cannot remove yourself from the campaign if you run it');
     }
     const campaignRef = this.db.collection('campaigns').doc(campaignId);
+    const updatedPlayers = existingCampaign.players.filter(p => p.uid !== playerUid);
     await campaignRef.update({
-      players: firestore.FieldValue.arrayRemove({
-        uid: playerUid,
-      }),
+      players: updatedPlayers.map(p => p.toJSON(true)),
+      [`players_uids`]: FieldValue.arrayRemove(playerUid),
     });
   }
 }

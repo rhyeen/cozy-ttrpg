@@ -1,6 +1,5 @@
 import { Friend, FriendConnection, User } from '@rhyeen/cozy-ttrpg-shared';
-import { selectFirebaseUser } from 'app/store/userSlice';
-import { use } from 'react';
+import { selectFirebaseUser, type FirebaseUser } from 'app/store/userSlice';
 import { useSelector } from 'react-redux';
 
 interface FriendContext {
@@ -12,11 +11,11 @@ interface FriendContext {
   friendIsSelf: boolean;
 }
 
-export function useFriend(
+export function getFriend(
+  firebaseUser: FirebaseUser | null | undefined,
   friendConnection: FriendConnection,
   friendUsers: User[],
 ): FriendContext {
-  const firebaseUser = useSelector(selectFirebaseUser);
   const friend = (
     friendConnection.invited.uid === firebaseUser?.uid ? friendConnection.invitedBy : friendConnection.invited
   );
@@ -24,7 +23,7 @@ export function useFriend(
   const selfAsFriend = (
     friendConnection.invited.uid === firebaseUser?.uid ? friendConnection.invited : friendConnection.invitedBy
   );
-  const friendIsSelf = useFriendIsSelf(friend.uid);
+  const friendIsSelf = friend.uid === firebaseUser?.uid;
   const friendDisplayName = friendIsSelf ? 'This is you' : (
     friend.otherFriendViewableContext.nickname ||
     friendAsUser?.displayName ||
@@ -43,6 +42,14 @@ export function useFriend(
     friendNote,
     friendIsSelf,
   }
+}
+
+export function useFriend(
+  friendConnection: FriendConnection,
+  friendUsers: User[],
+): FriendContext {
+  const firebaseUser = useSelector(selectFirebaseUser);
+  return getFriend(firebaseUser, friendConnection, friendUsers);
 }
 
 export function useFriendIsSelf(

@@ -1,6 +1,7 @@
 html {
   /* Set base font size for rem units */
   font-size: 20px;
+  background-color: #cfd1dc;
 }
 
 *,

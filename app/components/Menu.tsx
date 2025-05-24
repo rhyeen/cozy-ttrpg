@@ -14,13 +14,15 @@ export interface MenuItemProps {
 interface MenuProps {
   items: MenuItemProps[];
   icon?: React.ReactNode;
+  disabled?: boolean;
+  loading?: boolean;
 }
 
-const Menu: React.FC<MenuProps> = ({ items, icon }) => {
+const Menu: React.FC<MenuProps> = ({ items, icon, loading, disabled }) => {
   const [ open, setOpen ] = React.useState(false);
 
   return (
-    <BaseMenu.Root onOpenChange={setOpen}>
+    <BaseMenu.Root onOpenChange={setOpen} disabled={disabled || loading}>
       <BaseMenu.Trigger className={styles.trigger}>
         <IconButton asDiv onClick={() => {}} active={open}>
           {icon || <MenuIcon />}

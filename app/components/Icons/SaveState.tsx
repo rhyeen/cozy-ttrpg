@@ -10,9 +10,10 @@ export type SaveState = 'saving' | 'success' | 'hide' | 'error';
 interface SaveProps extends IconProps {
   state: SaveState;
   onStateChange: (state: SaveState) => void;
+  hideIcon?: React.ReactNode;
 }
 
-function SaveStateIcon({ state, onStateChange }: SaveProps) {
+function SaveStateIcon({ state, onStateChange, hideIcon }: SaveProps) {
   useEffect(() => {
     if (state === 'success' || state === 'error') {
       const timer = setTimeout(() => {
@@ -24,6 +25,9 @@ function SaveStateIcon({ state, onStateChange }: SaveProps) {
 
   return (
     <div className={styles.wrapper}>
+      <div className={styles.fade} style={{ opacity: state === 'hide' ? 1 : 0 }}>
+        {hideIcon}
+      </div>
       <div className={styles.fade} style={{ opacity: state === 'saving' ? 1 : 0 }}>
         <SyncIcon animation color='#d9e80a' />
       </div>

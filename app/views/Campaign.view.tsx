@@ -117,25 +117,27 @@ export function CampaignView({
           />
         }
       >Campaign</Header>
-      <Card>
-        <Card.Header>
-          <Card.Header.Left>
-            <Header type="h3">Missing players!</Header>
-            <Paragraph>It's a lot more fun with friends! Invite others to join.</Paragraph>
-          </Card.Header.Left>
-          <Card.Header.Right>
-            <ErrorIcon color="#d01a4a" />
-          </Card.Header.Right>
-        </Card.Header>
-        <Card.Body>
-          <Button
-            type="primary"
-            onClick={() => navigate(`/campaigns/${campaign.id}/players`)}
-          >
-            Invite Players
-          </Button>
-        </Card.Body>
-      </Card>
+      {playerCount < 2 && 
+        <Card onClick={() => navigate(`/campaigns/${campaign.id}/players`)}>
+          <Card.Header>
+            <Card.Header.Left>
+              <Header type="h3">Missing players!</Header>
+              <Paragraph>It's a lot more fun with friends! Invite others to join.</Paragraph>
+            </Card.Header.Left>
+            <Card.Header.Right>
+              <ErrorIcon color="#d01a4a" />
+            </Card.Header.Right>
+          </Card.Header>
+          <Card.Body>
+            <Button
+              type="primary"
+              onClick={() => navigate(`/campaigns/${campaign.id}/players`)}
+            >
+              Invite Players
+            </Button>
+          </Card.Body>
+        </Card>
+      }
       <Button
         type={playerCount < 2 ? 'secondary' : 'primary'}
         onClick={() => navigate(`/campaigns/${campaign.id}/play`)}
@@ -147,7 +149,7 @@ export function CampaignView({
           type="secondary"
           onClick={() => navigate(`/campaigns/${campaign.id}/players`)}
         >
-          Manage Players
+          {`Manage Players (${playerCount})`}
         </Button>
       )}
       <Form>

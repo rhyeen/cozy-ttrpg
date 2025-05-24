@@ -1,6 +1,21 @@
 .wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.divider {
   border: none;
   border-top: 0.25rem dotted #c4bead66;
   width: 100%;
   margin: 1rem 0;
+}
+
+.label {
+  padding: 0 1rem;
+  margin-top: -0.125rem;
+  color: #c4bead;
+  font-weight: 600;
+  text-transform: uppercase;
 }

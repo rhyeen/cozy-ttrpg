@@ -1,4 +1,4 @@
-import type { Campaign, CampaignJson, PlayerScope } from '@rhyeen/cozy-ttrpg-shared';
+import { Player, type Campaign, type CampaignJson, type PlayerJson, type PlayerScope } from '@rhyeen/cozy-ttrpg-shared';
 import { campaignFactory } from '../utils/factories';
 import { Controller } from './Controller';
 
@@ -41,11 +41,12 @@ export class CampaignController extends Controller {
   public async addPlayer(
     campaignId: string,
     playerUid: string,
-  ): Promise<void> {
-    await this.callFirebase<
+  ): Promise<Player> {
+    const result = await this.callFirebase<
       { campaignId: string; playerUid: string },
-      undefined
+      { item: PlayerJson }
     >('addPlayer', { campaignId, playerUid });
+    return new Player(result.item);
   }
 
   public async removePlayer(
@@ -62,21 +63,23 @@ export class CampaignController extends Controller {
   public async updateSelfPlayerStatus(
     campaignId: string,
     status: 'approved' | 'denied',
-  ): Promise<void> {
-    await this.callFirebase<
+  ): Promise<Player> {
+    const result = await this.callFirebase<
       { campaignId: string; status: 'approved' | 'denied' },
-      undefined
+      { item: PlayerJson }
     >('updateSelfPlayerStatus', { campaignId, status });
+    return new Player(result.item);
   }
 
   public async updatePlayerScopes(
     campaignId: string,
     playerUid: string,
     scopes: PlayerScope[],
-  ): Promise<void> {
-    await this.callFirebase<
+  ): Promise<Player> {
+    const result = await this.callFirebase<
       { campaignId: string; playerUid: string; scopes: PlayerScope[] },
-      undefined
+      { item: PlayerJson }
     >('updatePlayerScopes', { campaignId, playerUid, scopes });
+    return new Player(result.item);
   }
 }

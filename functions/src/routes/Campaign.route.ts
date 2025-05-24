@@ -71,12 +71,12 @@ export class CampaignRoute extends Route {
     if (!campaignId || !playerUid) {
       throw new HttpsError('invalid-argument', 'Campaign ID and Player UID are required');
     }
-    await this.service.addPlayer(
+    const player = await this.service.addPlayer(
       this.getUidFromRequest(request),
       playerUid,
       campaignId,
     );
-    return this.handleOkResponse();
+    return this.handleJsonResponse({ item: player.toJSON(false) });
   }
 
   public async removePlayer(
@@ -106,12 +106,12 @@ export class CampaignRoute extends Route {
     if (status !== 'approved' && status !== 'denied') {
       throw new HttpsError('invalid-argument', 'status must be "approved" or "denied"');
     }
-    await this.service.updatePlayerStatus(
+    const player = await this.service.updatePlayerStatus(
       this.getUidFromRequest(request),
       campaignId,
       status,
     );
-    return this.handleOkResponse();
+    return this.handleJsonResponse({ item: player.toJSON(false) });
   }
 
   public async updatePlayerScopes(
@@ -123,12 +123,12 @@ export class CampaignRoute extends Route {
     if (!campaignId || !playerUid || !scopes) {
       throw new HttpsError('invalid-argument', 'campaignId, playerUid and scopes are required');
     }
-    await this.service.updatePlayerScopes(
+    const player = await this.service.updatePlayerScopes(
       this.getUidFromRequest(request),
       playerUid,
       campaignId,
       scopes,
     );
-    return this.handleOkResponse();
+    return this.handleJsonResponse({ item: player.toJSON(false) });
   }
 }

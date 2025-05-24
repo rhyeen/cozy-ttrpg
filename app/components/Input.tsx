@@ -48,7 +48,7 @@ const Input: React.FC<InputProps> = ({ label, ...props }) => {
             minLength={props.minLength}
           />
           {!!icon && (
-            <div className={`${styles.icon} ${props.saveState === 'hide' ? styles.hide : ''}`}>{icon}</div>
+            <div className={`${styles.icon} ${props.saveState === 'hide' && !props.error ? styles.hide : ''}`}>{icon}</div>
           )}
         </div>
         {!!props.error && <span className={styles.helper}>{props.error}</span>}

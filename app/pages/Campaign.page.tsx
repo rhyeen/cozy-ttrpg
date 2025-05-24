@@ -63,6 +63,8 @@ export function CampaignPage({ campaignId, subPage }: Props) {
         onSetCampaign={setCampaignsState}
         friendUsers={friendUsers}
         friendConnections={friends}
+        onSetFriendUsers={setFriendUsers}
+        onSetFriendConnections={setFriends}
       />
     );
   }

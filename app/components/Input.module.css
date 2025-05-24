@@ -62,13 +62,13 @@
 
 .icon {
   position: absolute;
-  width: 2rem;
-  height: 2rem;
-  top: 0.25rem;
+  width: 1.875rem;
+  height: 1.875rem;
+  top: 0.3rem;
   right: 0.45rem;
-  padding: 0.125rem;
+  padding: 0rem;
   background-color: canvas;
-  transition: all 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;;
 }
 
 .icon.hide {
