@@ -2,13 +2,24 @@
   position: fixed;
   inset: 0;
   background-color: black;
-  opacity: 0.5;
+
+  /* 
+   * @NOTE: This is only half of it. The other half is in the popup's huge box-shadow.
+   * This is to ensure that even if there are multiple popups, there is still a backdrop.
+   * It's just that multiple popups don't dim the overall backdrop too much.
+   */
+  opacity: 0.25;
   transition: opacity 150ms cubic-bezier(0.45, 1.005, 0, 1.005);
 
   &[data-starting-style],
   &[data-ending-style] {
     opacity: 0;
   }
+}
+
+.formMax.popup {
+  /* 20rem is normal form + 2 for the padding */
+  min-width: calc(20rem + 2rem);
 }
 
 .popup {
@@ -23,6 +34,7 @@
   border-radius: 1rem;
   background-color: canvas;
   transition: all 0.2s ease-in-out;
+  box-shadow: 0 0 0 calc(100vw + 100vh) rgba(0, 0, 0, 0.25);
 
   &[data-starting-style],
   &[data-ending-style] {

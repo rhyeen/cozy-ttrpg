@@ -21,7 +21,17 @@ export class FriendConnectionController extends Controller {
     };
   }
 
-  public async inviteFriend(
+  public async inviteFriendViaUid(
+    uid: string,
+  ): Promise<FriendConnection> {
+    const result = await this.callFirebase<
+      { uid: string },
+      { connection: FriendConnectionJson }
+    >('inviteFriend', { uid });
+    return friendConnectionFactory.fromJSON(result.connection);
+  }
+
+  public async inviteFriendViaEmail(
     email: string,
   ): Promise<FriendConnection> {
     const result = await this.callFirebase<

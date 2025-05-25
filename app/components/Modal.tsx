@@ -4,7 +4,7 @@ import { AlertDialog, Dialog } from '@base-ui-components/react';
 import Button from './Button';
 
 interface ModalProps {
-  title: string;
+  title?: string;
   secondaryBtn?: {
     onClick: () => void;
     label?: string;
@@ -18,6 +18,7 @@ interface ModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   loading?: boolean;
+  size?: 'formMax';
 }
 
 const Modal: React.FC<ModalProps> = (props: ModalProps) => {
@@ -27,11 +28,11 @@ const Modal: React.FC<ModalProps> = (props: ModalProps) => {
     <Component.Root open={props.open} onOpenChange={props.onOpenChange}>
       <Component.Portal>
         <Component.Backdrop className={styles.backdrop} />
-        <Component.Popup className={styles.popup}>
-          <Component.Title className={styles.title}>{props.title}</Component.Title>
-          <Component.Description className={styles.description}>
+        <Component.Popup className={`${styles.popup} ${props.size ? styles[props.size] : ''}`}>
+          {props.title && <Component.Title className={styles.title}>{props.title}</Component.Title>}
+          <div className={styles.description}>
             {props.children}
-          </Component.Description>
+          </div>
           <div className={styles.actions}>
             {props.secondaryBtn && (
               <Button

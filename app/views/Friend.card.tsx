@@ -19,22 +19,59 @@ import Modal from 'app/components/Modal';
 import HeartIcon from 'app/components/Icons/Heart';
 import Button from 'app/components/Button';
 import Paragraph from 'app/components/Paragraph';
-import { useFriend } from 'app/utils/hooks/useFriend';
+import { useFriend, type FriendContext } from 'app/utils/hooks/useFriend';
+import { Toast } from '@base-ui-components/react';
 
 interface Props {
   friendConnection: FriendConnection;
   onSetFriendConnection: (friendConnection: FriendConnection) => void;
   friendUsers: User[];
+  noBorder?: boolean;
+  setByDefault?: 'showView' | 'showEdit';
 }
+
+export async function updateFriendStatus(
+  friendConnection: FriendConnection,
+  friend: FriendContext,
+  status: 'approved' | 'denied'
+): Promise<FriendConnection> {
+    await friendConnectionController.updateFriendStatus(
+      friendConnection.id,
+      friend.selfAsFriend.uid === friendConnection.invited.uid ? 'invited' : 'invitedBy',
+      status,
+    );
+    const updatedFriendConnection = await friendConnection.copy();
+    if (status === 'approved') {
+      if (friend.selfAsFriend.uid === friendConnection.invited.uid) {
+        updatedFriendConnection.invited.approvedAt = new Date();
+        updatedFriendConnection.invited.deniedAt = null;
+      } else {
+        updatedFriendConnection.invitedBy.approvedAt = new Date();
+        updatedFriendConnection.invitedBy.deniedAt = null;
+      }
+    } else {
+      if (friend.selfAsFriend.uid === friendConnection.invited.uid) {
+        updatedFriendConnection.invited.deniedAt = new Date();
+        updatedFriendConnection.invited.approvedAt = null;
+      } else {
+        updatedFriendConnection.invitedBy.deniedAt = new Date();
+        updatedFriendConnection.invitedBy.approvedAt = null;
+      }
+    }
+    return updatedFriendConnection;
+  };
 
 export const FriendCard: React.FC<Props> = ({
   friendConnection,
   friendUsers,
   onSetFriendConnection,
+  noBorder,
+  setByDefault,
 }) => {
-  const [ editFriend, setEditFriend ] = useState(false);
+  const toastManager = Toast.useToastManager();
+  const [ editFriend, setEditFriend ] = useState(setByDefault === 'showEdit');
   const [ denyFriend, setDenyFriend ] = useState(false);
-  const [ viewFriend, setViewFriend ] = useState(false);
+  const [ viewFriend, setViewFriend ] = useState(setByDefault === 'showView');
   const [ friendNickname, setFriendNickname ] = useState('');
   const [ friendNote, setFriendNote ] = useState('');
   const [ friendNicknameSaveState, setFriendNicknameSaveState ] = useState<SaveState>('hide');
@@ -76,40 +113,26 @@ export const FriendCard: React.FC<Props> = ({
       setSaveState('success');
     } catch (error) {
       console.error('Error updating friend context:', error);
+      toastManager.add({
+        title: 'Unexpected Error',
+        description: `Failed to update friend details.`,
+      });
       setSaveState('error');
       errorState('Error updating friend context.');
     }
   };
 
-  const updateFriendStatus = async (status: 'approved' | 'denied') => {
+  const _updateFriendStatus = async (status: 'approved' | 'denied') => {
     setLoading(true);
     try {
-      await friendConnectionController.updateFriendStatus(
-        friendConnection.id,
-        friend.selfAsFriend.uid === friendConnection.invited.uid ? 'invited' : 'invitedBy',
-        status,
-      );
-      const updatedFriendConnection = await friendConnection.copy();
-      if (status === 'approved') {
-        if (friend.selfAsFriend.uid === friendConnection.invited.uid) {
-          updatedFriendConnection.invited.approvedAt = new Date();
-          updatedFriendConnection.invited.deniedAt = null;
-        } else {
-          updatedFriendConnection.invitedBy.approvedAt = new Date();
-          updatedFriendConnection.invitedBy.deniedAt = null;
-        }
-      } else {
-        if (friend.selfAsFriend.uid === friendConnection.invited.uid) {
-          updatedFriendConnection.invited.deniedAt = new Date();
-          updatedFriendConnection.invited.approvedAt = null;
-        } else {
-          updatedFriendConnection.invitedBy.deniedAt = new Date();
-          updatedFriendConnection.invitedBy.approvedAt = null;
-        }
-      }
+      const updatedFriendConnection = await updateFriendStatus(friendConnection, friend, status);
       onSetFriendConnection(updatedFriendConnection);
     } catch (error) {
       console.error('Error denying friend:', error);
+      toastManager.add({
+        title: 'Unexpected Error',
+        description: `Failed to update friend status.`,
+      });
     } finally {
       setLoading(false);
       setDenyFriend(false);
@@ -118,7 +141,7 @@ export const FriendCard: React.FC<Props> = ({
 
   return (
     <>
-      <Card>
+      <Card noBorder={noBorder}>
         <Card.Header>
           <Card.Header.Left>
             <Header type="h4">{friend.friendDisplayName}</Header>
@@ -149,7 +172,7 @@ export const FriendCard: React.FC<Props> = ({
                       if (friend.selfAsFriend.approvedAt) {
                         setDenyFriend(true);
                       } else {
-                        updateFriendStatus('approved');
+                        _updateFriendStatus('approved');
                       }
                     },
                     icon: friend.selfAsFriend.approvedAt ? <HeartBrokenIcon /> : <HeartIcon />,
@@ -267,7 +290,7 @@ export const FriendCard: React.FC<Props> = ({
             {!friend.selfAsFriend.approvedAt && !editFriend && !viewFriend && (
               <Button
                 type="primary"
-                onClick={() => updateFriendStatus('approved')}
+                onClick={() => _updateFriendStatus('approved')}
                 loading={loading}
               >
                 Approve Friendship
@@ -279,7 +302,7 @@ export const FriendCard: React.FC<Props> = ({
       <Modal
         title="Deny Friendship"
         secondaryBtn
-        primaryBtn={{ onClick: () => updateFriendStatus('denied'), label: 'Deny Request' }}
+        primaryBtn={{ onClick: () => _updateFriendStatus('denied'), label: 'Deny Request' }}
         open={denyFriend}
         onOpenChange={setDenyFriend}
         loading={loading}

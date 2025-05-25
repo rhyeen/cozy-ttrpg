@@ -9,6 +9,7 @@ import Header from 'app/components/Header';
 
 export function CampaignsView() {
   const [campaigns, setCampaigns] = useState<Campaign[] | undefined>();
+  const [ loading, setLoading ] = useState(false);
 
   const getCampaigns = async () => {
     const result = await campaignController.getCampaigns();
@@ -16,9 +17,11 @@ export function CampaignsView() {
   };
 
   const createCampaign = async () => {
+    setLoading(true);
     const newCampaign = new Campaign('', 'New Campaign', '', []);
     const createdCampaign = await campaignController.createCampaign(newCampaign);
     setCampaigns((prev) => (prev ? [...prev, createdCampaign] : [createdCampaign]));
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -45,7 +48,11 @@ export function CampaignsView() {
           }}
         />
       ))}
-      <Button type={filteredCampaigns.length ? 'secondary' : 'primary'} onClick={createCampaign}>
+      <Button
+        type={filteredCampaigns.length ? 'secondary' : 'primary'}
+        onClick={createCampaign}
+        loading={loading}
+      >
         Create Campaign
       </Button>
     </Section>

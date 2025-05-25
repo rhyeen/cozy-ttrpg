@@ -4,6 +4,7 @@ import Divider from './Divider';
 
 interface CardProps {
   children: React.ReactNode;
+  noBorder?: boolean;
   onClick?: () => void;
 }
 
@@ -25,10 +26,10 @@ type CardComponent = React.FC<CardProps> & {
   Body: React.FC<CardBodyProps>;
 };
 
-const CardBase: React.FC<CardProps> = ({ children, onClick }) => {
+const CardBase: React.FC<CardProps> = ({ children, onClick, noBorder }) => {
   return (
     <section
-      className={`${styles.wrapper} ${onClick ? styles.clickable : ''}`}
+      className={`${styles.wrapper} ${onClick ? styles.clickable : ''} ${noBorder ? styles.noBorder : ''}`}
       onClick={onClick}
     >
       <div className={styles.innerWrapper}>

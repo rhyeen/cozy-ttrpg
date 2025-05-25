@@ -19,7 +19,6 @@ import Paragraph from 'app/components/Paragraph';
 import SaveStateIcon from 'app/components/Icons/SaveState';
 import { inviteFriend } from './Friends.view';
 import { campaignController } from 'app/utils/services';
-import { sleep } from 'app/utils/sleep';
 import { Toast } from '@base-ui-components/react';
 
 interface Props {
@@ -29,6 +28,7 @@ interface Props {
   onSetFriendUsers: (users: User[]) => void;
   friendConnections: FriendConnection[];
   onSetFriendConnections: (connections: FriendConnection[]) => void;
+  onRefreshFriends: () => Promise<void>;
 }
 
 export const PlayersView: React.FC<Props> = ({
@@ -38,6 +38,7 @@ export const PlayersView: React.FC<Props> = ({
   friendConnections,
   onSetFriendUsers,
   onSetFriendConnections,
+  onRefreshFriends,
 }) => {
   const navigate = useNavigate();
   const firebaseUser = useSelector(selectFirebaseUser);
@@ -148,7 +149,9 @@ export const PlayersView: React.FC<Props> = ({
               friendUsers={friendUsers}
               friendConnections={friendConnections}
               onRemovePlayer={() => handleRemovePlayer(player.uid)}
+              onSetFriendConnections={onSetFriendConnections}
               loading={loading}
+              onRefreshFriends={onRefreshFriends}
             />
           ))}
           {canEdit && !invitingPlayer && (

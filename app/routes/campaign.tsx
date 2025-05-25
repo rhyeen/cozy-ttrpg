@@ -1,7 +1,8 @@
 import { useMatches, useNavigate, useParams } from 'react-router';
 import type { Route } from "./+types/home";
-import { CampaignPage } from 'app/pages/Campaign.page';
+import { CampaignPage, CampaignSubPage } from 'app/pages/Campaign.page';
 import Loading from 'app/components/Loading';
+import { useEffect, useState } from 'react';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -12,10 +13,23 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Campaign() {
   const { campaignId } = useParams();
-  const matches = useMatches();                                     // ← all matches:contentReference[oaicite:0]{index=0}
-  const onPlayersPage = matches.some(m => m.id === "players");
+  const matches = useMatches();
   const navigate = useNavigate();
-  const subPage = onPlayersPage ? 'players' : undefined;
+  const [subPage, setSubPage] = useState<CampaignSubPage | undefined>(undefined);
+  useEffect(() => {
+    const onPlayersPage = matches.some(m => m.id === "players");
+    const onCharactersPage = matches.some(m => m.id === "characters");
+    const onPlayPage = matches.some(m => m.id === "play");
+    if (onPlayersPage) {
+      setSubPage(CampaignSubPage.Players);
+    } else if (onCharactersPage) {
+      setSubPage(CampaignSubPage.Characters);
+    } else if (onPlayPage) {
+      setSubPage(CampaignSubPage.Play);
+    } else {
+      setSubPage(undefined);
+    }
+  }, [matches]);
 
   if (!campaignId) {
     navigate('/404');

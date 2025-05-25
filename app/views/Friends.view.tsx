@@ -48,7 +48,7 @@ export async function inviteFriend(
     return null;
   }
   try {
-    const newFriendConnection = await friendConnectionController.inviteFriend(friendEmail);
+    const newFriendConnection = await friendConnectionController.inviteFriendViaEmail(friendEmail);
     const newUser = new User(newFriendConnection.invited.uid, friendEmail, '');
     if (setFriends) {
       setFriends((prev) => (prev ? [...prev, newFriendConnection] : [newFriendConnection]));

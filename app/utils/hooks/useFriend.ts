@@ -2,13 +2,17 @@ import { Friend, FriendConnection, User } from '@rhyeen/cozy-ttrpg-shared';
 import { selectFirebaseUser, type FirebaseUser } from 'app/store/userSlice';
 import { useSelector } from 'react-redux';
 
-interface FriendContext {
+export interface FriendContext {
   friend: Friend;
   friendAsUser: User | undefined;
   selfAsFriend: Friend;
   friendDisplayName: string;
   friendNote: string;
   friendIsSelf: boolean;
+}
+
+export interface FindFriendContext extends FriendContext {
+  friendConnection: FriendConnection;
 }
 
 export function getFriend(
@@ -63,10 +67,11 @@ export function useFindFriend(
   friendUid: string,
   friendConnections: FriendConnection[],
   friendUsers: User[],
-): FriendContext | null {
-  const friendIsSelf = useFriendIsSelf(friendUid);
-  if (friendIsSelf) return null;
+): FindFriendContext | null {
+  const firebaseUser = useSelector(selectFirebaseUser);
+  if (!firebaseUser || friendUid === firebaseUser.uid) return null;
   const friendConnection = friendConnections.find(f => f.invited.uid === friendUid || f.invitedBy.uid === friendUid);
   if (!friendConnection) return null;
-  return useFriend(friendConnection, friendUsers);
+  const friendContext = getFriend(firebaseUser, friendConnection, friendUsers);
+  return { ...friendContext, friendConnection };
 }

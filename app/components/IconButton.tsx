@@ -3,7 +3,7 @@ import styles from './IconButton.module.css';
 
 interface IconButtonProps {
   children: React.ReactNode;
-  onClick: () => void;
+  onClick?: () => void;
   active?: boolean;
   asDiv?: boolean;
 }
@@ -17,10 +17,10 @@ const IconButtonBase: React.FC<IconButtonProps> = ({ children, onClick, active, 
 
   return (
     <Component
-      onClick={(event: React.MouseEvent) => {
+      onClick={onClick ? (event: React.MouseEvent) => {
         event.stopPropagation();
         onClick();
-      }}
+      } : undefined}
       className={`${styles.wrapper} ${active ? styles.active : ''}`}
     >
       {children}

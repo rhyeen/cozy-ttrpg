@@ -5,10 +5,17 @@ import { campaignController, friendConnectionController } from 'app/utils/servic
 import Loading from 'app/components/Loading';
 import { useNavigate } from 'react-router';
 import { PlayersView } from 'app/views/Players.view';
+import { CampaignCharactersView } from 'app/views/CampaignCharacters.view';
 
 interface Props {
   campaignId: string;
-  subPage?: 'players';
+  subPage?: CampaignSubPage;
+}
+
+export enum CampaignSubPage {
+  Players = 'players',
+  Characters = 'characters',
+  Play = 'play',
 }
 
 export function CampaignPage({ campaignId, subPage }: Props) {
@@ -18,8 +25,8 @@ export function CampaignPage({ campaignId, subPage }: Props) {
   const [friendUsers, setFriendUsers] = useState<User[]>([]);
   const navigate = useNavigate();
 
-  const getFriends = async () => {
-    if (friends) return;
+  const getFriends = async (forceRefresh = false) => {
+    if (friends && !forceRefresh) return;
     const result = await friendConnectionController.getFriendConnections();
     setFriends(result.friendConnections);
     setFriendUsers(result.users);
@@ -56,7 +63,7 @@ export function CampaignPage({ campaignId, subPage }: Props) {
     setCampaign(updatedCampaign);
   };
 
-  if (subPage === 'players') {
+  if (subPage === CampaignSubPage.Players) {
     return (
       <PlayersView
         campaign={campaign}
@@ -65,6 +72,30 @@ export function CampaignPage({ campaignId, subPage }: Props) {
         friendConnections={friends}
         onSetFriendUsers={setFriendUsers}
         onSetFriendConnections={setFriends}
+        onRefreshFriends={() => getFriends(true)}
+      />
+    );
+  } else if (subPage === CampaignSubPage.Characters) {
+    return (
+      <CampaignCharactersView
+        campaign={campaign}
+        onSetCampaign={setCampaignsState}
+        friendUsers={friendUsers}
+        friendConnections={friends}
+        onSetFriendUsers={setFriendUsers}
+        onSetFriendConnections={setFriends}
+      />
+    );
+  } else if (subPage === CampaignSubPage.Play) {
+    return (
+      <CampaignCharactersView
+        campaign={campaign}
+        onSetCampaign={setCampaignsState}
+        friendUsers={friendUsers}
+        friendConnections={friends}
+        onSetFriendUsers={setFriendUsers}
+        onSetFriendConnections={setFriends}
+        selectPlay
       />
     );
   }

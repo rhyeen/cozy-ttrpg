@@ -24,7 +24,7 @@ const Menu: React.FC<MenuProps> = ({ items, icon, loading, disabled }) => {
   return (
     <BaseMenu.Root onOpenChange={setOpen} disabled={disabled || loading}>
       <BaseMenu.Trigger className={styles.trigger}>
-        <IconButton asDiv onClick={() => {}} active={open}>
+        <IconButton asDiv active={open}>
           {icon || <MenuIcon />}
         </IconButton>
       </BaseMenu.Trigger>
@@ -38,7 +38,12 @@ const Menu: React.FC<MenuProps> = ({ items, icon, loading, disabled }) => {
               return (
                 <BaseMenu.Item
                   key={index}
-                  onClick={item.onClick}
+                  onClick={item.onClick ? (e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    if (item.onClick) {
+                      item.onClick();
+                    }
+                  } : undefined}
                   className={styles.item}
                 >
                   {item.icon && <span className={styles.icon}>{item.icon}</span>}

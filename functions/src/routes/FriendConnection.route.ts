@@ -26,12 +26,17 @@ export class FriendConnectionRoute extends Route {
     request: CallableRequest<any>,
   ): Promise<HttpsFunction> {
     const email = request.data.email;
-    if (!email) {
-      throw new HttpsError('invalid-argument', 'email is required');
+    const uid = request.data.uid;
+    if (!email && !uid) {
+      throw new HttpsError('invalid-argument', 'email or uid is required');
+    }
+    if (email && uid) {
+      throw new HttpsError('invalid-argument', 'Only one of email or uid should be provided');
     }
     const connection = await this.service.inviteFriend(
       this.getUidFromRequest(request),
       email,
+      uid,
     );
     return this.handleJsonResponse({ connection: connection.toJSON(false) });
   }

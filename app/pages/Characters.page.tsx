@@ -1,9 +1,5 @@
-import { CharactersView } from '../views/Characters.view';
+import { MyCharactersView } from 'app/views/MyCharacters.view';
 
 export function CharactersPage() {
-  return (
-    <>
-      <CharactersView />
-    </>
-  );
+  return <MyCharactersView />;
 }

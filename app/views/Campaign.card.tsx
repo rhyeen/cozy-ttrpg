@@ -45,7 +45,9 @@ export function CampaignCard({
 
   return (
     <Fragment key={campaign.id}>
-      <Card onClick={() => navigate(`/campaigns/${campaign.id}`)}>
+      <Card onClick={() => {
+        navigate(`/campaigns/${campaign.id}`);
+      }}>
         <Card.Header>
           <Card.Header.Left>
             <Header type="h3">{campaign.name}</Header>

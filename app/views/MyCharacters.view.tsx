@@ -5,7 +5,7 @@ import Header from 'app/components/Header';
 import Section from 'app/components/Section';
 import { Character } from '@rhyeen/cozy-ttrpg-shared';
 
-export function CharactersView() {
+export function MyCharactersView() {
   const [characters, setCharacters] = useState<Character[] | undefined>();
 
   const getCharacters = async () => {

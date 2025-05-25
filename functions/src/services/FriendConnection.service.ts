@@ -73,14 +73,20 @@ export class FriendConnectionService extends Service{
 
   public async inviteFriend(
     uid: string,
-    email: string,
+    email?: string,
+    friendUid?: string,
   ): Promise<FriendConnection> {
-    const [ existingFriends, friendUser ] = await Promise.all([
+    const [ existingFriends, friendUserViaEmail, friendUserViaUid ] = await Promise.all([
       this.getFriendConnections(uid, 'both'),
-      this.userService.searchUserByEmail(email),
+      email ? this.userService.searchUserByEmail(email) : undefined,
+      friendUid ? this.userService.getUser(friendUid) : undefined,
     ]);
+    const friendUser = friendUserViaEmail || friendUserViaUid;
+    if (!email && !friendUid) {
+      throw new HttpsError('invalid-argument', 'email or friendUid is required');
+    }
     if (!friendUser) {
-      throw new HttpsError('not-found', 'Email not found');
+      throw new HttpsError('not-found', 'User not found');
     }
     if (existingFriends.some(f => {
       return f.invitedBy.uid === friendUser.uid || f.invited.uid === friendUser.uid;
