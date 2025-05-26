@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { characterController } from '../utils/services';
+import { characterController } from '../utils/controller';
 import Loading from '../components/Loading';
 import Header from 'app/components/Header';
 import Section from 'app/components/Section';

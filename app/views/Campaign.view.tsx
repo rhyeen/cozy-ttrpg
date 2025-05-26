@@ -10,7 +10,7 @@ import DeleteIcon from 'app/components/Icons/Delete';
 import Form from 'app/components/Form';
 import Input from 'app/components/Input';
 import type { SaveState } from 'app/components/Icons/SaveState';
-import { campaignController } from 'app/utils/services';
+import { campaignController } from 'app/utils/controller';
 import Section from 'app/components/Section';
 import { useNavigate } from 'react-router';
 import IconButton from 'app/components/IconButton';
@@ -21,6 +21,7 @@ import Paragraph from 'app/components/Paragraph';
 import ErrorIcon from 'app/components/Icons/Error';
 import { useSelector } from 'react-redux';
 import { selectFirebaseUser } from 'app/store/userSlice';
+import FaceIcon from 'app/components/Icons/Face';
 
 interface Props {
   campaign: Campaign;
@@ -92,14 +93,14 @@ export function CampaignView({
 
   return (
     <Section>
-      <Header type="h3" iconPosition="left" icon={
+      <Header type="h3" iconLeft={
         <IconButton onClick={() => navigate('/campaigns')}>
           <ArrowBackIcon />
         </IconButton>
       }>Campaigns</Header>
       <Header
         type="h1"
-        icon={canEdit ? (
+        iconRight={canEdit ? (
           <Menu
             icon={<SettingsIcon />}
             items={[
@@ -112,6 +113,11 @@ export function CampaignView({
                 label: 'Manage Players',
                 onClick: () => navigate(`/campaigns/${campaign.id}/players`),
                 icon: <GroupAddIcon />,
+              },
+              {
+                label: 'View Characters',
+                onClick: () => navigate(`/campaigns/${campaign.id}/characters`),
+                icon: <FaceIcon />,
               },
               {
                 label: 'Delete Campaign',

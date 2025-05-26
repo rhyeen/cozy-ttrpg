@@ -13,7 +13,7 @@ import SettingsIcon from 'app/components/Icons/Settings';
 import Form from 'app/components/Form';
 import Input from 'app/components/Input';
 import type { SaveState } from 'app/components/Icons/SaveState';
-import { friendConnectionController } from 'app/utils/services';
+import { friendConnectionController } from 'app/utils/controller';
 import KeyValue from 'app/components/KeyValue';
 import Modal from 'app/components/Modal';
 import HeartIcon from 'app/components/Icons/Heart';
@@ -35,31 +35,31 @@ export async function updateFriendStatus(
   friend: FriendContext,
   status: 'approved' | 'denied'
 ): Promise<FriendConnection> {
-    await friendConnectionController.updateFriendStatus(
-      friendConnection.id,
-      friend.selfAsFriend.uid === friendConnection.invited.uid ? 'invited' : 'invitedBy',
-      status,
-    );
-    const updatedFriendConnection = await friendConnection.copy();
-    if (status === 'approved') {
-      if (friend.selfAsFriend.uid === friendConnection.invited.uid) {
-        updatedFriendConnection.invited.approvedAt = new Date();
-        updatedFriendConnection.invited.deniedAt = null;
-      } else {
-        updatedFriendConnection.invitedBy.approvedAt = new Date();
-        updatedFriendConnection.invitedBy.deniedAt = null;
-      }
+  await friendConnectionController.updateFriendStatus(
+    friendConnection.id,
+    friend.selfAsFriend.uid === friendConnection.invited.uid ? 'invited' : 'invitedBy',
+    status,
+  );
+  const updatedFriendConnection = await friendConnection.copy();
+  if (status === 'approved') {
+    if (friend.selfAsFriend.uid === friendConnection.invited.uid) {
+      updatedFriendConnection.invited.approvedAt = new Date();
+      updatedFriendConnection.invited.deniedAt = null;
     } else {
-      if (friend.selfAsFriend.uid === friendConnection.invited.uid) {
-        updatedFriendConnection.invited.deniedAt = new Date();
-        updatedFriendConnection.invited.approvedAt = null;
-      } else {
-        updatedFriendConnection.invitedBy.deniedAt = new Date();
-        updatedFriendConnection.invitedBy.approvedAt = null;
-      }
+      updatedFriendConnection.invitedBy.approvedAt = new Date();
+      updatedFriendConnection.invitedBy.deniedAt = null;
     }
-    return updatedFriendConnection;
-  };
+  } else {
+    if (friend.selfAsFriend.uid === friendConnection.invited.uid) {
+      updatedFriendConnection.invited.deniedAt = new Date();
+      updatedFriendConnection.invited.approvedAt = null;
+    } else {
+      updatedFriendConnection.invitedBy.deniedAt = new Date();
+      updatedFriendConnection.invitedBy.approvedAt = null;
+    }
+  }
+  return updatedFriendConnection;
+};
 
 export const FriendCard: React.FC<Props> = ({
   friendConnection,
@@ -145,7 +145,7 @@ export const FriendCard: React.FC<Props> = ({
         <Card.Header>
           <Card.Header.Left>
             <Header type="h4">{friend.friendDisplayName}</Header>
-            <Paragraph>{friend.friendNote}</Paragraph>
+            <Paragraph type="caption">{friend.friendNote}</Paragraph>
           </Card.Header.Left>
           <Card.Header.Right>
             <IconButton.Bar>

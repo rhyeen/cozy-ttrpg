@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { CampaignView } from '../views/Campaign.view';
 import { Campaign, FriendConnection, User } from '@rhyeen/cozy-ttrpg-shared';
-import { campaignController, friendConnectionController } from 'app/utils/services';
+import { campaignController, friendConnectionController } from 'app/utils/controller';
 import Loading from 'app/components/Loading';
 import { useNavigate } from 'react-router';
 import { PlayersView } from 'app/views/Players.view';
@@ -95,7 +95,7 @@ export function CampaignPage({ campaignId, subPage }: Props) {
         friendConnections={friends}
         onSetFriendUsers={setFriendUsers}
         onSetFriendConnections={setFriends}
-        selectPlay
+        viewOtherPlayerCharacters
       />
     );
   }

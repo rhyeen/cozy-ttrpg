@@ -18,7 +18,7 @@ import MailIcon from 'app/components/Icons/Mail';
 import Paragraph from 'app/components/Paragraph';
 import SaveStateIcon from 'app/components/Icons/SaveState';
 import { inviteFriend } from './Friends.view';
-import { campaignController } from 'app/utils/services';
+import { campaignController } from 'app/utils/controller';
 import { Toast } from '@base-ui-components/react';
 
 interface Props {
@@ -125,7 +125,7 @@ export const PlayersView: React.FC<Props> = ({
 
   return (
     <Section>
-      <Header type="h3" iconPosition="left" icon={
+      <Header type="h3" iconLeft={
         <IconButton onClick={() => navigate(`/campaigns/${campaign.id}`)}>
           <ArrowBackIcon />
         </IconButton>

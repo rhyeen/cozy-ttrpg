@@ -34,16 +34,16 @@ const Input: React.FC<InputProps> = ({ label, ...props }) => {
             className={styles.input}
             type={props.type || 'text'}
             placeholder={props.placeholder}
-            onChange={props.onChange}
+            onChange={props.readOnly ? undefined : props.onChange}
             value={props.value}
-            onBlur={props.onBlur}
-            onFocus={props.onFocus}
-            onInput={props.onInput}
+            onBlur={props.readOnly ? undefined : props.onBlur}
+            onFocus={props.readOnly ? undefined : props.onFocus}
+            onInput={props.readOnly ? undefined : props.onInput}
             readOnly={props.readOnly}
             disabled={props.disabled || props.loading}
             required={props.required}
             autoComplete={props.autoComplete}
-            autoFocus={props.autoFocus}
+            autoFocus={props.readOnly ? undefined : props.autoFocus}
             maxLength={props.maxLength}
             minLength={props.minLength}
           />

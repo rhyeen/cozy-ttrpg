@@ -10,7 +10,7 @@ import Paragraph from 'app/components/Paragraph';
 import PlayCircleIcon from 'app/components/Icons/PlayCircle';
 import GroupAddIcon from 'app/components/Icons/GroupAdd';
 import DeleteIcon from 'app/components/Icons/Delete';
-import { campaignController } from 'app/utils/services';
+import { campaignController } from 'app/utils/controller';
 import { useNavigate } from 'react-router';
 import Book2Icon from 'app/components/Icons/Book2';
 

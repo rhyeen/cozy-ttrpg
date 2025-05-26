@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Campaign } from '@rhyeen/cozy-ttrpg-shared';
-import { campaignController } from '../utils/services';
+import { campaignController } from '../utils/controller';
 import Loading from '../components/Loading';
 import Button from 'app/components/Button';
 import Section from 'app/components/Section';

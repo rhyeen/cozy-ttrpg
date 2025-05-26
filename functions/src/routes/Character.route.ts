@@ -24,28 +24,24 @@ export class CharacterRoute extends Route {
   public async createSelfCharacter(
     request: CallableRequest<any>,
   ): Promise<HttpsFunction> {
-    const data = {
-      name: request.data.name,
-      nickname: request.data.nickname,
-      campaignId: request.data.campaignId,
-    };
     const user = await this.service.createCharacter(
       this.getUidFromRequest(request),
-      `${data.name}`,
-      `${data.nickname}`,
-      `${data.campaignId}` || null,
     );
     return this.handleJsonResponse({ item: user.toJSON(false) });
   }
 
-  public async getCampaignCharacters(
+  public async deleteCharacter(
     request: CallableRequest<any>,
   ): Promise<HttpsFunction> {
-    const data = {
-      campaignId: request.data.campaignId,
-    };
-    const characters = await this.service.getChampaignCharacters(`${data.campaignId}`);
-    return this.handleJsonResponse({ items: characters.map(character => character.toJSON(false)) });
+    const characterId = request.data.characterId;
+    if (!characterId) {
+      throw new HttpsError('invalid-argument', 'Character ID is required');
+    }
+    await this.service.deleteCharacter(
+      this.getUidFromRequest(request),
+      characterId,
+    );
+    return this.handleOkResponse();
   }
 
   public async updateCharacter(

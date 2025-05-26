@@ -21,7 +21,7 @@ import Switch from 'app/components/Switch';
 import { selectFirebaseUser } from 'app/store/userSlice';
 import { useFindFriend, useFriendIsSelf } from 'app/utils/hooks/useFriend';
 import { listFormatter } from 'app/utils/listFormatter';
-import { campaignController, friendConnectionController } from 'app/utils/services';
+import { campaignController, friendConnectionController } from 'app/utils/controller';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
@@ -267,7 +267,7 @@ export const PlayerCard: React.FC<Props> = ({
         <Card.Header>
           <Card.Header.Left>
             <Header type="h4">{displayName}</Header>
-            <Paragraph>{listFormatter.format(player.scopes.map((scope) => getScopeName(scope)))}</Paragraph>
+            <Paragraph type="caption">{listFormatter.format(player.scopes.map((scope) => getScopeName(scope)))}</Paragraph>
           </Card.Header.Left>
           <Card.Header.Right>
             <IconButton.Bar>
@@ -290,7 +290,7 @@ export const PlayerCard: React.FC<Props> = ({
           <Card.Body>
             { todoAction && (
               <Section>
-                <Header type="h5" icon={<ErrorIcon />} iconPosition="left">Action Required!</Header>
+                <Header type="h5" iconLeft={<ErrorIcon />}>Action Required!</Header>
                 <Button
                   type="primary"
                   onClick={!friend ? inviteFriend : approveFriend}
@@ -409,7 +409,7 @@ export const PlayerCard: React.FC<Props> = ({
         >
           <FriendCard
             noBorder
-            friendConnection={friend?.friendConnection}
+            friendConnection={friend.friendConnection}
             friendUsers={friendUsers}
             onSetFriendConnection={setFriendConnection}
             setByDefault="showView"

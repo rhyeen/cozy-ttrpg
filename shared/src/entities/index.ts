@@ -13,3 +13,7 @@ export * from './factory/User.factory';
 export * from './json/Character.json';
 export * from './entities/Character';
 export * from './factory/Character.factory';
+
+export * from './json/Play.json';
+export * from './entities/Play';
+export * from './factory/Play.factory';

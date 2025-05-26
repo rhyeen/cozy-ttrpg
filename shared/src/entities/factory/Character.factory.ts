@@ -9,7 +9,6 @@ export class CharacterFactory extends EntityFactory<
     return new Character(
       json.id,
       json.uid,
-      json.campaignId,
       json.name,
       json.nickname,
       json,

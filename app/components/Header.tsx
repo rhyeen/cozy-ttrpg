@@ -4,11 +4,11 @@ import styles from './Header.module.css';
 interface HeaderProps {
   children: React.ReactNode;
   type: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
-  icon?: React.ReactNode;
-  iconPosition?: 'left' | 'right';
+  iconLeft?: React.ReactNode;
+  iconRight?: React.ReactNode;
 }
 
-const Header: React.FC<HeaderProps> = ({ children, type, icon, iconPosition = 'right' }) => {
+const Header: React.FC<HeaderProps> = ({ children, type, iconLeft, iconRight }) => {
   const HeadingTag = type as keyof JSX.IntrinsicElements;
 
   const header = (
@@ -17,15 +17,15 @@ const Header: React.FC<HeaderProps> = ({ children, type, icon, iconPosition = 'r
     </HeadingTag>
   );
 
-  if (!icon) {
+  if (!iconLeft && !iconRight) {
     return header;
   }
 
   return (
     <div className={styles.wrapper}>
-      {icon && iconPosition === 'left' && icon}
+      {iconLeft && iconLeft}
       {header}
-      {icon && iconPosition === 'right' && icon}
+      {iconRight && iconRight}
     </div>
   );
 };

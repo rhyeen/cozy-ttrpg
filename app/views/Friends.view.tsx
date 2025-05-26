@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { friendConnectionController } from '../utils/services';
+import { friendConnectionController } from '../utils/controller';
 import Loading from '../components/Loading';
 import Header from 'app/components/Header';
 import Section from 'app/components/Section';
@@ -129,7 +129,7 @@ export function FriendsView() {
 
   return (
     <Section>
-      <Header type="h1" icon={
+      <Header type="h1" iconRight={
         <Menu
           icon={<SettingsIcon />}
           items={[

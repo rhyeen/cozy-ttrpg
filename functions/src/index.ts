@@ -6,6 +6,7 @@ import { CampaignRoute } from './routes/Campaign.route';
 import { UserRoute } from './routes/User.route';
 import { FriendConnectionRoute } from './routes/FriendConnection.route';
 import { CharacterRoute } from './routes/Character.route';
+import { PlayRoute } from './routes/Play.route';
 
 // Initialize Firebase Admin SDK
 initializeApp();
@@ -22,6 +23,23 @@ const campaignRoute = new CampaignRoute(db);
 const userRoute = new UserRoute(db);
 const friendConnectionRoute = new FriendConnectionRoute(db);
 const characterRoute = new CharacterRoute(db);
+const playRoute = new PlayRoute(db);
+
+export const getSelfPlays = onCall(async (request) => {
+  return await playRoute.getSelfPlays(request);
+});
+
+export const createSelfPlay = onCall(async (request) => {
+  return await playRoute.createSelfPlay(request);
+});
+
+export const getCampaignPlays = onCall(async (request) => {
+  return await playRoute.getCampaignPlays(request);
+});
+
+export const startPlay = onCall(async (request) => {
+  return await playRoute.startPlay(request);
+});
 
 export const getSelfCharacters = onCall(async (request) => {
   return await characterRoute.getSelfCharacters(request);
@@ -31,12 +49,12 @@ export const createSelfCharacter = onCall(async (request) => {
   return await characterRoute.createSelfCharacter(request);
 });
 
-export const getCampaignCharacters = onCall(async (request) => {
-  return await characterRoute.getCampaignCharacters(request);
-});
-
 export const updateCharacter = onCall(async (request) => {
   return await characterRoute.updateCharacter(request);
+});
+
+export const deleteCharacter = onCall(async (request) => {
+  return await characterRoute.deleteCharacter(request);
 });
 
 export const getCampaigns = onCall(async (request) => {
