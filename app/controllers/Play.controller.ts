@@ -41,10 +41,11 @@ export class PlayController extends Controller {
 
   public async startPlay(
     playId: string,
-  ): Promise<void> {
-    await this.callFirebase<
+  ): Promise<Play> {
+    const result = await this.callFirebase<
       { playId: string },
-      undefined
+      { play: PlayJson }
     >('startPlay', { playId });
+    return playFactory.fromJSON(result.play);
   }
 }

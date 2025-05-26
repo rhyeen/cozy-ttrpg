@@ -56,7 +56,6 @@ export function CampaignCharactersView({
     setLoading(true);
     const newCharacter = await characterController.createSelfCharacter();
     const newPlay = await playController.createSelfPlay(newCharacter.id, campaign.id);
-    await playController.startPlay(newPlay.id);
     navigate(`/play/${newPlay.id}`);
   };
 

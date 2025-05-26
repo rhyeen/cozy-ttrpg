@@ -72,10 +72,10 @@ export class PlayRoute extends Route {
     if (!data.playId) {
       throw new HttpsError('invalid-argument', 'Play ID is required');
     }
-    await this.service.startPlay(
+    const play = await this.service.startPlay(
       this.getUidFromRequest(request),
       data.playId,
     );
-    return this.handleOkResponse();
+    return this.handleJsonResponse({ play: play.toJSON(false) });
   }
 }

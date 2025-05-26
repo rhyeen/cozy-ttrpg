@@ -95,7 +95,7 @@ export class PlayService extends Service{
   public async startPlay(
     uid: string,
     id: string,
-  ): Promise<void> {
+  ): Promise<Play> {
     const play = await this.getPlay(id);
     if (!play) {
       throw new HttpsError('not-found', 'Play not found');
@@ -106,5 +106,6 @@ export class PlayService extends Service{
     await this.db.collection('plays').doc(play.id).update({
       lastPlayedAt: new Date(),
     });
+    return play;
   }
 }
