@@ -3,16 +3,23 @@ import { Play } from '../entities/Play';
 import { PlayJson } from '../json/Play.json';
 
 export class PlayFactory extends EntityFactory<
-  Play, PlayJson
+  Play, PlayJson, PlayJson, undefined, undefined
 > {
-  public fromJSON(json: PlayJson): Play {
+  private rootJson(json: PlayJson): Play {
     return new Play(
-      json.id,
       json.uid,
       json.characterId,
       json.campaignId,
       json.lastPlayedAt ? copyDate(json.lastPlayedAt) : null,
       json,
     );
+  }
+
+  public storeJson(json: PlayJson): Play {
+    return this.rootJson(json);
+  }
+
+  public clientJson(json: PlayJson): Play {
+    return this.rootJson(json);
   }
 }

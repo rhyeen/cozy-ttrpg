@@ -2,7 +2,7 @@ import { DocumentJson } from '../json/Json';
 import { UserJson } from '../json/User.json';
 import { DocumentEntity } from './Entity';
 
-export class User extends DocumentEntity<UserJson> {
+export class User extends DocumentEntity<UserJson, UserJson> {
   public uid: string;
   public email: string;
   public displayName: string;
@@ -19,13 +19,21 @@ export class User extends DocumentEntity<UserJson> {
     this.displayName = displayName;
   }
 
-  public toJSON(toStore: boolean): UserJson {
+  private rootJson(): UserJson {
     return {
       ...this.copyDocumentJson(),
       uid: this.uid,
       email: this.email,
       displayName: this.displayName,
     };
+  }
+
+  public storeJson(): UserJson {
+    return this.rootJson();
+  }
+
+  public clientJson(): UserJson {
+    return this.rootJson();
   }
 
   public copy(): User {

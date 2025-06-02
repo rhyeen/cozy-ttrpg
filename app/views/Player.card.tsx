@@ -175,7 +175,7 @@ export const PlayerCard: React.FC<Props> = ({
     setLoading(true);
     try {
       const updatedPlayer = new Player({
-        ...player.toJSON(true),
+        ...player.clientJson(),
         scopes,
       });
       await campaignController.updatePlayerScopes(

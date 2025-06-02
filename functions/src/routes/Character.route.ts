@@ -18,7 +18,7 @@ export class CharacterRoute extends Route {
     request: CallableRequest<any>,
   ): Promise<HttpsFunction> {
     const characters = await this.service.getUserCharacters(this.getUidFromRequest(request));
-    return this.handleJsonResponse({ items: characters.map(character => character.toJSON(false)) });
+    return this.handleJsonResponse({ items: characters.map(character => character.clientJson()) });
   }
 
   public async createSelfCharacter(
@@ -27,7 +27,7 @@ export class CharacterRoute extends Route {
     const user = await this.service.createCharacter(
       this.getUidFromRequest(request),
     );
-    return this.handleJsonResponse({ item: user.toJSON(false) });
+    return this.handleJsonResponse({ item: user.clientJson() });
   }
 
   public async deleteCharacter(
@@ -49,7 +49,8 @@ export class CharacterRoute extends Route {
   ): Promise<HttpsFunction> {
     let characterJson: CharacterJson;
     try {
-      characterJson = this.factory.fromJSON(request.data.character).toJSON(false);
+      // @NOTE: Just to validate and scrub the character data
+      characterJson = this.factory.clientJson(request.data.character).clientJson();
     } catch (error) {
       throw new HttpsError('invalid-argument', 'Invalid character data');
     }
@@ -63,6 +64,6 @@ export class CharacterRoute extends Route {
     if (!character) {
       throw new HttpsError('not-found', 'Character not found');
     }
-    return this.handleJsonResponse({ item: character.toJSON(false) });
+    return this.handleJsonResponse({ item: character.clientJson() });
   }
 }

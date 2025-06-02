@@ -18,7 +18,7 @@ export class UserService extends Service{
     if (!doc.exists) {
       return null;
     }
-    return this.factory.fromJSON({ id: doc.id, ...doc.data() } as any);
+    return this.factory.storeJson({ id: doc.id, ...doc.data() } as any);
   }
 
   public async createUser(
@@ -38,7 +38,7 @@ export class UserService extends Service{
       email || '',
       displayName || '',
     );
-    await this.db.collection('users').doc(user.uid).set(user.toJSON(true));
+    await this.db.collection('users').doc(user.uid).set(user.storeJson());
     return user;
   }
 
@@ -52,7 +52,7 @@ export class UserService extends Service{
     }
     user.displayName = displayName || user.displayName;
     user.updatedAt = new Date();
-    await this.db.collection('users').doc(user.uid).set(user.toJSON(true));
+    await this.db.collection('users').doc(user.uid).set(user.storeJson());
     return user;
   }
 
@@ -66,6 +66,6 @@ export class UserService extends Service{
       return null;
     }
     const data = snapshot.docs[0].data();
-    return this.factory.fromJSON({ id: snapshot.docs[0].id, ...data } as any);
+    return this.factory.storeJson({ id: snapshot.docs[0].id, ...data } as any);
   }
 }

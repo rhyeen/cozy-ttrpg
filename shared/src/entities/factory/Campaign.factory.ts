@@ -1,18 +1,32 @@
 import { Campaign, Player } from '../entities/Campaign';
 import { EntityFactory } from '../entities/Entity';
-import type { CampaignJson } from '../json/Campaign.json';
+import type { ClientCampaignJson, PlayerJson, StoreCampaignJson } from '../json/Campaign.json';
 
 export class CampaignFactory extends EntityFactory<
-  Campaign, CampaignJson
+  Campaign, StoreCampaignJson, ClientCampaignJson, PlayerJson[], undefined
 > {
-  public fromJSON(json: CampaignJson): Campaign {
+
+  public storeJson(
+    json: StoreCampaignJson,
+    other: PlayerJson[],
+  ): Campaign {
     return new Campaign(
       json.id,
       json.name,
       json.description,
-      json.players.map((player) => new Player({
+      other.map((player) => new Player({
         ...player,
       })),
+      json,
+    );
+  }
+
+  public clientJson(json: ClientCampaignJson): Campaign {
+    return new Campaign(
+      json.id,
+      json.name,
+      json.description,
+      json.players.map((player) => new Player(player)),
       json,
     );
   }

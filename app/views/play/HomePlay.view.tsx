@@ -11,7 +11,7 @@ export function HomePlayView({ play }: Props) {
   // So that we can ensure they stay in sync as the play session progresses.
   return (
     <Section>
-      <Header type="h1">{play.id}</Header>
+      <Header type="h1">{play.campaignId}</Header>
     </Section>
   );
 }

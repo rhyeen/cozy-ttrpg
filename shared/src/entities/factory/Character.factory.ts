@@ -3,9 +3,9 @@ import { Character } from '../entities/Character';
 import { CharacterJson } from '../json/Character.json';
 
 export class CharacterFactory extends EntityFactory<
-  Character, CharacterJson
+  Character, CharacterJson, CharacterJson, undefined, undefined
 > {
-  public fromJSON(json: CharacterJson): Character {
+  private rootJson(json: CharacterJson): Character {
     return new Character(
       json.id,
       json.uid,
@@ -13,5 +13,13 @@ export class CharacterFactory extends EntityFactory<
       json.nickname,
       json,
     );
+  }
+
+  public storeJson(json: CharacterJson): Character {
+    return this.rootJson(json);
+  }
+
+  public clientJson(json: CharacterJson): Character {
+    return this.rootJson(json);
   }
 }

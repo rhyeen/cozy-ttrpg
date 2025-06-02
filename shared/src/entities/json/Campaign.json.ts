@@ -43,10 +43,16 @@ export interface PlayerJson {
   scopes: PlayerScope[];
 }
 
-export interface CampaignJson extends DocumentJson {
+export interface RootCampaignJson extends DocumentJson {
   name: string;
   description: string;
-  players: PlayerJson[];
   id: string;
+}
+
+export interface StoreCampaignJson extends RootCampaignJson {
   players_uids: string[];
+}
+
+export interface ClientCampaignJson extends RootCampaignJson {
+  players: PlayerJson[];
 }

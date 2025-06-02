@@ -15,13 +15,6 @@ export class PlayRoute extends Route {
     this.characterService = new CharacterService(db);
   }
 
-  public async getSelfPlays(
-    request: CallableRequest<any>,
-  ): Promise<HttpsFunction> {
-    const plays = await this.service.getUserPlays(this.getUidFromRequest(request));
-    return this.handleJsonResponse({ items: plays.map(play => play.toJSON(false)) });
-  }
-
   public async createSelfPlay(
     request: CallableRequest<any>,
   ): Promise<HttpsFunction> {
@@ -37,7 +30,7 @@ export class PlayRoute extends Route {
       data.characterId,
       data.campaignId,
     );
-    return this.handleJsonResponse({ item: user.toJSON(false) });
+    return this.handleJsonResponse({ item: user.clientJson() });
   }
 
   public async getCampaignPlays(
@@ -58,8 +51,8 @@ export class PlayRoute extends Route {
     );
     const filteredCharacters = characters.filter(character => character !== null) as Character[];
     return this.handleJsonResponse({
-      plays: plays.map(play => play.toJSON(false)),
-      characters: filteredCharacters.map(character => character.toJSON(false)),
+      plays: plays.map(play => play.clientJson()),
+      characters: filteredCharacters.map(character => character.clientJson()),
     });
   }
 
@@ -67,15 +60,20 @@ export class PlayRoute extends Route {
     request: CallableRequest<any>,
   ): Promise<HttpsFunction> {
     const data = {
-      playId: request.data.playId,
+      campaignId: request.data.campaignId,
+      characterId: request.data.characterId,
     };
-    if (!data.playId) {
-      throw new HttpsError('invalid-argument', 'Play ID is required');
+    if (!data.characterId) {
+      throw new HttpsError('invalid-argument', 'Character ID is required');
+    }
+    if (!data.campaignId) {
+      throw new HttpsError('invalid-argument', 'Campaign ID is required');
     }
     const play = await this.service.startPlay(
+      data.campaignId,
       this.getUidFromRequest(request),
-      data.playId,
+      data.characterId,
     );
-    return this.handleJsonResponse({ play: play.toJSON(false) });
+    return this.handleJsonResponse({ play: play.clientJson() });
   }
 }

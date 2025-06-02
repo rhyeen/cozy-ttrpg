@@ -1,17 +1,15 @@
 import { DocumentJson } from '../json/Json';
 import { PlayJson } from '../json/Play.json';
 import { copyDate, DocumentEntity } from './Entity';
-import { generateId } from '../../utils/idGenerator';
+import { Buffer } from 'buffer';
 
-export class Play extends DocumentEntity<PlayJson> {
-  public id: string;
+export class Play extends DocumentEntity<PlayJson, PlayJson> {
   public characterId: string;
   public campaignId: string;
   public uid: string;
   public lastPlayedAt: Date | null;
 
   constructor(
-    id: string,
     uid: string,
     characterId: string,
     campaignId: string,
@@ -19,17 +17,15 @@ export class Play extends DocumentEntity<PlayJson> {
     documentJson?: DocumentJson,
   ) {
     super(documentJson);
-    this.id = id;
     this.uid = uid;
     this.characterId = characterId;
     this.campaignId = campaignId;
     this.lastPlayedAt = lastPlayedAt ? new Date(lastPlayedAt) : null;
   }
 
-  public toJSON(toStore: boolean): PlayJson {
+  public rootJson(): PlayJson {
     return {
       ...this.copyDocumentJson(),
-      id: this.id,
       uid: this.uid,
       characterId: this.characterId,
       campaignId: this.campaignId,
@@ -37,9 +33,16 @@ export class Play extends DocumentEntity<PlayJson> {
     };
   }
 
+  public storeJson(): PlayJson {
+    return this.rootJson();
+  }
+
+  public clientJson(): PlayJson {
+    return this.rootJson();
+  }
+
   public copy(): Play {
     return new Play(
-      this.id,
       this.uid,
       this.characterId,
       this.campaignId,
@@ -48,7 +51,22 @@ export class Play extends DocumentEntity<PlayJson> {
     );
   }
 
-  public static generateId(): string {
-    return generateId('PL', 20);
+  public get id(): string {
+    return Play.generateId(this.campaignId, this.characterId);
+  }
+
+  public static generateId(
+    campaignId: string,
+    characterId: string,
+  ): string {
+    return Buffer.from([campaignId, characterId].join(':')).toString('base64');
+  }
+
+  public static extractId(
+    playId: string,
+  ): { campaignId: string; characterId: string } {
+    const decoded = Buffer.from(playId, 'base64').toString('utf-8');
+    const [campaignId, characterId] = decoded.split(':');
+    return { campaignId, characterId };
   }
 }

@@ -15,7 +15,8 @@ export function PlayPage({ playId }: Props) {
 
   const getPlay = async () => {
     try {
-      const result = await playController.startPlay(playId);
+      const { campaignId, characterId } = Play.extractId(playId);
+      const result = await playController.startPlay(campaignId, characterId);
       setPlay(result);
     } catch (error) {
       console.error('Error fetching play:', error);

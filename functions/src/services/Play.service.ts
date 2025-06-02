@@ -1,6 +1,6 @@
 import { firestore } from 'firebase-admin';
 import { Service } from './Service';
-import { Play, PlayFactory, PlayerScope } from '@rhyeen/cozy-ttrpg-shared';
+import { Play, PlayFactory, PlayJson, PlayerScope } from '@rhyeen/cozy-ttrpg-shared';
 import { HttpsError } from 'firebase-functions/https';
 import { CampaignService } from './Campaign.service';
 import { CharacterService } from './Character.service';
@@ -19,40 +19,37 @@ export class PlayService extends Service{
     this.characterService = new CharacterService(db); 
   }
 
-  public async getPlay(id: string): Promise<Play | null> {
-    const doc = await this.db.collection('plays').doc(id).get();
+  public async getPlay(
+    campaignId: string,
+    uid: string,
+    characterId: string,
+  ): Promise<{ doc: Play, ref: firestore.DocumentReference } | null> {
+    const doc = await this.db.collection('campaigns').doc(campaignId)
+      .collection('players').doc(uid)
+      .collection('characters').doc(characterId).get();
     if (!doc.exists) {
       return null;
     }
-    return this.factory.fromJSON({ id: doc.id, ...doc.data() } as any);
+    return {
+      doc: this.factory.storeJson(doc.data() as PlayJson),
+      ref: doc.ref,
+    };
   }
-
-  public async getUserPlays(uid: string): Promise<Play[]> {
-    const snapshot = await this.db.collection('plays').where('uid', '==', uid).get();
-    if (snapshot.empty) {
-      return [];
-    }
-    return snapshot.docs.map(doc => this.factory.fromJSON({ id: doc.id, ...doc.data() } as any));
-  }
-
+  
   public async getCampaignPlays(
     uid: string,
     campaignId: string,
   ): Promise<Play[]> {
-    const [snapshot, campaign] = await Promise.all([
-      this.db.collection('plays').where('campaignId', '==', campaignId).get(),
-      this.campaignService.getCampaign(campaignId),
-    ]);
-    if (!campaign) {
-      throw new HttpsError('not-found', 'Campaign not found');
-    }
-    if (!campaign.players.some(player => player.uid === uid)) {
-      throw new HttpsError('permission-denied', 'User is not a player in the campaign');
-    }
+    const snapshot = await this.db.collection('campaigns').doc(campaignId)
+      .collection('players').doc(uid)
+      .collection('characters').get();
     if (snapshot.empty) {
       return [];
     }
-    return snapshot.docs.map(doc => this.factory.fromJSON({ id: doc.id, ...doc.data() } as any));
+    const playJsons = snapshot.docs.map(doc => {
+      return doc.data() as PlayJson;
+    });
+    return playJsons.map(playJson => this.factory.storeJson(playJson));
   }
 
   public async createPlay(
@@ -83,29 +80,31 @@ export class PlayService extends Service{
       }
     }
     const play = new Play(
-      Play.generateId(),
       uid,
       characterId,
       campaignId,
     );
-    await this.db.collection('plays').doc(play.id).set(play.toJSON(true));
+    await this.db.collection('campaigns').doc(campaignId)
+      .collection('players').doc(uid)
+      .collection('characters').doc(characterId).set(play.storeJson());
     return play;
   }
 
   public async startPlay(
+    campaignId: string,
     uid: string,
-    id: string,
+    characterId: string,
   ): Promise<Play> {
-    const play = await this.getPlay(id);
+    const play = await this.getPlay(campaignId, uid, characterId);
     if (!play) {
       throw new HttpsError('not-found', 'Play not found');
     }
-    if (play.uid !== uid) {
+    if (play.doc.uid !== uid) {
       throw new HttpsError('permission-denied', 'User does not own the play');
     }
-    await this.db.collection('plays').doc(play.id).update({
+    await this.db.collection(play.ref.parent.path).doc(play.ref.id).update({
       lastPlayedAt: new Date(),
     });
-    return play;
+    return play.doc;
   }
 }

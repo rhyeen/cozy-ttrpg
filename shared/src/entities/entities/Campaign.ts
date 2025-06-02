@@ -1,9 +1,9 @@
 import { copyDate, DocumentEntity, Entity } from './Entity';
-import type { CampaignJson, PlayerJson, PlayerScope } from '../json/Campaign.json';
+import type { ClientCampaignJson, PlayerJson, PlayerScope, RootCampaignJson, StoreCampaignJson } from '../json/Campaign.json';
 import { generateId } from '../../utils/idGenerator';
 import { DocumentJson } from '../json/Json';
 
-export class Player extends Entity<PlayerJson> {
+export class Player extends Entity<PlayerJson, PlayerJson> {
   public uid: string;
   public scopes: PlayerScope[];
   public invitedBy: string;
@@ -23,7 +23,7 @@ export class Player extends Entity<PlayerJson> {
     this.scopes = [...json.scopes];
   }
 
-  public toJSON(toStore: boolean): PlayerJson {
+  private rootJson(): PlayerJson {
     return {
       uid: this.uid,
       invitedBy: this.invitedBy,
@@ -35,12 +35,20 @@ export class Player extends Entity<PlayerJson> {
     };
   }
 
+  public storeJson(): PlayerJson {
+    return this.rootJson();
+  }
+
+  public clientJson(): PlayerJson {
+    return this.rootJson();
+  }
+
   public copy(): Player {
-    return new Player(this.toJSON(true));
+    return new Player(this.rootJson());
   }
 }
 
-export class Campaign extends DocumentEntity<CampaignJson> {
+export class Campaign extends DocumentEntity<StoreCampaignJson, ClientCampaignJson> {
   public players: Player[];
   public name: string;
   public description: string;
@@ -60,14 +68,26 @@ export class Campaign extends DocumentEntity<CampaignJson> {
     this.description = description;
   }
 
-  public toJSON(toStore: boolean): CampaignJson {
+  private rootJson(): RootCampaignJson {
     return {
       name: this.name,
-      players: this.players.map((player) => player.toJSON(toStore)),
       id: this.id,
       description: this.description,
-      players_uids: toStore ? this.players.map((player) => player.uid) : [],
       ...this.copyDocumentJson(),
+    };
+  }
+
+  public storeJson(): StoreCampaignJson {
+    return {
+      ...this.rootJson(),
+      players_uids: this.players.map((player) => player.uid),
+    };
+  }
+
+  public clientJson(): ClientCampaignJson {
+    return {
+      ...this.rootJson(),
+      players: this.players.map((player) => player.clientJson()),
     };
   }
 

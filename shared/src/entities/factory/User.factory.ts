@@ -3,14 +3,22 @@ import { User } from '../entities/User';
 import { UserJson } from '../json/User.json';
 
 export class UserFactory extends EntityFactory<
-  User, UserJson
+  User, UserJson, UserJson, undefined, undefined
 > {
-  public fromJSON(json: UserJson): User {
+  private rootJson(json: UserJson): User {
     return new User(
       json.uid,
       json.email,
       json.displayName,
       json,
     );
+  }
+
+  public storeJson(json: UserJson): User {
+    return this.rootJson(json);
+  }
+
+  public clientJson(json: UserJson): User {
+    return this.rootJson(json);
   }
 }

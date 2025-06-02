@@ -20,7 +20,7 @@ export class UserController extends Controller {
       undefined,
       { item: UserJson | null }
     >('getSelfAsUser', undefined);
-    return result.item ? userFactory.fromJSON(result.item) : null;
+    return result.item ? userFactory.clientJson(result.item) : null;
   }
 
   public async createSelfAsUser(details: CreateSelfAsUserRequest): Promise<User> {
@@ -28,7 +28,7 @@ export class UserController extends Controller {
       CreateSelfAsUserRequest,
       { item: UserJson }
     >('createSelfAsUser', { displayName: details.displayName });
-    return userFactory.fromJSON(result.item);
+    return userFactory.clientJson(result.item);
   }
 
   public async updateSelfAsUser(user: User): Promise<User> {
@@ -36,6 +36,6 @@ export class UserController extends Controller {
       UpdateSelfAsUserRequest,
       { item: UserJson }
     >('updateSelfAsUser', { displayName: user.displayName.trim() });
-    return userFactory.fromJSON(result.item);
+    return userFactory.clientJson(result.item);
   }
 }

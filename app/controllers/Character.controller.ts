@@ -12,7 +12,7 @@ export class CharacterController extends Controller {
       undefined,
       { items: CharacterJson[] | null }
     >('getSelfCharacters', undefined);
-    return result.items ? result.items.map(characterFactory.fromJSON) : [];
+    return result.items ? result.items.map(characterFactory.clientJson) : [];
   }
 
   public async createSelfCharacter(): Promise<Character> {
@@ -20,7 +20,7 @@ export class CharacterController extends Controller {
       undefined,
       { item: CharacterJson }
     >('createSelfCharacter', undefined);
-    return characterFactory.fromJSON(result.item);
+    return characterFactory.clientJson(result.item);
   }
 
   public async getCampaignCharacters(
@@ -30,7 +30,7 @@ export class CharacterController extends Controller {
       { campaignId: string },
       { items: CharacterJson[] }
     >('getCampaignCharacters', { campaignId });
-    return result.items.map(characterFactory.fromJSON);
+    return result.items.map(characterFactory.clientJson);
   }
 
   public async updateCharacter(
@@ -40,9 +40,9 @@ export class CharacterController extends Controller {
       { character: CharacterJson },
       { item: CharacterJson }
     >('updateCharacter', {
-      character: character.toJSON(false),
+      character: character.clientJson(),
     });
-    return characterFactory.fromJSON(result.item);
+    return characterFactory.clientJson(result.item);
   }
 
   public async deleteCharacter(

@@ -1,8 +1,9 @@
 import { DocumentJson } from '../json/Json';
 
-export abstract class Entity<JsonT> {
-  public abstract toJSON(toStore: boolean): JsonT;
-  public abstract copy(): Entity<JsonT>;
+export abstract class Entity<StoreJsonT, ClientJsonT> {
+  public abstract storeJson(): StoreJsonT;
+  public abstract clientJson(): ClientJsonT;
+  public abstract copy(): Entity<StoreJsonT, ClientJsonT>;
 }
 
 export function copyDate(
@@ -17,8 +18,9 @@ export function copyDate(
   return new Date(date);
 }
 
-export abstract class EntityFactory<T extends Entity<JsonT>, JsonT> {
-  public abstract fromJSON(json: JsonT): T;
+export abstract class EntityFactory<T extends Entity<StoreJsonT, ClientJsonT>, StoreJsonT, ClientJsonT, StoreOtherT, ClientOtherT> {
+  public abstract storeJson(json: StoreJsonT, other: StoreOtherT): T;
+  public abstract clientJson(json: ClientJsonT, other: ClientOtherT): T;
 
   protected copyDocumentJson(json: DocumentJson): DocumentJson {
     return {
@@ -29,7 +31,7 @@ export abstract class EntityFactory<T extends Entity<JsonT>, JsonT> {
   }
 }
 
-export abstract class DocumentEntity<JsonT extends DocumentJson> extends Entity<JsonT> {
+export abstract class DocumentEntity<StoreJsonT extends DocumentJson, ClientJsonT extends DocumentJson> extends Entity<StoreJsonT, ClientJsonT> {
   public createdAt: Date;
   public updatedAt: Date;
   public deletedAt: Date | null;

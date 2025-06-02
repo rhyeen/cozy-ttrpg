@@ -18,7 +18,7 @@ export class CharacterService extends Service{
     if (!doc.exists) {
       return null;
     }
-    return this.factory.fromJSON({ id: doc.id, ...doc.data() } as any);
+    return this.factory.storeJson({ id: doc.id, ...doc.data() } as any);
   }
 
   public async getUserCharacters(uid: string): Promise<Character[]> {
@@ -26,7 +26,7 @@ export class CharacterService extends Service{
     if (snapshot.empty) {
       return [];
     }
-    return snapshot.docs.map(doc => this.factory.fromJSON({ id: doc.id, ...doc.data() } as any));
+    return snapshot.docs.map(doc => this.factory.storeJson({ id: doc.id, ...doc.data() } as any));
   }
 
   public async createCharacter(
@@ -36,7 +36,7 @@ export class CharacterService extends Service{
       Character.generateId(),
       uid,
     );
-    await this.db.collection('characters').doc(character.id).set(character.toJSON(true));
+    await this.db.collection('characters').doc(character.id).set(character.storeJson());
     return character;
   }
 
@@ -71,14 +71,14 @@ export class CharacterService extends Service{
     if (existingCharacter.uid !== uid && !options?.isVerifiedGMOfCharacter) {
       throw new HttpsError('permission-denied', 'Only the owner can update the character. If you are a GM, update your player\'s characters through the play endpoints.');
     }
-    const updatedCharacter = this.factory.fromJSON(characterJson);
+    const updatedCharacter = this.factory.storeJson(characterJson);
     // @NOTE: These fields are not allowed to be updated
     updatedCharacter.uid = existingCharacter.uid;
     updatedCharacter.createdAt = existingCharacter.createdAt;
     updatedCharacter.updatedAt = new Date();
     updatedCharacter.deletedAt = existingCharacter.deletedAt;
     updatedCharacter.id = existingCharacter.id;
-    await this.db.collection('characters').doc(existingCharacter.id).set(updatedCharacter.toJSON(true));
+    await this.db.collection('characters').doc(existingCharacter.id).set(updatedCharacter.storeJson());
     return updatedCharacter;
   }
 }

@@ -3,7 +3,7 @@ import { FriendConnectionJson, FriendJson } from '../json/Friend.json';
 import { DocumentJson } from '../json/Json';
 import { copyDate, DocumentEntity, Entity } from './Entity';
 
-export class Friend extends Entity<FriendJson> {
+export class Friend extends Entity<FriendJson, FriendJson> {
   public uid: string;
   public approvedAt: Date | null;
   public deniedAt: Date | null;
@@ -23,7 +23,7 @@ export class Friend extends Entity<FriendJson> {
     };
   }
 
-  public toJSON(toStore: boolean): FriendJson {
+  public rootJson(): FriendJson {
     return {
       uid: this.uid,
       approvedAt: this.approvedAt,
@@ -32,12 +32,20 @@ export class Friend extends Entity<FriendJson> {
     };
   }
 
+  public storeJson(): FriendJson {
+    return this.rootJson();
+  }
+
+  public clientJson(): FriendJson {
+    return this.rootJson();
+  }
+
   public copy(): Friend {
-    return new Friend(this.toJSON(true));
+    return new Friend(this.rootJson());
   }
 }
 
-export class FriendConnection extends DocumentEntity<FriendConnectionJson> {
+export class FriendConnection extends DocumentEntity<FriendConnectionJson, FriendConnectionJson> {
   public invited: Friend;
   public invitedBy: Friend;
   public id: string;
@@ -54,12 +62,28 @@ export class FriendConnection extends DocumentEntity<FriendConnectionJson> {
     this.invitedBy = invitedBy;
   }
 
-  public toJSON(toStore: boolean): FriendConnectionJson {
+  private rootJson(): FriendConnectionJson {
     return {
       id: this.id,
-      invited: this.invited.toJSON(toStore),
-      invitedBy: this.invitedBy.toJSON(toStore),
+      invited: this.invited.rootJson(),
+      invitedBy: this.invitedBy.rootJson(),
       ...this.copyDocumentJson(),
+    };
+  }
+
+  public storeJson(): FriendConnectionJson {
+    return {
+      ...this.rootJson(),
+      invited: this.invited.storeJson(),
+      invitedBy: this.invitedBy.storeJson(),
+    };
+  }
+
+  public clientJson(): FriendConnectionJson {
+    return {
+      ...this.rootJson(),
+      invited: this.invited.clientJson(),
+      invitedBy: this.invitedBy.clientJson(),
     };
   }
 

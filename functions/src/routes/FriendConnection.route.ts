@@ -17,8 +17,8 @@ export class FriendConnectionRoute extends Route {
       this.getUidFromRequest(request),
     );
     return this.handleJsonResponse({
-      friendConnections: connections.friendConnections.map(c => c.toJSON(false)),
-      users: connections.users.map(u => u.toJSON(false)),
+      friendConnections: connections.friendConnections.map(c => c.clientJson()),
+      users: connections.users.map(u => u.clientJson()),
     });
   }
 
@@ -38,7 +38,7 @@ export class FriendConnectionRoute extends Route {
       email,
       uid,
     );
-    return this.handleJsonResponse({ connection: connection.toJSON(false) });
+    return this.handleJsonResponse({ connection: connection.clientJson() });
   }
 
   public async updateFriendStatus(

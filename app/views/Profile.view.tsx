@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Campaign, User } from '@rhyeen/cozy-ttrpg-shared';
+import { User } from '@rhyeen/cozy-ttrpg-shared';
 import { userController } from '../utils/controller';
 import Loading from '../components/Loading';
 import Header from 'app/components/Header';
@@ -18,7 +18,7 @@ export function ProfileView() {
   const getProfile = async () => {
     let result = await userController.getSelfAsUser();
     if (result === null) {
-      result = await userController.createSelfAsUser({ displayName: '' });
+      throw new Error('User not found. Please sign in and out to refresh.');
     }
     setUser(result);
     setInitialUser(result);

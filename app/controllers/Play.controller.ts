@@ -1,18 +1,10 @@
-import type { Character, CharacterJson, Play, PlayJson } from '@rhyeen/cozy-ttrpg-shared';
+import { Play, type Character, type CharacterJson, type PlayJson } from '@rhyeen/cozy-ttrpg-shared';
 import { characterFactory, playFactory } from '../utils/factories';
 import { Controller } from './Controller';
 
 export class PlayController extends Controller {
   constructor() {
     super();
-  }
-
-  public async getSelfPlays(campaignId: string): Promise<Play[]> {
-    const result = await this.callFirebase<
-      { campaignId: string },
-      { items: PlayJson[] | null }
-    >('getSelfPlays', { campaignId });
-    return result.items ? result.items.map(playFactory.fromJSON) : [];
   }
 
   public async createSelfPlay(
@@ -23,7 +15,7 @@ export class PlayController extends Controller {
       { characterId: string; campaignId: string },
       { item: PlayJson }
     >('createSelfPlay', { characterId, campaignId });
-    return playFactory.fromJSON(result.item);
+    return playFactory.clientJson(result.item);
   }
 
   public async getCampaignPlays(
@@ -34,18 +26,19 @@ export class PlayController extends Controller {
       { plays: PlayJson[], characters: CharacterJson[] }
     >('getCampaignPlays', { campaignId });
     return {
-      plays: result.plays ? result.plays.map(playFactory.fromJSON) : [],
-      characters: result.characters ? result.characters.map(characterFactory.fromJSON) : [],
+      plays: result.plays ? result.plays.map(p => playFactory.clientJson(p)) : [],
+      characters: result.characters ? result.characters.map(c => characterFactory.clientJson(c)) : [],
     };
   }
 
   public async startPlay(
-    playId: string,
+    campaignId: string,
+    characterId: string,
   ): Promise<Play> {
     const result = await this.callFirebase<
-      { playId: string },
+      { campaignId: string, characterId: string },
       { play: PlayJson }
-    >('startPlay', { playId });
-    return playFactory.fromJSON(result.play);
+    >('startPlay', { campaignId, characterId });
+    return playFactory.clientJson(result.play);
   }
 }

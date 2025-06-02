@@ -16,8 +16,8 @@ export class FriendConnectionController extends Controller {
       { friendConnections: FriendConnectionJson[]; users: UserJson[] }
     >('getFriendConnections', undefined);
     return {
-      friendConnections: result.friendConnections.map(i => friendConnectionFactory.fromJSON(i)),
-      users: result.users.map(i => userFactory.fromJSON(i))
+      friendConnections: result.friendConnections.map(i => friendConnectionFactory.clientJson(i)),
+      users: result.users.map(i => userFactory.clientJson(i))
     };
   }
 
@@ -28,7 +28,7 @@ export class FriendConnectionController extends Controller {
       { uid: string },
       { connection: FriendConnectionJson }
     >('inviteFriend', { uid });
-    return friendConnectionFactory.fromJSON(result.connection);
+    return friendConnectionFactory.clientJson(result.connection);
   }
 
   public async inviteFriendViaEmail(
@@ -38,7 +38,7 @@ export class FriendConnectionController extends Controller {
       { email: string },
       { connection: FriendConnectionJson }
     >('inviteFriend', { email });
-    return friendConnectionFactory.fromJSON(result.connection);
+    return friendConnectionFactory.clientJson(result.connection);
   }
 
   public async updateFriendStatus(

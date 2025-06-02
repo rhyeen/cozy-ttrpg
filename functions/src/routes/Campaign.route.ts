@@ -1,7 +1,7 @@
 import { firestore } from 'firebase-admin';
 import { Route } from './Route';
 import { CampaignService } from '../services/Campaign.service';
-import { CampaignJson } from '@rhyeen/cozy-ttrpg-shared';
+import { ClientCampaignJson } from '@rhyeen/cozy-ttrpg-shared';
 import { CallableRequest, HttpsError, HttpsFunction } from 'firebase-functions/https';
 
 export class CampaignRoute extends Route {
@@ -15,13 +15,13 @@ export class CampaignRoute extends Route {
     request: CallableRequest<any>,
   ): Promise<HttpsFunction> {
     const campaigns = await this.service.getCampaigns(this.getUidFromRequest(request));
-    return this.handleJsonResponse({ items: campaigns.map(c => c.toJSON(false)) });
+    return this.handleJsonResponse({ items: campaigns.map(c => c.clientJson()) });
   }
 
   public async createCampaign(
     request: CallableRequest<any>,
   ): Promise<HttpsFunction> {
-    const campaignJson = request.data.campaign as CampaignJson;
+    const campaignJson = request.data.campaign as ClientCampaignJson;
     if (!campaignJson) {
       throw new HttpsError('invalid-argument', 'Campaign data is required');
     }
@@ -29,7 +29,7 @@ export class CampaignRoute extends Route {
       this.getUidFromRequest(request),
       campaignJson,
     );
-    return this.handleJsonResponse({ item: campaign.toJSON(false) });
+    return this.handleJsonResponse({ item: campaign.clientJson() });
   }
 
   public async deleteCampaign(
@@ -49,7 +49,7 @@ export class CampaignRoute extends Route {
   public async updateCampaign(
     request: CallableRequest<any>,
   ): Promise<HttpsFunction> {
-    const campaignJson = request.data.campaign as CampaignJson;
+    const campaignJson = request.data.campaign as ClientCampaignJson;
     if (!campaignJson) {
       throw new HttpsError('invalid-argument', 'Campaign ID and data are required');
     }
@@ -60,7 +60,7 @@ export class CampaignRoute extends Route {
       this.getUidFromRequest(request),
       campaignJson,
     );
-    return this.handleJsonResponse({ item: campaign.toJSON(false) });
+    return this.handleJsonResponse({ item: campaign.clientJson() });
   }
 
   public async addPlayer(
@@ -76,7 +76,7 @@ export class CampaignRoute extends Route {
       playerUid,
       campaignId,
     );
-    return this.handleJsonResponse({ item: player.toJSON(false) });
+    return this.handleJsonResponse({ item: player.clientJson() });
   }
 
   public async removePlayer(
@@ -108,10 +108,11 @@ export class CampaignRoute extends Route {
     }
     const player = await this.service.updatePlayerStatus(
       this.getUidFromRequest(request),
+      this.getUidFromRequest(request),
       campaignId,
       status,
     );
-    return this.handleJsonResponse({ item: player.toJSON(false) });
+    return this.handleJsonResponse({ item: player.clientJson() });
   }
 
   public async updatePlayerScopes(
@@ -129,6 +130,6 @@ export class CampaignRoute extends Route {
       campaignId,
       scopes,
     );
-    return this.handleJsonResponse({ item: player.toJSON(false) });
+    return this.handleJsonResponse({ item: player.clientJson() });
   }
 }
