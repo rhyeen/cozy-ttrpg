@@ -67,7 +67,10 @@ export const CharacterSheet: React.FC<Props> = ({
       const updatedCharacter = character.copy();
       updatedCharacter.name = name;
       updatedCharacter.nickname = nickname;
-      await characterController.updateCharacter(updatedCharacter);
+      await characterController.updateCharacter(
+        updatedCharacter,
+        campaign ? { campaignId: campaign.id } : undefined,
+      );
       onCharacterUpdate(updatedCharacter);
       setSaveState('success');
     } catch (error) {

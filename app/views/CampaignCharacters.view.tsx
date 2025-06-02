@@ -81,6 +81,7 @@ export function CampaignCharactersView({
     return (
       <CharacterSheet
         character={character}
+        campaign={campaign}
         friendUsers={friendUsers}
         friendConnections={friendConnections}
         onClose={() => setViewCharacter(undefined)}

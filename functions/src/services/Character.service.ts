@@ -1,16 +1,19 @@
 import { firestore } from 'firebase-admin';
 import { Service } from './Service';
-import { Character, CharacterFactory, CharacterJson } from '@rhyeen/cozy-ttrpg-shared';
+import { Character, CharacterFactory, CharacterJson, FullPlayEvent, PlayEventOperation } from '@rhyeen/cozy-ttrpg-shared';
 import { HttpsError } from 'firebase-functions/https';
+import { PlayEventService } from './PlayEvent.service';
 
 export class CharacterService extends Service{
   private factory: CharacterFactory;
+  private eventService: PlayEventService;
 
   constructor(
     db: firestore.Firestore,
   ) {
     super(db);
     this.factory = new CharacterFactory();
+    this.eventService = new PlayEventService(db);
   }
 
   public async getCharacter(id: string): Promise<Character | null> {
@@ -59,7 +62,10 @@ export class CharacterService extends Service{
   public async updateCharacter(
     uid: string,
     characterJson: CharacterJson,
-    options?: { isVerifiedGMOfCharacter?: boolean },
+    options?: {
+      isVerifiedGMOfCharacter?: boolean,
+      event?: { campaignId: string },
+    },
   ): Promise<Character | null> {
     if (!characterJson.id) {
       throw new HttpsError('invalid-argument', 'Character ID is required');
@@ -78,7 +84,23 @@ export class CharacterService extends Service{
     updatedCharacter.updatedAt = new Date();
     updatedCharacter.deletedAt = existingCharacter.deletedAt;
     updatedCharacter.id = existingCharacter.id;
-    await this.db.collection('characters').doc(existingCharacter.id).set(updatedCharacter.storeJson());
+    let event: FullPlayEvent | undefined;
+    if (options?.event) {
+      event = new FullPlayEvent(
+        PlayEventOperation.Update,
+        'character',
+        {
+          campaignId: options.event.campaignId,
+        },
+        null,
+        updatedCharacter.clientJson(),
+        null,
+      );
+    }
+    await Promise.all([
+      this.db.collection('characters').doc(existingCharacter.id).set(updatedCharacter.storeJson()),
+      this.eventService.addEvent(event),
+    ]);
     return updatedCharacter;
   }
 }

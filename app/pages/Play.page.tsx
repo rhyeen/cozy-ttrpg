@@ -16,6 +16,12 @@ export function PlayPage({ playId }: Props) {
   const getPlay = async () => {
     try {
       const { campaignId, characterId } = Play.extractId(playId);
+      if (!campaignId) {
+        throw new Error('Invalid play ID format. Missing campaign ID.');
+      }
+      if (!characterId) {
+        throw new Error('Invalid play ID format. Missing character ID.');
+      }
       const result = await playController.startPlay(campaignId, characterId);
       setPlay(result);
     } catch (error) {

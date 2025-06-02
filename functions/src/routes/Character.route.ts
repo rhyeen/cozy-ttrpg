@@ -56,10 +56,12 @@ export class CharacterRoute extends Route {
     }
     const data = {
       character: characterJson,
+      event: request.data.event,
     };
     const character = await this.service.updateCharacter(
       this.getUidFromRequest(request),
       data.character,
+      { event: data.event },
     );
     if (!character) {
       throw new HttpsError('not-found', 'Character not found');

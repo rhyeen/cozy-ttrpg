@@ -1,0 +1,21 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{db}/documents {
+
+    // Public events are readable to all players in the game
+    match /campaigns/{campaignId}/events/{eventId} {
+      allow read: if isPlayer(campaignId);
+      allow write: if false; // only backend writes these
+    }
+
+    // Player-specific branches, note that we wildcard any collection so we can technically have other private collections other than events in the future.
+    match /campaigns/{campaignId}/players/{playerUid}/characters/{characterId}/{collection=**}/{docId} {
+      allow read: if request.auth.uid == playerUid;
+      allow write: if false; // only backend writes these
+    }
+  }
+
+  function isPlayer(campaignId) {
+    return exists(/databases/$(db)/documents/campaigns/$(campaignId)/players/$(request.auth.uid));
+  }
+}

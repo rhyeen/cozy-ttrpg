@@ -12,7 +12,7 @@ export class CharacterController extends Controller {
       undefined,
       { items: CharacterJson[] | null }
     >('getSelfCharacters', undefined);
-    return result.items ? result.items.map(characterFactory.clientJson) : [];
+    return result.items ? result.items.map(c => characterFactory.clientJson(c)) : [];
   }
 
   public async createSelfCharacter(): Promise<Character> {
@@ -30,17 +30,19 @@ export class CharacterController extends Controller {
       { campaignId: string },
       { items: CharacterJson[] }
     >('getCampaignCharacters', { campaignId });
-    return result.items.map(characterFactory.clientJson);
+    return result.items.map(c => characterFactory.clientJson(c));
   }
 
   public async updateCharacter(
     character: Character,
+    event?: { campaignId: string },
   ): Promise<Character> {
     const result = await this.callFirebase<
-      { character: CharacterJson },
+      { character: CharacterJson, event: { campaignId: string } | null },
       { item: CharacterJson }
     >('updateCharacter', {
       character: character.clientJson(),
+      event: event || null,
     });
     return characterFactory.clientJson(result.item);
   }
