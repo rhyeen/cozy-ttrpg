@@ -5,9 +5,9 @@
   "scripts": {
     "build": "react-router build",
     "dev:flush": "rm -rf build .cache .react-router node_modules/.vite node_modules/.vite-temp && react-router dev --force",
-    "dev": "react-router dev",
+    "dev": "react-router dev --config ./vite.config.dev.ts",
     "start": "npm run dev",
-    "serve": "react-router-serve ./build/server/index.js",
+    "serve": "react-router-serve ./build/server/index.js --config ./vite.config.prod.ts",
     "typecheck": "react-router typegen && tsc",
     "predeploy": "npm run typecheck && npm run build"
   },
