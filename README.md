@@ -92,22 +92,10 @@ This closer mimics what we have to do when publishing `/shared` anyway.
 
 #### Shared folder changes not being picked up by Vite
 
-While Vite is running, go to its `vite.config.ts` and just update something on it.
+* Make sure you run `npm start`, not `npm run serve`.
+* If needed, try "dev:flush" to flush the caches.
+* Last resort: remove node_modules and do an `npm i`.
 
-For example, comment out the alias line `'@rhyeen/cozy-ttrpg-shared' : pat...`, save, then readd it (sometimes, it actually only works if you don't add it back in. Go figures....).
-
-This flushes the Vite caches and reretrieves the dependencies.
-
-If you aren't sure if the newest shared code is coming through, go to `shared/src/index.ts` and update the console.info there with a new version number and see if it comes through on the console.
-
-Since this is changed so often, you should know that the correct configuration for deployment is:
-``` Typescript
-resolve: {
-  // @NOTE: For the shared package
-  preserveSymlinks: true,
-  alias:{
-    // @NOTE: This should work for both local when symlinked and when published, since it's the same file either way.
-    // '@rhyeen/cozy-ttrpg-shared' : path.resolve(__dirname, './node_modules/@rhyeen/cozy-ttrpg-shared/dist/index.js'),
-  },
-},
-```
+Likely, you're using vite.config.prod.ts instead of vite.config.dev.ts,
+because the dev one should grab the files right from the /shared folder
+rather than using the symlink. Symlink is only necessary for /functions
