@@ -11,7 +11,7 @@
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
     "predeploy": "npm run build:shared && npm run lint && npm run build",
-    "force:kill": "kill -9 $(lsof -ti:5001,8080,9099,4000,9200,9300)",
+    "force:kill": "kill -9 $(lsof -ti:5201,8280)",
     "force:serve": "npm run force:kill && npm run serve",
     "build:shared": "npm run -w shared build && cp -r ../shared/dist ./shared"
   },
@@ -20,11 +20,12 @@
   },
   "main": "lib/index.js",
   "dependencies": {
-    "@rhyeen/cozy-ttrpg-shared": "^0.0.6",
+    "@rhyeen/cozy-ttrpg-shared": "^0.0.11",
     "firebase-admin": "^12.6.0",
     "firebase-functions": "^6.0.1"
   },
   "devDependencies": {
+    "@types/node": "^24.0.1",
     "@typescript-eslint/eslint-plugin": "^5.12.0",
     "@typescript-eslint/parser": "^5.12.0",
     "eslint": "^8.9.0",

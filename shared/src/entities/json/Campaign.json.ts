@@ -1,4 +1,5 @@
-import { DocumentJson } from './Json';
+import type { DocumentJson } from './Json';
+import type { PlayJson } from './Play.json';
 
 export enum PlayerScope {
   Owner = 'owner',
@@ -51,8 +52,10 @@ export interface RootCampaignJson extends DocumentJson {
 
 export interface StoreCampaignJson extends RootCampaignJson {
   players_uids: string[];
+  characters_uids: string[];
 }
 
 export interface ClientCampaignJson extends RootCampaignJson {
   players: PlayerJson[];
+  plays: PlayJson[];
 }

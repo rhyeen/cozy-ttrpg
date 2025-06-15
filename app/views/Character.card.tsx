@@ -1,5 +1,5 @@
 import Header from 'app/components/Header';
-import { Character, FriendConnection, Play, User } from '@rhyeen/cozy-ttrpg-shared';
+import { Campaign, Character, FriendConnection, Play, User } from '@rhyeen/cozy-ttrpg-shared';
 import Card from 'app/components/Card';
 import Paragraph from 'app/components/Paragraph';
 import { useFindFriend } from 'app/utils/hooks/useFriend';
@@ -16,9 +16,11 @@ import FaceIcon from 'app/components/Icons/Face';
 import DeleteIcon from 'app/components/Icons/Delete';
 import Modal from 'app/components/Modal';
 import { FriendCard } from './Friend.card';
-import { characterController } from 'app/utils/controller';
+import { campaignController, characterController } from 'app/utils/controller';
 import { Toast } from '@base-ui-components/react';
-import { CharacterSheet } from './play/CharacterSheet';
+import Book2Icon from 'app/components/Icons/Book2';
+import RadioButtonUncheckedIcon from 'app/components/Icons/RadioButtonUnchecked';
+import SaveStateIcon from 'app/components/Icons/SaveState';
 
 interface Props {
   friendConnections: FriendConnection[];
@@ -27,7 +29,8 @@ interface Props {
   onViewCharacter: () => void;
   friendUsers: User[];
   character: Character;
-  play?: Play;
+  campaigns: Campaign[];
+  onSetCampaign: (campaign: Campaign) => void;
 }
 
 export const CharacterCard: React.FC<Props> = ({
@@ -35,9 +38,10 @@ export const CharacterCard: React.FC<Props> = ({
   onSetFriendConnections,
   friendUsers,
   character,
-  play,
+  campaigns,
   onCharacterUpdate,
   onViewCharacter,
+  onSetCampaign,
 }) => {
   const toastManager = Toast.useToastManager();
   const firebaseUser = useSelector(selectFirebaseUser);
@@ -45,12 +49,44 @@ export const CharacterCard: React.FC<Props> = ({
   const selfIsCharacter = character.uid === firebaseUser?.uid;
   const [viewFriend, setViewFriend] = useState(false);
   const [deleteCharacter, setDeleteCharacter] = useState(false);
+  const [assignCampaign, setAssignCampaign] = useState(false);
+  const [
+    assigningCampaigns,
+    setAssigningCampaigns,
+  ] = useState<{ [campaignId: string]: 'saving' | 'error' }>({});
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handlePlay = () => {
+  const campaignsWithCharacter = campaigns.filter(campaign => {
+    return campaign.plays.some(play => play.characterId === character.id);
+  });
+
+  const handlePlay = (campaign: Campaign) => {
+    const play = campaign.plays.find(play => play.characterId === character.id);
     if (play) {
       navigate(`/play/${play.id}`);
+    }
+  };
+
+  const handleAssignCampaign = async (campaign: Campaign) => {
+    if (assigningCampaigns[campaign.id] === 'saving') return;
+    if (campaign.plays.some((p) => p.characterId === character.id)) return;
+    setLoading(true);
+    setAssigningCampaigns((prev) => ({ ...prev, [campaign.id]: 'saving' }));
+    try {
+      const play = await campaignController.addCharacter(campaign.id, character.id);
+      const updatedCampaign = campaign.copy();
+      updatedCampaign.plays.push(play);
+      onSetCampaign(updatedCampaign);
+    } catch (error) {
+      setAssigningCampaigns((prev) => ({ ...prev, [campaign.id]: 'error' }));
+      toastManager.add({
+        title: 'Unexpected Error',
+        description: `Failed to assign character to campaign ${campaign.name || campaign.id}.`,
+      });
+      return;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -75,6 +111,13 @@ export const CharacterCard: React.FC<Props> = ({
         icon: <SupervisedUserCircleIcon />,
       });
     }
+    if (campaigns.length && selfIsCharacter) {
+      items.push({
+        label: 'Assign to Campaign',
+        icon: <Book2Icon />,
+        onClick: () => setAssignCampaign(true),
+      });
+    }
     if (selfIsCharacter) {
       items.push({
         label: 'Delete Character',
@@ -83,6 +126,14 @@ export const CharacterCard: React.FC<Props> = ({
       });
     }
     return items;
+  };
+
+  const getPlayMenuItems = () => {
+    return campaignsWithCharacter.map((campaign) => ({
+      label: campaign.name || campaign.id,
+      onClick: () => handlePlay(campaign),
+      icon: <PlayCircleIcon />,
+    }));
   };
 
   const handleDeleteCharacter = async () => {
@@ -112,10 +163,16 @@ export const CharacterCard: React.FC<Props> = ({
           </Card.Header.Left>
           <Card.Header.Right>
             <IconButton.Bar>
-              {selfIsCharacter && (
-                <IconButton onClick={handlePlay}>
+              {selfIsCharacter && campaignsWithCharacter.length === 1 && (
+                <IconButton onClick={() => handlePlay(campaignsWithCharacter[0])}>
                   <PlayCircleIcon />
                 </IconButton>
+              )}
+              {selfIsCharacter && campaignsWithCharacter.length > 1 && (
+                <Menu
+                  icon={<PlayCircleIcon />}
+                  items={getPlayMenuItems()}
+                />
               )}
               <Menu
                 icon={<SettingsIcon />}
@@ -151,6 +208,39 @@ export const CharacterCard: React.FC<Props> = ({
       >
         Are you sure you want to delete this character? This action cannot currently be undone.
       </Modal>
+      <Modal
+        title="Assign to Campaign"
+        secondaryBtn
+        open={assignCampaign}
+        onOpenChange={() => setAssignCampaign(false)}
+        loading={loading}
+        size="formMax"
+      >
+        {campaigns.map(campaign => {
+          let saveState: 'hide' | 'success' | 'saving' | 'error' = 'hide';
+          if (campaign.plays.some(p => p.characterId === character.id)) {
+            saveState = 'success';
+          } else if (assigningCampaigns[campaign.id]) {
+            saveState = assigningCampaigns[campaign.id];
+          }
+          return (
+            <Card key={campaign.id} onClick={() => handleAssignCampaign(campaign)}>
+              <Card.Header>
+                <Card.Header.Left>
+                  <Header type="h5">{campaign.name || campaign.id}</Header>
+                </Card.Header.Left>
+                <Card.Header.Right>
+                  <SaveStateIcon
+                    state={saveState}
+                    onStateChange={() => {}}
+                    hideIcon={<RadioButtonUncheckedIcon />}
+                  />
+                </Card.Header.Right>
+              </Card.Header>
+            </Card>
+          );
+        })}
+      </Modal>   
     </>
   );
 };

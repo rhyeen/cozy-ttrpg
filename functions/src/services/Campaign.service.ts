@@ -1,6 +1,6 @@
 import { firestore } from 'firebase-admin';
 import { Service } from './Service';
-import { Campaign, CampaignFactory, ClientCampaignJson, expandScope, Player, PlayerJson, PlayerScope, StoreCampaignJson } from '@rhyeen/cozy-ttrpg-shared';
+import { Campaign, CampaignFactory, type ClientCampaignJson, expandScope, Player, type PlayerJson, PlayerScope, type PlayJson, type StoreCampaignJson } from '@rhyeen/cozy-ttrpg-shared';
 import { HttpsError } from 'firebase-functions/https';
 import { FieldValue } from 'firebase-admin/firestore';
 
@@ -22,7 +22,7 @@ export class CampaignService extends Service{
       return [];
     }
     const campaigns = await Promise.all(snapshot.docs.map(async (doc) => {
-      const campaign = await this.getCampaignAndPlayersBySnapshot(doc);
+      const campaign = await this.getFillCampaignBySnapshot(doc);
       return campaign ? campaign : null;
     }));
     return campaigns.filter(c => c !== null) as Campaign[];
@@ -30,7 +30,7 @@ export class CampaignService extends Service{
 
   public async getCampaign(campaignId: string, assertPlayerUid?: string): Promise<Campaign | null> {
     const snapshot = await this.db.collection('campaigns').doc(campaignId).get();
-    const campaign = await this.getCampaignAndPlayersBySnapshot(snapshot);
+    const campaign = await this.getFillCampaignBySnapshot(snapshot);
     if (!campaign) {
       return null;
     }
@@ -42,20 +42,31 @@ export class CampaignService extends Service{
     return campaign;
   }
 
-  private async getCampaignAndPlayersBySnapshot(
+  private async getFillCampaignBySnapshot(
     campaignSnapshot: firestore.DocumentSnapshot,
   ): Promise<Campaign | null> {
     if (!campaignSnapshot.exists) {
       return null;
     }
-    const playerSnapshot = await this.db.collection(
-      campaignSnapshot.ref.parent.path,
-    ).doc(campaignSnapshot.id).collection('players').get();
+    const playerSnapshot = await this.db.collection(campaignSnapshot.ref.parent.path)
+    .doc(campaignSnapshot.id).collection('players').get();
     const playerJsons = playerSnapshot.docs.map(doc => {
       return doc.data() as PlayerJson;
     });
+    const playJsons: PlayJson[] = [];
+    await Promise.all(playerJsons.map(async playerJson => {
+      const playSnapshot = await this.db.collection(campaignSnapshot.ref.parent.path)
+      .doc(campaignSnapshot.id)
+      .collection('players')
+      .doc(playerJson.uid)
+      .collection('characters').get();
+      playJsons.push(...playSnapshot.docs.map(doc => doc.data() as PlayJson));
+    }));
     const campaignJson = campaignSnapshot.data() as StoreCampaignJson;
-    return this.factory.storeJson(campaignJson, playerJsons);
+    return this.factory.storeJson(campaignJson, {
+      players: playerJsons,
+      plays: playJsons,
+    });
   }
 
   private playerInCampaign(
@@ -118,6 +129,9 @@ export class CampaignService extends Service{
     // @NOTE: Intentionally not doing a transaction or promise.all here
     // because we want to ensure the campaign is created before adding the player.
     await campaignRef.set(newCampaign.storeJson());
+    if (!newCampaign.players[0]) {
+      throw new Error('Campaign must have at least one player');
+    }
     await campaignRef.collection('players').doc(uid).set(newCampaign.players[0].storeJson());
     return newCampaign;
   }

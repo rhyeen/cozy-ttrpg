@@ -1,6 +1,6 @@
 import { firestore } from 'firebase-admin';
 import { Service } from './Service';
-import { Character, CharacterFactory, CharacterJson, FullPlayEvent, PlayEventOperation } from '@rhyeen/cozy-ttrpg-shared';
+import { Character, CharacterFactory, type CharacterJson, FullPlayEvent, PlayEventOperation } from '@rhyeen/cozy-ttrpg-shared';
 import { HttpsError } from 'firebase-functions/https';
 import { PlayEventService } from './PlayEvent.service';
 

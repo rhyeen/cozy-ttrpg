@@ -1,6 +1,6 @@
 import { EntityFactory } from '../entities/Entity';
 import { User } from '../entities/User';
-import { UserJson } from '../json/User.json';
+import type { UserJson } from '../json/User.json';
 
 export class UserFactory extends EntityFactory<
   User, UserJson, UserJson, undefined, undefined

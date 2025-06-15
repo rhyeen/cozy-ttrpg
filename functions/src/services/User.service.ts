@@ -62,7 +62,7 @@ export class UserService extends Service{
     const snapshot = await this.db.collection('users')
       .where('email', '==', email)
       .get();
-    if (snapshot.empty) {
+    if (snapshot.empty || !snapshot.docs.length || !snapshot.docs[0]) {
       return null;
     }
     const data = snapshot.docs[0].data();

@@ -1,6 +1,6 @@
 import { copyDate, EntityFactory } from '../entities/Entity';
 import { FullPlayEvent, PrivatePlayEvent, PublicPlayEvent } from '../entities/PlayEvent';
-import { PrivatePlayEventJson, PublicPlayEventJson } from '../json/PlayEvent.json';
+import type { PrivatePlayEventJson, PublicPlayEventJson } from '../json/PlayEvent.json';
 
 export class PublicPlayEventFactory extends EntityFactory<
   PublicPlayEvent, PublicPlayEventJson, PublicPlayEventJson, undefined, undefined
@@ -55,7 +55,7 @@ export class FullPlayEventFactory {
   ): FullPlayEvent {
     return FullPlayEvent.generateFromEvent(
       publicJson,
-      privateJson,
+      privateJson || null,
     );
   }
 

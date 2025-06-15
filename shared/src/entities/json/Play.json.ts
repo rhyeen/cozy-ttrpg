@@ -1,4 +1,4 @@
-import { DocumentJson } from './Json';
+import type { DocumentJson } from './Json';
 
 export interface PlayJson extends DocumentJson {
   uid: string;

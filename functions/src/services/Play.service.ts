@@ -1,6 +1,6 @@
 import { firestore } from 'firebase-admin';
 import { Service } from './Service';
-import { Play, PlayFactory, PlayJson, PlayerScope } from '@rhyeen/cozy-ttrpg-shared';
+import { Play, PlayFactory, type PlayJson, PlayerScope } from '@rhyeen/cozy-ttrpg-shared';
 import { HttpsError } from 'firebase-functions/https';
 import { CampaignService } from './Campaign.service';
 import { CharacterService } from './Character.service';

@@ -99,3 +99,15 @@ For example, comment out the alias line `'@rhyeen/cozy-ttrpg-shared' : pat...`, 
 This flushes the Vite caches and reretrieves the dependencies.
 
 If you aren't sure if the newest shared code is coming through, go to `shared/src/index.ts` and update the console.info there with a new version number and see if it comes through on the console.
+
+Since this is changed so often, you should know that the correct configuration for deployment is:
+``` Typescript
+resolve: {
+  // @NOTE: For the shared package
+  preserveSymlinks: true,
+  alias:{
+    // @NOTE: This should work for both local when symlinked and when published, since it's the same file either way.
+    // '@rhyeen/cozy-ttrpg-shared' : path.resolve(__dirname, './node_modules/@rhyeen/cozy-ttrpg-shared/dist/index.js'),
+  },
+},
+```

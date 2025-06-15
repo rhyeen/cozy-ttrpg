@@ -1,5 +1,5 @@
-import { DocumentJson } from '../json/Json';
-import { CharacterJson } from '../json/Character.json';
+import type { DocumentJson } from '../json/Json';
+import type { CharacterJson } from '../json/Character.json';
 import { DocumentEntity } from './Entity';
 import { generateId } from '../../utils/idGenerator';
 

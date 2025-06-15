@@ -1,7 +1,8 @@
 import { copyDate, DocumentEntity, Entity } from './Entity';
 import type { ClientCampaignJson, PlayerJson, PlayerScope, RootCampaignJson, StoreCampaignJson } from '../json/Campaign.json';
 import { generateId } from '../../utils/idGenerator';
-import { DocumentJson } from '../json/Json';
+import type { DocumentJson } from '../json/Json';
+import { Play } from './Play';
 
 export class Player extends Entity<PlayerJson, PlayerJson> {
   public uid: string;
@@ -50,6 +51,7 @@ export class Player extends Entity<PlayerJson, PlayerJson> {
 
 export class Campaign extends DocumentEntity<StoreCampaignJson, ClientCampaignJson> {
   public players: Player[];
+  public plays: Play[];
   public name: string;
   public description: string;
   public id: string;
@@ -59,6 +61,7 @@ export class Campaign extends DocumentEntity<StoreCampaignJson, ClientCampaignJs
     name: string,
     description: string,
     players: Player[],
+    plays: Play[],
     documentJson?: DocumentJson,
   ) {
     super(documentJson);
@@ -66,6 +69,7 @@ export class Campaign extends DocumentEntity<StoreCampaignJson, ClientCampaignJs
     this.name = name;
     this.id = id;
     this.description = description;
+    this.plays = plays;
   }
 
   private rootJson(): RootCampaignJson {
@@ -81,6 +85,7 @@ export class Campaign extends DocumentEntity<StoreCampaignJson, ClientCampaignJs
     return {
       ...this.rootJson(),
       players_uids: this.players.map((player) => player.uid),
+      characters_uids: this.plays.map((play) => play.characterId),
     };
   }
 
@@ -88,6 +93,7 @@ export class Campaign extends DocumentEntity<StoreCampaignJson, ClientCampaignJs
     return {
       ...this.rootJson(),
       players: this.players.map((player) => player.clientJson()),
+      plays: this.plays.map((play) => play.clientJson()),
     };
   }
 
@@ -97,6 +103,7 @@ export class Campaign extends DocumentEntity<StoreCampaignJson, ClientCampaignJs
       this.name,
       this.description,
       this.players.map((player) => player.copy()),
+      this.plays.map((play) => play.copy()),
       this.copyDocumentJson(),
     );
   }

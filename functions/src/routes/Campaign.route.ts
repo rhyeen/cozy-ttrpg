@@ -1,8 +1,8 @@
 import { firestore } from 'firebase-admin';
 import { Route } from './Route';
 import { CampaignService } from '../services/Campaign.service';
-import { ClientCampaignJson } from '@rhyeen/cozy-ttrpg-shared';
-import { CallableRequest, HttpsError, HttpsFunction } from 'firebase-functions/https';
+import type { ClientCampaignJson } from '@rhyeen/cozy-ttrpg-shared';
+import { type CallableRequest, HttpsError, type HttpsFunction } from 'firebase-functions/https';
 
 export class CampaignRoute extends Route {
   private service: CampaignService;

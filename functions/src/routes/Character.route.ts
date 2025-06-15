@@ -1,8 +1,8 @@
 import { firestore } from 'firebase-admin';
 import { Route } from './Route';
 import { CharacterService } from '../services/Character.service';
-import { CallableRequest, HttpsError, HttpsFunction } from 'firebase-functions/https';
-import { CharacterFactory, CharacterJson } from '@rhyeen/cozy-ttrpg-shared';
+import { type CallableRequest, HttpsError, type HttpsFunction } from 'firebase-functions/https';
+import { CharacterFactory, type CharacterJson } from '@rhyeen/cozy-ttrpg-shared';
 
 export class CharacterRoute extends Route {
   private service: CharacterService;

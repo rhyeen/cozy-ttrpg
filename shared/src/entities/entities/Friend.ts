@@ -1,6 +1,6 @@
 import { generateId } from '../../utils/idGenerator';
-import { FriendConnectionJson, FriendJson } from '../json/Friend.json';
-import { DocumentJson } from '../json/Json';
+import type { FriendConnectionJson, FriendJson } from '../json/Friend.json';
+import type { DocumentJson } from '../json/Json';
 import { copyDate, DocumentEntity, Entity } from './Entity';
 
 export class Friend extends Entity<FriendJson, FriendJson> {

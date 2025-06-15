@@ -1,4 +1,4 @@
-import { DocumentJson } from '../json/Json';
+import type { DocumentJson } from '../json/Json';
 
 export abstract class Entity<StoreJsonT, ClientJsonT> {
   public abstract storeJson(): StoreJsonT;

@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "react-router build",
+    "dev:flush": "rm -rf build .cache .react-router node_modules/.vite node_modules/.vite-temp && react-router dev --force",
     "dev": "react-router dev",
     "start": "npm run dev",
     "serve": "react-router-serve ./build/server/index.js",
@@ -15,7 +16,7 @@
     "@react-router/node": "^7.5.3",
     "@react-router/serve": "^7.5.3",
     "@reduxjs/toolkit": "^2.8.1",
-    "@rhyeen/cozy-ttrpg-shared": "^0.0.6",
+    "@rhyeen/cozy-ttrpg-shared": "^0.0.12",
     "firebase": "^11.7.1",
     "isbot": "^5.1.27",
     "react": "^19.1.0",
@@ -38,6 +39,7 @@
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.32.0",
     "vite": "^6.3.3",
+    "vite-plugin-commonjs": "^0.10.4",
     "vite-tsconfig-paths": "^5.1.4"
   }
 }

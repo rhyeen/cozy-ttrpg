@@ -1,7 +1,7 @@
 import { firestore } from 'firebase-admin';
 import { Route } from './Route';
 import { FriendConnectionService } from '../services/FriendConnection.service';
-import { CallableRequest, HttpsError, HttpsFunction } from 'firebase-functions/https';
+import { type CallableRequest, HttpsError, type HttpsFunction } from 'firebase-functions/https';
 
 export class FriendConnectionRoute extends Route {
   private service: FriendConnectionService;

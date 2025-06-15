@@ -1,6 +1,6 @@
 import { copyDate, EntityFactory } from '../entities/Entity';
 import { Play } from '../entities/Play';
-import { PlayJson } from '../json/Play.json';
+import type { PlayJson } from '../json/Play.json';
 
 export class PlayFactory extends EntityFactory<
   Play, PlayJson, PlayJson, undefined, undefined
@@ -10,7 +10,7 @@ export class PlayFactory extends EntityFactory<
       json.uid,
       json.characterId,
       json.campaignId,
-      json.lastPlayedAt ? copyDate(json.lastPlayedAt) : null,
+      json.lastPlayedAt ? copyDate(json.lastPlayedAt) : undefined,
       json,
     );
   }

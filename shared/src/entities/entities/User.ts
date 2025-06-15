@@ -1,5 +1,5 @@
-import { DocumentJson } from '../json/Json';
-import { UserJson } from '../json/User.json';
+import { type DocumentJson } from '../json/Json';
+import { type UserJson } from '../json/User.json';
 import { DocumentEntity } from './Entity';
 
 export class User extends DocumentEntity<UserJson, UserJson> {

@@ -1,5 +1,5 @@
-import { DocumentJson } from '../json/Json';
-import { PlayJson } from '../json/Play.json';
+import type { DocumentJson } from '../json/Json';
+import type { PlayJson } from '../json/Play.json';
 import { copyDate, DocumentEntity } from './Entity';
 import { Buffer } from 'buffer';
 
@@ -46,7 +46,7 @@ export class Play extends DocumentEntity<PlayJson, PlayJson> {
       this.uid,
       this.characterId,
       this.campaignId,
-      this.lastPlayedAt ? copyDate(this.lastPlayedAt) : null,
+      this.lastPlayedAt ? copyDate(this.lastPlayedAt) : undefined,
       this.copyDocumentJson(),
     );
   }
@@ -59,14 +59,24 @@ export class Play extends DocumentEntity<PlayJson, PlayJson> {
     campaignId: string,
     characterId: string,
   ): string {
-    return Buffer.from([campaignId, characterId].join(':')).toString('base64');
+    let id = Buffer.from([campaignId, characterId].join(':')).toString('base64');
+    // swap out = to make it URL safe, we use _ because = is padded at the end and when you 
+    // double click to select-all, other types of replacment characters like - or . will not
+    // be selected
+    id = id.replace(/=/g, '_');
+    // Now we replace the others with other URL safe characters
+    id = id.replace(/\+/g, '-');
+    id = id.replace(/\//g, '.');
+    return id;
   }
 
   public static extractId(
     playId: string,
   ): { campaignId: string; characterId: string } {
-    const decoded = Buffer.from(playId, 'base64').toString('utf-8');
+    const decoded = Buffer.from(
+      playId.replace(/_/g, '=').replace(/-/g, '+').replace(/\./g, '/'), 'base64',
+    ).toString('utf-8');
     const [campaignId, characterId] = decoded.split(':');
-    return { campaignId, characterId };
+    return { campaignId: campaignId || '', characterId: characterId || '' };
   }
 }

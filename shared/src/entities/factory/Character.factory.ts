@@ -1,6 +1,6 @@
 import { EntityFactory } from '../entities/Entity';
 import { Character } from '../entities/Character';
-import { CharacterJson } from '../json/Character.json';
+import type { CharacterJson } from '../json/Character.json';
 
 export class CharacterFactory extends EntityFactory<
   Character, CharacterJson, CharacterJson, undefined, undefined

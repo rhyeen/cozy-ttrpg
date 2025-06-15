@@ -25,8 +25,8 @@ const googleProvider = new GoogleAuthProvider();
 
 if (import.meta.env.DEV) {
   console.info('Running in development mode with emulator');
-  connectFunctionsEmulator(functions, 'localhost', 5001);
-  connectFirestoreEmulator(firestore, 'localhost', 8080);
+  connectFunctionsEmulator(functions, 'localhost', 5201);
+  connectFirestoreEmulator(firestore, 'localhost', 8280);
 }
 
 export { auth, googleProvider, functions, firestore };

@@ -1,4 +1,4 @@
-import { FullPlayEventJson, PlayEventOperation, PrivatePlayEventJson, PrivatePlayEventPushTo, PublicPlayEventJson, PublicPlayEventPushTo, RootPlayEventJson } from '../json/PlayEvent.json';
+import { type FullPlayEventJson, PlayEventOperation, type PrivatePlayEventJson, type PrivatePlayEventPushTo, type PublicPlayEventJson, type PublicPlayEventPushTo,type RootPlayEventJson } from '../json/PlayEvent.json';
 import { copyDate, Entity } from './Entity';
 
 export abstract class PlayEvent<StoreJson, ClientJson> extends Entity<StoreJson, ClientJson> {
@@ -53,7 +53,7 @@ export class PublicPlayEvent extends PlayEvent<PublicPlayEventJson, PublicPlayEv
     };
   }
 
-  public rootJson(): PublicPlayEventJson {
+  public override rootJson(): PublicPlayEventJson {
     return {
       ...super.rootJson(),
       pushTo: this.pushToJson(),
@@ -108,7 +108,7 @@ export class PrivatePlayEvent extends PlayEvent<PrivatePlayEventJson, PrivatePla
     };
   }
 
-  public rootJson(): PrivatePlayEventJson {
+  public override rootJson(): PrivatePlayEventJson {
     return {
       ...super.rootJson(),
       pushTo: this.pushToJson(),
@@ -176,7 +176,7 @@ export class FullPlayEvent extends PlayEvent<FullPlayEventJson, FullPlayEventJso
     };
   }
 
-  public rootJson(): FullPlayEventJson {
+  public override rootJson(): FullPlayEventJson {
     return {
       ...super.rootJson(),
       publicPushTo: this.publicPushToJson(),
@@ -219,11 +219,12 @@ export class FullPlayEvent extends PlayEvent<FullPlayEventJson, FullPlayEventJso
   }
 
   public extractPrivate(): PrivatePlayEvent | null {
-    if (!this.privatePushTo) return null;
+    const privatePushTo = this.privatePushToJson();
+    if (!privatePushTo) return null;
     return new PrivatePlayEvent(
       this.operation,
       this.entityId,
-      this.privatePushToJson(),
+      privatePushTo,
       JSON.parse(JSON.stringify(this.privateData)),
       this.id,
       copyDate(this.createdAt),

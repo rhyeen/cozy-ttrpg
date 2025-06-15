@@ -1,6 +1,6 @@
 import { EntityFactory } from '../entities/Entity';
 import { Friend, FriendConnection } from '../entities/Friend';
-import { FriendConnectionJson } from '../json/Friend.json';
+import type { FriendConnectionJson } from '../json/Friend.json';
 
 export class FriendConnectionFactory extends EntityFactory<
   FriendConnection, FriendConnectionJson, FriendConnectionJson, undefined, undefined

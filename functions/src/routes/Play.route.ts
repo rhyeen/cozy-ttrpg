@@ -1,7 +1,7 @@
 import { firestore } from 'firebase-admin';
 import { Route } from './Route';
 import { PlayService } from '../services/Play.service';
-import { CallableRequest, HttpsError, HttpsFunction } from 'firebase-functions/https';
+import { type CallableRequest, HttpsError, type HttpsFunction } from 'firebase-functions/https';
 import { CharacterService } from '../services/Character.service';
 import { Character } from '@rhyeen/cozy-ttrpg-shared';
 

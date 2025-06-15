@@ -110,7 +110,8 @@ export function CampaignCharactersView({
           onSetFriendConnections={onSetFriendConnections}
           onCharacterUpdate={handleCharacterUpdate}
           onViewCharacter={() => setViewCharacter(character)}
-          play={plays?.find(play => play.characterId === character.id)}
+          campaigns={[campaign]}
+          onSetCampaign={onSetCampaign}
         />
       ))}
       <Button

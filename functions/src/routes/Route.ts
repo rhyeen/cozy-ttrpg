@@ -1,6 +1,6 @@
 import { firestore } from 'firebase-admin';
 import type { Response } from 'express';
-import { CallableRequest, HttpsError } from 'firebase-functions/https';
+import { type CallableRequest, HttpsError } from 'firebase-functions/https';
 
 export class Route {
   protected db: firestore.Firestore;
