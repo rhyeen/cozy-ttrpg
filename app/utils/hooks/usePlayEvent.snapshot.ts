@@ -26,7 +26,7 @@ export function usePlayEventSnapshot(
         }
       });
     });
-    const myEventsRef = collection(firestore, "campaigns", campaignId, "players", uid, "plays", characterId, "events");
+    const myEventsRef = collection(firestore, "campaigns", campaignId, "players", uid, "characters", characterId, "events");
     const myQ = query(myEventsRef, orderBy("createdAt"));
     const unsubscribeMy = onSnapshot(myQ, snap => {
       snap.docChanges().forEach(change => {

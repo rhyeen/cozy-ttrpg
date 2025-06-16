@@ -12,6 +12,7 @@ export default [
     route("login", "routes/login.tsx"),
     route("profile", "routes/profile.tsx"),
     route("characters", "routes/characters.tsx"),
+    route("characters/:characterId", "routes/character.tsx"),
     route("friends", "routes/friends.tsx"),
   ]),
 ] satisfies RouteConfig;

@@ -4,7 +4,7 @@ service cloud.firestore {
 
     // Public events are readable to all players in the game
     match /campaigns/{campaignId}/events/{eventId} {
-      allow read: if isPlayer(campaignId);
+      allow read: if exists(/databases/$(db)/documents/campaigns/$(campaignId)/players/$(request.auth.uid));
       allow write: if false; // only backend writes these
     }
 
@@ -13,9 +13,5 @@ service cloud.firestore {
       allow read: if request.auth.uid == playerUid;
       allow write: if false; // only backend writes these
     }
-  }
-
-  function isPlayer(campaignId) {
-    return exists(/databases/$(db)/documents/campaigns/$(campaignId)/players/$(request.auth.uid));
   }
 }

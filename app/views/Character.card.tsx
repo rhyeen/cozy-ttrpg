@@ -16,11 +16,12 @@ import FaceIcon from 'app/components/Icons/Face';
 import DeleteIcon from 'app/components/Icons/Delete';
 import Modal from 'app/components/Modal';
 import { FriendCard } from './Friend.card';
-import { campaignController, characterController } from 'app/utils/controller';
+import { campaignController, characterController, playController } from 'app/utils/controller';
 import { Toast } from '@base-ui-components/react';
 import Book2Icon from 'app/components/Icons/Book2';
 import RadioButtonUncheckedIcon from 'app/components/Icons/RadioButtonUnchecked';
 import SaveStateIcon from 'app/components/Icons/SaveState';
+import Form from 'app/components/Form';
 
 interface Props {
   friendConnections: FriendConnection[];
@@ -31,6 +32,7 @@ interface Props {
   character: Character;
   campaigns: Campaign[];
   onSetCampaign: (campaign: Campaign) => void;
+  playOnClick?: boolean;
 }
 
 export const CharacterCard: React.FC<Props> = ({
@@ -42,6 +44,7 @@ export const CharacterCard: React.FC<Props> = ({
   onCharacterUpdate,
   onViewCharacter,
   onSetCampaign,
+  playOnClick,
 }) => {
   const toastManager = Toast.useToastManager();
   const firebaseUser = useSelector(selectFirebaseUser);
@@ -53,7 +56,7 @@ export const CharacterCard: React.FC<Props> = ({
   const [
     assigningCampaigns,
     setAssigningCampaigns,
-  ] = useState<{ [campaignId: string]: 'saving' | 'error' }>({});
+  ] = useState<{ [campaignId: string]: 'saving' | 'error' | 'hide' | 'success' }>({});
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -61,22 +64,31 @@ export const CharacterCard: React.FC<Props> = ({
     return campaign.plays.some(play => play.characterId === character.id);
   });
 
-  const handlePlay = (campaign: Campaign) => {
+  const handlePlay = (campaign: Campaign | undefined) => {
+    if (!campaign) return;
     const play = campaign.plays.find(play => play.characterId === character.id);
     if (play) {
       navigate(`/play/${play.id}`);
     }
   };
 
-  const handleAssignCampaign = async (campaign: Campaign) => {
+  const toggleAssignCampaign = async (campaign: Campaign) => {
+    console.log('Toggling campaign assignment for:', campaign.id, assigningCampaigns[campaign.id]);
     if (assigningCampaigns[campaign.id] === 'saving') return;
-    if (campaign.plays.some((p) => p.characterId === character.id)) return;
+    const remove = (campaign.plays.some((p) => p.characterId === character.id));
     setLoading(true);
     setAssigningCampaigns((prev) => ({ ...prev, [campaign.id]: 'saving' }));
     try {
-      const play = await campaignController.addCharacter(campaign.id, character.id);
+      const play = await playController.setSelfPlay(
+        character.id, campaign.id, !remove,
+      );
       const updatedCampaign = campaign.copy();
-      updatedCampaign.plays.push(play);
+      if (remove) {
+        updatedCampaign.plays = updatedCampaign.plays.filter(p => p.characterId !== character.id);
+      } else {
+        updatedCampaign.plays.push(play);
+      }
+      setAssigningCampaigns((prev) => ({ ...prev, [campaign.id]: remove ? 'hide' : 'success' }));
       onSetCampaign(updatedCampaign);
     } catch (error) {
       setAssigningCampaigns((prev) => ({ ...prev, [campaign.id]: 'error' }));
@@ -155,7 +167,8 @@ export const CharacterCard: React.FC<Props> = ({
 
   return (
     <>
-      <Card onClick={onViewCharacter}>
+      <Card onClick={playOnClick && campaignsWithCharacter.length === 1 ?
+          () => handlePlay(campaignsWithCharacter[0]) : onViewCharacter}>
         <Card.Header>
           <Card.Header.Left>
             <Header type="h4">{character.name || character.nickname || 'Unnamed Character'}</Header>
@@ -216,30 +229,35 @@ export const CharacterCard: React.FC<Props> = ({
         loading={loading}
         size="formMax"
       >
-        {campaigns.map(campaign => {
-          let saveState: 'hide' | 'success' | 'saving' | 'error' = 'hide';
-          if (campaign.plays.some(p => p.characterId === character.id)) {
-            saveState = 'success';
-          } else if (assigningCampaigns[campaign.id]) {
-            saveState = assigningCampaigns[campaign.id];
-          }
-          return (
-            <Card key={campaign.id} onClick={() => handleAssignCampaign(campaign)}>
-              <Card.Header>
-                <Card.Header.Left>
-                  <Header type="h5">{campaign.name || campaign.id}</Header>
-                </Card.Header.Left>
-                <Card.Header.Right>
-                  <SaveStateIcon
-                    state={saveState}
-                    onStateChange={() => {}}
-                    hideIcon={<RadioButtonUncheckedIcon />}
-                  />
-                </Card.Header.Right>
-              </Card.Header>
-            </Card>
-          );
-        })}
+        <Form>
+          {campaigns.map(campaign => {
+            let saveState: 'hide' | 'success' | 'saving' | 'error' = 'hide';
+            if (
+              campaign.plays.some(p => p.characterId === character.id) &&
+              !assigningCampaigns[campaign.id]
+            ) {
+              saveState = 'success';
+            } else if (assigningCampaigns[campaign.id]) {
+              saveState = assigningCampaigns[campaign.id] || 'hide';
+            }
+            return (
+              <Card key={campaign.id} onClick={() => toggleAssignCampaign(campaign)}>
+                <Card.Header>
+                  <Card.Header.Left>
+                    <Header type="h5">{campaign.name || campaign.id}</Header>
+                  </Card.Header.Left>
+                  <Card.Header.Right>
+                    <SaveStateIcon
+                      state={saveState}
+                      onStateChange={() => {}}
+                      hideIcon={<RadioButtonUncheckedIcon />}
+                    />
+                  </Card.Header.Right>
+                </Card.Header>
+              </Card>
+            );
+          })}
+        </Form>
       </Modal>   
     </>
   );

@@ -7,14 +7,15 @@ export class PlayController extends Controller {
     super();
   }
 
-  public async createSelfPlay(
+  public async setSelfPlay(
     characterId: string,
     campaignId: string,
+    isAdding: boolean,
   ): Promise<Play> {
     const result = await this.callFirebase<
-      { characterId: string; campaignId: string },
+      { characterId: string; campaignId: string; isAdding: boolean },
       { item: PlayJson }
-    >('createSelfPlay', { characterId, campaignId });
+    >('setSelfPlay', { characterId, campaignId, isAdding });
     return playFactory.clientJson(result.item);
   }
 

@@ -4,6 +4,7 @@ import { Play, PlayFactory, type PlayJson, PlayerScope } from '@rhyeen/cozy-ttrp
 import { HttpsError } from 'firebase-functions/https';
 import { CampaignService } from './Campaign.service';
 import { CharacterService } from './Character.service';
+import { FieldValue } from 'firebase-admin/firestore';
 
 export class PlayService extends Service{
   private factory: PlayFactory;
@@ -52,10 +53,11 @@ export class PlayService extends Service{
     return playJsons.map(playJson => this.factory.storeJson(playJson));
   }
 
-  public async createPlay(
+  public async setPlay(
     uid: string,
     characterId: string,
     campaignId: string,
+    isAdding: boolean,
   ): Promise<Play> {
     if (campaignId) {
       const [campaign, character] = await Promise.all([
@@ -79,15 +81,40 @@ export class PlayService extends Service{
         throw new HttpsError('permission-denied', 'User does not have permission to create a play in the campaign');
       }
     }
-    const play = new Play(
-      uid,
-      characterId,
-      campaignId,
-    );
-    await this.db.collection('campaigns').doc(campaignId)
-      .collection('players').doc(uid)
-      .collection('characters').doc(characterId).set(play.storeJson());
-    return play;
+    const existingPlay = await this.getPlay(campaignId, uid, characterId);
+    if (!isAdding) {
+      if (!existingPlay) {
+        throw new HttpsError('not-found', 'Play not found');
+      }
+      await Promise.all([
+        existingPlay.ref.delete(),
+        this.db.collection('campaigns').doc(campaignId)
+          .update({
+            characters_ids: FieldValue.arrayRemove(characterId),
+          }),
+      ]);
+      return existingPlay.doc;
+    } else {
+      if (existingPlay) {
+        return existingPlay.doc; // Play already exists, return it
+      }
+      const play = new Play(
+        uid,
+        characterId,
+        campaignId,
+      );
+      // Update characters_ids array in the campaign
+      await Promise.all([
+        this.db.collection('campaigns').doc(campaignId)
+          .collection('players').doc(uid)
+          .collection('characters').doc(characterId).set(play.storeJson()),
+        this.db.collection('campaigns').doc(campaignId)
+          .update({
+            characters_ids: FieldValue.arrayUnion(characterId),
+          })
+      ]);
+      return play;
+    }
   }
 
   public async startPlay(

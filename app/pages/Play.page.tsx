@@ -1,7 +1,7 @@
 import { Toast } from '@base-ui-components/react';
 import Loading from 'app/components/Loading';
 import { playController } from 'app/utils/controller';
-import { HomePlayView } from 'app/views/play/HomePlay.view';
+import { PlayView } from 'app/views/play/Play.view';
 import { useEffect, useState } from 'react';
 import { Play } from '@rhyeen/cozy-ttrpg-shared';
 
@@ -41,5 +41,5 @@ export function PlayPage({ playId }: Props) {
     return <Loading type="spinner" page />;
   }
 
-  return <HomePlayView play={play} />;
+  return <PlayView play={play} />;
 }

@@ -52,7 +52,7 @@ export interface RootCampaignJson extends DocumentJson {
 
 export interface StoreCampaignJson extends RootCampaignJson {
   players_uids: string[];
-  characters_uids: string[];
+  characters_ids: string[];
 }
 
 export interface ClientCampaignJson extends RootCampaignJson {

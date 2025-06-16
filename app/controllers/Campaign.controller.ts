@@ -49,17 +49,6 @@ export class CampaignController extends Controller {
     return new Player(result.item);
   }
 
-  public async addCharacter(
-    campaignId: string,
-    characterId: string,
-  ): Promise<Play> {
-    const result = await this.callFirebase<
-      { campaignId: string; characterId: string },
-      { item: Play }
-    >('addCharacter', { campaignId, characterId });
-    return playFactory.clientJson(result.item);
-  }
-
   public async removePlayer(
     campaignId: string,
     playerUid: string,

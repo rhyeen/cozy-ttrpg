@@ -69,7 +69,7 @@ export const CharacterSheet: React.FC<Props> = ({
       updatedCharacter.nickname = nickname;
       await characterController.updateCharacter(
         updatedCharacter,
-        campaign ? { campaignId: campaign.id } : undefined,
+        play?.event,
       );
       onCharacterUpdate(updatedCharacter);
       setSaveState('success');
@@ -94,7 +94,7 @@ export const CharacterSheet: React.FC<Props> = ({
               <ArrowBackIcon />
             </IconButton>
           ) : undefined}
-          iconRight={play ? (
+          iconRight={canEdit ? (
             <IconButton onClick={() => setViewNameDetails(true)}>
               <ReceiptLongIcon />
             </IconButton>

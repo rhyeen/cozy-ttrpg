@@ -85,7 +85,7 @@ export class Campaign extends DocumentEntity<StoreCampaignJson, ClientCampaignJs
     return {
       ...this.rootJson(),
       players_uids: this.players.map((player) => player.uid),
-      characters_uids: this.plays.map((play) => play.characterId),
+      characters_ids: this.plays.map((play) => play.characterId),
     };
   }
 

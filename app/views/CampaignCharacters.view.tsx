@@ -55,7 +55,7 @@ export function CampaignCharactersView({
   const handleCreateCharacter = async () => {
     setLoading(true);
     const newCharacter = await characterController.createSelfCharacter();
-    const newPlay = await playController.createSelfPlay(newCharacter.id, campaign.id);
+    const newPlay = await playController.setSelfPlay(newCharacter.id, campaign.id, true);
     navigate(`/play/${newPlay.id}`);
   };
 
@@ -112,6 +112,7 @@ export function CampaignCharactersView({
           onViewCharacter={() => setViewCharacter(character)}
           campaigns={[campaign]}
           onSetCampaign={onSetCampaign}
+          playOnClick
         />
       ))}
       <Button

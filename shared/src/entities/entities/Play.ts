@@ -79,4 +79,8 @@ export class Play extends DocumentEntity<PlayJson, PlayJson> {
     const [campaignId, characterId] = decoded.split(':');
     return { campaignId: campaignId || '', characterId: characterId || '' };
   }
+
+  public get event(): { campaignId: string } {
+    return { campaignId: this.campaignId };
+  }
 }
