@@ -1,5 +1,5 @@
 import { Friend, FriendConnection, User } from '@rhyeen/cozy-ttrpg-shared';
-import { selectFirebaseUser, type FirebaseUser } from 'app/store/userSlice';
+import { selectFirebaseUser, type FirebaseUser } from 'app/store/user.slice';
 import { useSelector } from 'react-redux';
 
 export interface FriendContext {

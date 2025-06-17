@@ -3,7 +3,7 @@ import { friendConnectionController } from '../utils/controller';
 import Loading from '../components/Loading';
 import Header from 'app/components/Header';
 import Section from 'app/components/Section';
-import { Friend, FriendConnection, User } from '@rhyeen/cozy-ttrpg-shared';
+import { FriendConnection, User } from '@rhyeen/cozy-ttrpg-shared';
 import Button from 'app/components/Button';
 import Form from 'app/components/Form';
 import Divider from 'app/components/Divider';

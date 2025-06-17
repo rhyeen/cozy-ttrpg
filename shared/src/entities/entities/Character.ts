@@ -1,9 +1,9 @@
 import type { DocumentJson } from '../json/Json';
-import type { CharacterJson } from '../json/Character.json';
+import type { ClientCharacterJson, RootCharacterJson, StoreCharacterJson } from '../json/Character.json';
 import { DocumentEntity } from './Entity';
 import { generateId } from '../../utils/idGenerator';
 
-export class Character extends DocumentEntity<CharacterJson, CharacterJson> {
+export class Character extends DocumentEntity<StoreCharacterJson, ClientCharacterJson> {
   public id: string;
   public name?: string;
   public nickname?: string;
@@ -23,9 +23,8 @@ export class Character extends DocumentEntity<CharacterJson, CharacterJson> {
     this.nickname = nickname;
   }
 
-  private rootJson(): CharacterJson {
+  private rootJson(): RootCharacterJson {
     return {
-      ...this.copyDocumentJson(),
       id: this.id,
       uid: this.uid,
       name: this.name || '',
@@ -33,12 +32,18 @@ export class Character extends DocumentEntity<CharacterJson, CharacterJson> {
     };
   }
 
-  public storeJson(): CharacterJson {
-    return this.rootJson();
+  public storeJson(): StoreCharacterJson {
+    return {
+      ...this.rootJson(),
+      ...this.storeDocumentJson(),
+    };
   }
 
-  public clientJson(): CharacterJson {
-    return this.rootJson();
+  public clientJson(): ClientCharacterJson {
+    return {
+      ...this.rootJson(),
+      ...this.clientDocumentJson(),
+    };
   }
 
   public copy(): Character {
@@ -47,7 +52,7 @@ export class Character extends DocumentEntity<CharacterJson, CharacterJson> {
       this.uid,
       this.name,
       this.nickname,
-      this.copyDocumentJson(),
+      this.clientDocumentJson(),
     );
   }
 

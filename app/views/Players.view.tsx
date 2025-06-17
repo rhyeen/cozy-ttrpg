@@ -1,11 +1,11 @@
-import { Campaign, FriendConnection, Player, PlayerScope, User } from '@rhyeen/cozy-ttrpg-shared';
+import { Campaign, FriendConnection, PlayerScope, User } from '@rhyeen/cozy-ttrpg-shared';
 import Header from 'app/components/Header';
 import Section from 'app/components/Section';
 import { PlayerCard } from './Player.card';
 import IconButton from 'app/components/IconButton';
 import { useNavigate } from 'react-router';
 import ArrowBackIcon from 'app/components/Icons/ArrowBack';
-import { selectFirebaseUser } from 'app/store/userSlice';
+import { selectFirebaseUser } from 'app/store/user.slice';
 import { useSelector } from 'react-redux';
 import Button from 'app/components/Button';
 import { useState } from 'react';

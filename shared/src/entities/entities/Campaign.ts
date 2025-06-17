@@ -1,10 +1,10 @@
 import { copyDate, DocumentEntity, Entity } from './Entity';
-import type { ClientCampaignJson, PlayerJson, PlayerScope, RootCampaignJson, StoreCampaignJson } from '../json/Campaign.json';
+import type { ClientCampaignJson, ClientPlayerJson, PlayerScope, RootCampaignJson, RootPlayerJson, StoreCampaignJson, StorePlayerJson } from '../json/Campaign.json';
 import { generateId } from '../../utils/idGenerator';
-import type { DocumentJson } from '../json/Json';
 import { Play } from './Play';
+import { DocumentJson } from '../json/Json';
 
-export class Player extends Entity<PlayerJson, PlayerJson> {
+export class Player extends Entity<StorePlayerJson, ClientPlayerJson> {
   public uid: string;
   public scopes: PlayerScope[];
   public invitedBy: string;
@@ -13,7 +13,7 @@ export class Player extends Entity<PlayerJson, PlayerJson> {
   public deniedAt: Date | null;
   public deletedAt: Date | null;
 
-  constructor(json: PlayerJson) {
+  constructor(json: StorePlayerJson | ClientPlayerJson) {
     super();
     this.uid = json.uid;
     this.invitedBy = json.invitedBy;
@@ -24,28 +24,36 @@ export class Player extends Entity<PlayerJson, PlayerJson> {
     this.scopes = [...json.scopes];
   }
 
-  private rootJson(): PlayerJson {
+  private rootJson(): RootPlayerJson {
     return {
       uid: this.uid,
       invitedBy: this.invitedBy,
-      invitedAt: this.invitedAt,
-      approvedAt: this.approvedAt,
-      deniedAt: this.deniedAt,
-      deletedAt: this.deletedAt,
       scopes: [...this.scopes],
     };
   }
 
-  public storeJson(): PlayerJson {
-    return this.rootJson();
+  public storeJson(): StorePlayerJson {
+    return {
+      ...this.rootJson(),
+      invitedAt: this.invitedAt ? copyDate(this.invitedAt) : null,
+      approvedAt: this.approvedAt ? copyDate(this.approvedAt) : null,
+      deniedAt: this.deniedAt ? copyDate(this.deniedAt) : null,
+      deletedAt: this.deletedAt ? copyDate(this.deletedAt) : null,
+    };
   }
 
-  public clientJson(): PlayerJson {
-    return this.rootJson();
+  public clientJson(): ClientPlayerJson {
+    return {
+      ...this.rootJson(),
+      invitedAt: this.invitedAt ? this.invitedAt.getTime() : null,
+      approvedAt: this.approvedAt ? this.approvedAt.getTime() : null,
+      deniedAt: this.deniedAt ? this.deniedAt.getTime() : null,
+      deletedAt: this.deletedAt ? this.deletedAt.getTime() : null,
+    };
   }
 
   public copy(): Player {
-    return new Player(this.rootJson());
+    return new Player(this.storeJson());
   }
 }
 
@@ -77,13 +85,13 @@ export class Campaign extends DocumentEntity<StoreCampaignJson, ClientCampaignJs
       name: this.name,
       id: this.id,
       description: this.description,
-      ...this.copyDocumentJson(),
     };
   }
 
   public storeJson(): StoreCampaignJson {
     return {
       ...this.rootJson(),
+      ...this.storeDocumentJson(),
       players_uids: this.players.map((player) => player.uid),
       characters_ids: this.plays.map((play) => play.characterId),
     };
@@ -92,6 +100,7 @@ export class Campaign extends DocumentEntity<StoreCampaignJson, ClientCampaignJs
   public clientJson(): ClientCampaignJson {
     return {
       ...this.rootJson(),
+      ...this.clientDocumentJson(),
       players: this.players.map((player) => player.clientJson()),
       plays: this.plays.map((play) => play.clientJson()),
     };
@@ -104,7 +113,7 @@ export class Campaign extends DocumentEntity<StoreCampaignJson, ClientCampaignJs
       this.description,
       this.players.map((player) => player.copy()),
       this.plays.map((play) => play.copy()),
-      this.copyDocumentJson(),
+      this.clientDocumentJson(),
     );
   }
 

@@ -1,8 +1,8 @@
 import { type DocumentJson } from '../json/Json';
-import { type UserJson } from '../json/User.json';
+import { ClientUserJson, RootUserJson, StoreUserJson } from '../json/User.json';
 import { DocumentEntity } from './Entity';
 
-export class User extends DocumentEntity<UserJson, UserJson> {
+export class User extends DocumentEntity<StoreUserJson, ClientUserJson> {
   public uid: string;
   public email: string;
   public displayName: string;
@@ -19,21 +19,26 @@ export class User extends DocumentEntity<UserJson, UserJson> {
     this.displayName = displayName;
   }
 
-  private rootJson(): UserJson {
+  private rootJson(): RootUserJson {
     return {
-      ...this.copyDocumentJson(),
       uid: this.uid,
       email: this.email,
       displayName: this.displayName,
     };
   }
 
-  public storeJson(): UserJson {
-    return this.rootJson();
+  public storeJson(): StoreUserJson {
+    return {
+      ...this.rootJson(),
+      ...this.storeDocumentJson(),
+    };
   }
 
-  public clientJson(): UserJson {
-    return this.rootJson();
+  public clientJson(): ClientUserJson {
+    return {
+      ...this.rootJson(),
+      ...this.clientDocumentJson(),
+    };
   }
 
   public copy(): User {
@@ -41,7 +46,7 @@ export class User extends DocumentEntity<UserJson, UserJson> {
       this.uid,
       this.email,
       this.displayName,
-      this.copyDocumentJson(),
+      this.clientDocumentJson(),
     );
   }
 }

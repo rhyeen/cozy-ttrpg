@@ -1,4 +1,4 @@
-import type { User, UserJson, PlayerScope } from '@rhyeen/cozy-ttrpg-shared';
+import type { User, ClientUserJson } from '@rhyeen/cozy-ttrpg-shared';
 import { userFactory } from '../utils/factories';
 import { Controller } from './Controller';
 
@@ -18,7 +18,7 @@ export class UserController extends Controller {
   public async getSelfAsUser(): Promise<User | null> {
     const result = await this.callFirebase<
       undefined,
-      { item: UserJson | null }
+      { item: ClientUserJson | null }
     >('getSelfAsUser', undefined);
     return result.item ? userFactory.clientJson(result.item) : null;
   }
@@ -26,7 +26,7 @@ export class UserController extends Controller {
   public async createSelfAsUser(details: CreateSelfAsUserRequest): Promise<User> {
     const result = await this.callFirebase<
       CreateSelfAsUserRequest,
-      { item: UserJson }
+      { item: ClientUserJson }
     >('createSelfAsUser', { displayName: details.displayName });
     return userFactory.clientJson(result.item);
   }
@@ -34,7 +34,7 @@ export class UserController extends Controller {
   public async updateSelfAsUser(user: User): Promise<User> {
     const result = await this.callFirebase<
       UpdateSelfAsUserRequest,
-      { item: UserJson }
+      { item: ClientUserJson }
     >('updateSelfAsUser', { displayName: user.displayName.trim() });
     return userFactory.clientJson(result.item);
   }

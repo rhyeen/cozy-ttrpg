@@ -1,11 +1,11 @@
 import { EntityFactory } from '../entities/Entity';
 import { User } from '../entities/User';
-import type { UserJson } from '../json/User.json';
+import type { ClientUserJson, StoreUserJson } from '../json/User.json';
 
 export class UserFactory extends EntityFactory<
-  User, UserJson, UserJson, undefined, undefined
+  User, StoreUserJson, ClientUserJson, undefined, undefined
 > {
-  private rootJson(json: UserJson): User {
+  private rootJson(json: ClientUserJson | StoreUserJson): User {
     return new User(
       json.uid,
       json.email,
@@ -14,11 +14,11 @@ export class UserFactory extends EntityFactory<
     );
   }
 
-  public storeJson(json: UserJson): User {
+  public storeJson(json: StoreUserJson): User {
     return this.rootJson(json);
   }
 
-  public clientJson(json: UserJson): User {
+  public clientJson(json: ClientUserJson): User {
     return this.rootJson(json);
   }
 }

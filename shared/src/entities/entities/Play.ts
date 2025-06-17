@@ -1,9 +1,9 @@
 import type { DocumentJson } from '../json/Json';
-import type { PlayJson } from '../json/Play.json';
+import type { ClientPlayJson, RootPlayJson, StorePlayJson } from '../json/Play.json';
 import { copyDate, DocumentEntity } from './Entity';
 import { Buffer } from 'buffer';
 
-export class Play extends DocumentEntity<PlayJson, PlayJson> {
+export class Play extends DocumentEntity<StorePlayJson, ClientPlayJson> {
   public characterId: string;
   public campaignId: string;
   public uid: string;
@@ -23,22 +23,28 @@ export class Play extends DocumentEntity<PlayJson, PlayJson> {
     this.lastPlayedAt = lastPlayedAt ? new Date(lastPlayedAt) : null;
   }
 
-  public rootJson(): PlayJson {
+  public rootJson(): RootPlayJson {
     return {
-      ...this.copyDocumentJson(),
       uid: this.uid,
       characterId: this.characterId,
       campaignId: this.campaignId,
+    };
+  }
+
+  public storeJson(): StorePlayJson {
+    return {
+      ...this.rootJson(),
+      ...this.storeDocumentJson(),
       lastPlayedAt: this.lastPlayedAt ? copyDate(this.lastPlayedAt) : null,
     };
   }
 
-  public storeJson(): PlayJson {
-    return this.rootJson();
-  }
-
-  public clientJson(): PlayJson {
-    return this.rootJson();
+  public clientJson(): ClientPlayJson {
+    return {
+      ...this.rootJson(),
+      ...this.clientDocumentJson(),
+      lastPlayedAt: this.lastPlayedAt ? this.lastPlayedAt.getTime() : null,
+    };
   }
 
   public copy(): Play {
@@ -47,7 +53,7 @@ export class Play extends DocumentEntity<PlayJson, PlayJson> {
       this.characterId,
       this.campaignId,
       this.lastPlayedAt ? copyDate(this.lastPlayedAt) : undefined,
-      this.copyDocumentJson(),
+      this.clientDocumentJson(),
     );
   }
 

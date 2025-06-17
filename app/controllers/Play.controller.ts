@@ -1,4 +1,4 @@
-import { Play, type Character, type CharacterJson, type PlayJson } from '@rhyeen/cozy-ttrpg-shared';
+import { Play, type Character, type ClientCharacterJson, type ClientPlayJson } from '@rhyeen/cozy-ttrpg-shared';
 import { characterFactory, playFactory } from '../utils/factories';
 import { Controller } from './Controller';
 
@@ -14,7 +14,7 @@ export class PlayController extends Controller {
   ): Promise<Play> {
     const result = await this.callFirebase<
       { characterId: string; campaignId: string; isAdding: boolean },
-      { item: PlayJson }
+      { item: ClientPlayJson }
     >('setSelfPlay', { characterId, campaignId, isAdding });
     return playFactory.clientJson(result.item);
   }
@@ -24,7 +24,7 @@ export class PlayController extends Controller {
   ): Promise<{ plays: Play[], characters: Character[] }> {
     const result = await this.callFirebase<
       { campaignId: string },
-      { plays: PlayJson[], characters: CharacterJson[] }
+      { plays: ClientPlayJson[], characters: ClientCharacterJson[] }
     >('getCampaignPlays', { campaignId });
     return {
       plays: result.plays ? result.plays.map(p => playFactory.clientJson(p)) : [],
@@ -38,7 +38,7 @@ export class PlayController extends Controller {
   ): Promise<Play> {
     const result = await this.callFirebase<
       { campaignId: string, characterId: string },
-      { play: PlayJson }
+      { play: ClientPlayJson }
     >('startPlay', { campaignId, characterId });
     return playFactory.clientJson(result.play);
   }

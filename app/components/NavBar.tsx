@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from './NavBar.module.css';
 import { useSelector } from 'react-redux';
-import { selectFirebaseUser } from '../store/userSlice';
+import { selectFirebaseUser } from '../store/user.slice';
 import { auth } from '../utils/firebase';
 import Menu from './Menu';
 import AccountCircleIcon from './Icons/AccountCircle';

@@ -8,7 +8,7 @@ export default [
     route("campaigns/:campaignId/players", "routes/campaign.tsx", { id: "players" }),
     route("campaigns/:campaignId/characters", "routes/campaign.tsx", { id: "characters" }),
     route("campaigns/:campaignId/play", "routes/campaign.tsx", { id: "play" }),
-    route("play/:playId", "routes/play.tsx"),
+    route("play", "routes/play.tsx"),
     route("login", "routes/login.tsx"),
     route("profile", "routes/profile.tsx"),
     route("characters", "routes/characters.tsx"),

@@ -1,6 +1,6 @@
 import { firestore } from 'firebase-admin';
 import { Service } from './Service';
-import { Play, PlayFactory, type PlayJson, PlayerScope } from '@rhyeen/cozy-ttrpg-shared';
+import { Play, PlayFactory, type StorePlayJson, PlayerScope } from '@rhyeen/cozy-ttrpg-shared';
 import { HttpsError } from 'firebase-functions/https';
 import { CampaignService } from './Campaign.service';
 import { CharacterService } from './Character.service';
@@ -32,7 +32,7 @@ export class PlayService extends Service{
       return null;
     }
     return {
-      doc: this.factory.storeJson(doc.data() as PlayJson),
+      doc: this.factory.storeJson(doc.data() as StorePlayJson),
       ref: doc.ref,
     };
   }
@@ -48,7 +48,7 @@ export class PlayService extends Service{
       return [];
     }
     const playJsons = snapshot.docs.map(doc => {
-      return doc.data() as PlayJson;
+      return doc.data() as StorePlayJson;
     });
     return playJsons.map(playJson => this.factory.storeJson(playJson));
   }

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useLocation, Outlet } from 'react-router';
-import { selectFirebaseUser, setFirebaseUser, type FirebaseUser } from './store/userSlice'; // Adjust the import path as needed
+import { selectFirebaseUser, setFirebaseUser, type FirebaseUser } from './store/user.slice'; // Adjust the import path as needed
 import { auth } from './utils/firebase';
 import { User } from '@rhyeen/cozy-ttrpg-shared';
 import { userController } from './utils/controller';

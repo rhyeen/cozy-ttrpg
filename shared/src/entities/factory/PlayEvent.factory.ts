@@ -1,36 +1,38 @@
 import { copyDate, EntityFactory } from '../entities/Entity';
 import { FullPlayEvent, PrivatePlayEvent, PublicPlayEvent } from '../entities/PlayEvent';
-import type { PrivatePlayEventJson, PublicPlayEventJson } from '../json/PlayEvent.json';
+import type { ClientPrivatePlayEventJson, ClientPublicPlayEventJson, StorePrivatePlayEventJson, StorePublicPlayEventJson } from '../json/PlayEvent.json';
 
 export class PublicPlayEventFactory extends EntityFactory<
-  PublicPlayEvent, PublicPlayEventJson, PublicPlayEventJson, undefined, undefined
+  PublicPlayEvent, StorePublicPlayEventJson, ClientPublicPlayEventJson, undefined, undefined
 > {
-  private rootJson(json: PublicPlayEventJson): PublicPlayEvent {
+  private rootJson(json: ClientPublicPlayEventJson | StorePublicPlayEventJson): PublicPlayEvent {
     return new PublicPlayEvent(
       json.operation,
+      json.entityClass,
       json.entityId,
       json.pushTo,
       json.data,
       json.id,
-      json.createdAt,
+      copyDate(json.createdAt),
     ).copy();
   }
 
-  public storeJson(json: PublicPlayEventJson): PublicPlayEvent {
+  public storeJson(json: StorePublicPlayEventJson): PublicPlayEvent {
     return this.rootJson(json);
   }
 
-  public clientJson(json: PublicPlayEventJson): PublicPlayEvent {
+  public clientJson(json: ClientPublicPlayEventJson): PublicPlayEvent {
     return this.rootJson(json);
   }
 }
 
 export class PrivatePlayEventFactory extends EntityFactory<
-  PrivatePlayEvent, PrivatePlayEventJson, PrivatePlayEventJson, undefined, undefined
+  PrivatePlayEvent, StorePrivatePlayEventJson, ClientPrivatePlayEventJson, undefined, undefined
 > {
-  private rootJson(json: PrivatePlayEventJson): PrivatePlayEvent {
+  private rootJson(json: ClientPrivatePlayEventJson | StorePrivatePlayEventJson): PrivatePlayEvent {
     return new PrivatePlayEvent(
       json.operation,
+      json.entityClass,
       json.entityId,
       json.pushTo,
       JSON.parse(JSON.stringify(json.data)),
@@ -39,19 +41,19 @@ export class PrivatePlayEventFactory extends EntityFactory<
     ).copy();
   }
 
-  public storeJson(json: PrivatePlayEventJson): PrivatePlayEvent {
+  public storeJson(json: StorePrivatePlayEventJson): PrivatePlayEvent {
     return this.rootJson(json);
   }
 
-  public clientJson(json: PrivatePlayEventJson): PrivatePlayEvent {
+  public clientJson(json: ClientPrivatePlayEventJson): PrivatePlayEvent {
     return this.rootJson(json);
   }
 }
 
 export class FullPlayEventFactory {
   private rootJson(
-    publicJson: PublicPlayEventJson,
-    privateJson?: PrivatePlayEventJson | null,
+    publicJson: ClientPublicPlayEventJson | StorePublicPlayEventJson,
+    privateJson?: ClientPrivatePlayEventJson | StorePrivatePlayEventJson | null,
   ): FullPlayEvent {
     return FullPlayEvent.generateFromEvent(
       publicJson,
@@ -60,15 +62,15 @@ export class FullPlayEventFactory {
   }
 
   public storeJson(
-    publicJson: PublicPlayEventJson,
-    privateJson?: PrivatePlayEventJson,
+    publicJson: ClientPublicPlayEventJson | StorePublicPlayEventJson,
+    privateJson?: ClientPrivatePlayEventJson | StorePrivatePlayEventJson,
   ): FullPlayEvent {
     return this.rootJson(publicJson, privateJson);
   }
 
   public clientJson(
-    publicJson: PublicPlayEventJson,
-    privateJson?: PrivatePlayEventJson,
+    publicJson: ClientPublicPlayEventJson | StorePublicPlayEventJson,
+    privateJson?: ClientPrivatePlayEventJson | StorePrivatePlayEventJson,
   ): FullPlayEvent {
     return this.rootJson(publicJson, privateJson);
   }

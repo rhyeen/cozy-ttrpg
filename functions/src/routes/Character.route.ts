@@ -2,7 +2,7 @@ import { firestore } from 'firebase-admin';
 import { Route } from './Route';
 import { CharacterService } from '../services/Character.service';
 import { type CallableRequest, HttpsError, type HttpsFunction } from 'firebase-functions/https';
-import { CharacterFactory, type CharacterJson } from '@rhyeen/cozy-ttrpg-shared';
+import { CharacterFactory, type ClientCharacterJson } from '@rhyeen/cozy-ttrpg-shared';
 
 export class CharacterRoute extends Route {
   private service: CharacterService;
@@ -47,7 +47,7 @@ export class CharacterRoute extends Route {
   public async updateCharacter(
     request: CallableRequest<any>,
   ): Promise<HttpsFunction> {
-    let characterJson: CharacterJson;
+    let characterJson: ClientCharacterJson;
     try {
       // @NOTE: Just to validate and scrub the character data
       characterJson = this.factory.clientJson(request.data.character).clientJson();
@@ -61,7 +61,7 @@ export class CharacterRoute extends Route {
     const character = await this.service.updateCharacter(
       this.getUidFromRequest(request),
       data.character,
-      { event: data.event },
+      { playRequest: this.getPlayFromRequest(request) },
     );
     if (!character) {
       throw new HttpsError('not-found', 'Character not found');

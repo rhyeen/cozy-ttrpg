@@ -1,11 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
-import userReducer from './userSlice';
-import playReducer from './playSlice';
+import userReducer from './user.slice';
+import playReducer from './playEvent.slice';
 
 export const store = configureStore({
   reducer: {
     user: userReducer,
-    play: playReducer,
+    playEvent: playReducer,
   },
 });
 

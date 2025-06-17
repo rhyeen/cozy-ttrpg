@@ -1,14 +1,16 @@
-import { type FullPlayEventJson, PlayEventOperation, type PrivatePlayEventJson, type PrivatePlayEventPushTo, type PublicPlayEventJson, type PublicPlayEventPushTo,type RootPlayEventJson } from '../json/PlayEvent.json';
+import { ClientFullPlayEventJson, ClientPrivatePlayEventJson, ClientPublicPlayEventJson, PlayEventOperation, RootFullPlayEventJson, RootPrivatePlayEventJson, RootPublicPlayEventJson, StoreFullPlayEventJson, StorePrivatePlayEventJson, StorePublicPlayEventJson, type PrivatePlayEventPushTo, type PublicPlayEventPushTo,type RootPlayEventJson } from '../json/PlayEvent.json';
 import { copyDate, Entity } from './Entity';
 
 export abstract class PlayEvent<StoreJson, ClientJson> extends Entity<StoreJson, ClientJson> {
   public id: string;
   public operation: PlayEventOperation;
   public entityId: string;
+  public entityClass: string;
   public createdAt: Date;
 
   constructor(
       operation: PlayEventOperation,
+      entityClass: string,
       entityId: string,
       id?: string,
       createdAt?: Date,
@@ -17,6 +19,7 @@ export abstract class PlayEvent<StoreJson, ClientJson> extends Entity<StoreJson,
     this.id = id ?? '';
     this.operation = operation;
     this.entityId = entityId;
+    this.entityClass = entityClass;
     this.createdAt = createdAt ?? new Date();
   }
 
@@ -25,24 +28,25 @@ export abstract class PlayEvent<StoreJson, ClientJson> extends Entity<StoreJson,
       id: this.id,
       operation: this.operation,
       entityId: this.entityId,
-      createdAt:  copyDate(this.createdAt),
+      entityClass: this.entityClass,
     };
   }
 }
 
-export class PublicPlayEvent extends PlayEvent<PublicPlayEventJson, PublicPlayEventJson> {
+export class PublicPlayEvent extends PlayEvent<StorePublicPlayEventJson, ClientPublicPlayEventJson> {
   public pushTo: PublicPlayEventPushTo;
   public data: any;
 
   constructor(
     operation: PlayEventOperation,
+    entityClass: string,
     entityId: string,
     pushTo: PublicPlayEventPushTo,
     data: any,
     id?: string,
     createdAt?: Date,
   ) {
-    super(operation, entityId, id, createdAt);
+    super(operation, entityClass, entityId, id, createdAt);
     this.pushTo = pushTo;
     this.data = data;
   }
@@ -53,7 +57,7 @@ export class PublicPlayEvent extends PlayEvent<PublicPlayEventJson, PublicPlayEv
     };
   }
 
-  public override rootJson(): PublicPlayEventJson {
+  public override rootJson(): RootPublicPlayEventJson {
     return {
       ...super.rootJson(),
       pushTo: this.pushToJson(),
@@ -61,17 +65,24 @@ export class PublicPlayEvent extends PlayEvent<PublicPlayEventJson, PublicPlayEv
     };
   }
 
-  public storeJson(): PublicPlayEventJson {
-    return this.rootJson();
+  public storeJson(): StorePublicPlayEventJson {
+    return {
+      ...this.rootJson(),
+      createdAt: copyDate(this.createdAt),
+    };
   }
 
-  public clientJson(): PublicPlayEventJson {
-    return this.rootJson();
+  public clientJson(): ClientPublicPlayEventJson {
+    return {
+      ...this.rootJson(),
+      createdAt: this.createdAt.getTime(),
+    };
   }
 
   public copy(): PublicPlayEvent {
     return new PublicPlayEvent(
       this.operation,
+      this.entityClass,
       this.entityId,
       this.pushToJson(),
       JSON.parse(JSON.stringify(this.data)),
@@ -81,19 +92,20 @@ export class PublicPlayEvent extends PlayEvent<PublicPlayEventJson, PublicPlayEv
   }
 }
 
-export class PrivatePlayEvent extends PlayEvent<PrivatePlayEventJson, PrivatePlayEventJson> {
+export class PrivatePlayEvent extends PlayEvent<StorePrivatePlayEventJson, ClientPrivatePlayEventJson> {
   public pushTo: PrivatePlayEventPushTo;
   public data: any;
 
   constructor(
     operation: PlayEventOperation,
+    entityClass: string,
     entityId: string,
     pushTo: PrivatePlayEventPushTo,
     data: any,
     id?: string,
     createdAt?: Date,
   ) {
-    super(operation, entityId, id, createdAt);
+    super(operation, entityClass, entityId, id, createdAt);
     this.pushTo = pushTo;
     this.data = data;
   }
@@ -108,7 +120,7 @@ export class PrivatePlayEvent extends PlayEvent<PrivatePlayEventJson, PrivatePla
     };
   }
 
-  public override rootJson(): PrivatePlayEventJson {
+  public override rootJson(): RootPrivatePlayEventJson {
     return {
       ...super.rootJson(),
       pushTo: this.pushToJson(),
@@ -116,17 +128,24 @@ export class PrivatePlayEvent extends PlayEvent<PrivatePlayEventJson, PrivatePla
     };
   }
 
-  public storeJson(): PrivatePlayEventJson {
-    return this.rootJson();
+  public storeJson(): StorePrivatePlayEventJson {
+    return {
+      ...this.rootJson(),
+      createdAt: copyDate(this.createdAt),
+    };
   }
 
-  public clientJson(): PrivatePlayEventJson {
-    return this.rootJson();
+  public clientJson(): ClientPrivatePlayEventJson {
+    return {
+      ...this.rootJson(),
+      createdAt: this.createdAt.getTime(),
+    };
   }
 
   public copy(): PrivatePlayEvent {
     return new PrivatePlayEvent(
       this.operation,
+      this.entityClass,
       this.entityId,
       this.pushTo,
       JSON.parse(JSON.stringify(this.data)),
@@ -136,7 +155,7 @@ export class PrivatePlayEvent extends PlayEvent<PrivatePlayEventJson, PrivatePla
   }
 }
 
-export class FullPlayEvent extends PlayEvent<FullPlayEventJson, FullPlayEventJson> {
+export class FullPlayEvent extends PlayEvent<StoreFullPlayEventJson, ClientFullPlayEventJson> {
   public publicPushTo: PublicPlayEventPushTo;
   public privatePushTo: PrivatePlayEventPushTo | null;
   public publicData: any;
@@ -144,6 +163,7 @@ export class FullPlayEvent extends PlayEvent<FullPlayEventJson, FullPlayEventJso
 
   constructor(
     operation: PlayEventOperation,
+    entityClass: string,
     entityId: string,
     publicPushTo: PublicPlayEventPushTo,
     privatePushTo: PrivatePlayEventPushTo | null,
@@ -152,7 +172,7 @@ export class FullPlayEvent extends PlayEvent<FullPlayEventJson, FullPlayEventJso
     id?: string,
     createdAt?: Date,
   ) {
-    super(operation, entityId, id, createdAt);
+    super(operation, entityClass, entityId, id, createdAt);
     this.publicPushTo = publicPushTo;
     this.privatePushTo = privatePushTo;
     this.publicData = publicData;
@@ -176,7 +196,7 @@ export class FullPlayEvent extends PlayEvent<FullPlayEventJson, FullPlayEventJso
     };
   }
 
-  public override rootJson(): FullPlayEventJson {
+  public override rootJson(): RootFullPlayEventJson {
     return {
       ...super.rootJson(),
       publicPushTo: this.publicPushToJson(),
@@ -186,17 +206,24 @@ export class FullPlayEvent extends PlayEvent<FullPlayEventJson, FullPlayEventJso
     };
   }
 
-  public storeJson(): FullPlayEventJson {
-    return this.rootJson();
+  public storeJson(): StoreFullPlayEventJson {
+    return {
+      ...this.rootJson(),
+      createdAt: copyDate(this.createdAt),
+    };
   }
 
-  public clientJson(): FullPlayEventJson {
-    return this.rootJson();
+  public clientJson(): ClientFullPlayEventJson {
+    return {
+      ...this.rootJson(),
+      createdAt: this.createdAt.getTime(),
+    };
   }
 
   public copy(): FullPlayEvent {
     return new FullPlayEvent(
       this.operation,
+      this.entityClass,
       this.entityId,
       this.publicPushToJson(),
       this.privatePushToJson(),
@@ -210,6 +237,7 @@ export class FullPlayEvent extends PlayEvent<FullPlayEventJson, FullPlayEventJso
   public extractPublic(): PublicPlayEvent {
     return new PublicPlayEvent(
       this.operation,
+      this.entityClass,
       this.entityId,
       this.publicPushToJson(),
       JSON.parse(JSON.stringify(this.publicData)),
@@ -223,6 +251,7 @@ export class FullPlayEvent extends PlayEvent<FullPlayEventJson, FullPlayEventJso
     if (!privatePushTo) return null;
     return new PrivatePlayEvent(
       this.operation,
+      this.entityClass,
       this.entityId,
       privatePushTo,
       JSON.parse(JSON.stringify(this.privateData)),
@@ -232,11 +261,12 @@ export class FullPlayEvent extends PlayEvent<FullPlayEventJson, FullPlayEventJso
   }
 
   public static generateFromEvent(
-    publicEvent: PublicPlayEvent | PublicPlayEventJson,
-    privateEvent: PrivatePlayEvent | PrivatePlayEventJson | null,
+    publicEvent: PublicPlayEvent | ClientPublicPlayEventJson | StorePublicPlayEventJson,
+    privateEvent: PrivatePlayEvent | ClientPrivatePlayEventJson | StorePrivatePlayEventJson | null,
   ): FullPlayEvent {
     return new FullPlayEvent(
       publicEvent.operation,
+      publicEvent.entityClass,
       publicEvent.entityId,
       publicEvent.pushTo,
       privateEvent?.pushTo ?? null,

@@ -1,21 +1,21 @@
 import { Campaign, Player } from '../entities/Campaign';
 import { EntityFactory } from '../entities/Entity';
 import { Play } from '../entities/Play';
-import type { ClientCampaignJson, PlayerJson, StoreCampaignJson } from '../json/Campaign.json';
-import type { PlayJson } from '../json/Play.json';
+import type { ClientCampaignJson, StoreCampaignJson, StorePlayerJson } from '../json/Campaign.json';
+import type { StorePlayJson } from '../json/Play.json';
 
 export class CampaignFactory extends EntityFactory<
   Campaign, StoreCampaignJson, ClientCampaignJson, {
-    players: PlayerJson[];
-    plays: PlayJson[];
+    players: StorePlayerJson[];
+    plays: StorePlayJson[];
   }, undefined
 > {
 
   public storeJson(
     json: StoreCampaignJson,
     other: {
-      players: PlayerJson[],
-      plays: PlayJson[],
+      players: StorePlayerJson[],
+      plays: StorePlayJson[],
     },
   ): Campaign {
     return new Campaign(

@@ -4,25 +4,26 @@ import { playController } from 'app/utils/controller';
 import { PlayView } from 'app/views/play/Play.view';
 import { useEffect, useState } from 'react';
 import { Play } from '@rhyeen/cozy-ttrpg-shared';
+import { useAtMountPlaySessionToken } from 'app/utils/hooks/usePlaySessionToken';
+import { useNavigate } from 'react-router';
 
-interface Props {
-  playId: string;
-}
-
-export function PlayPage({ playId }: Props) {
+export function PlayPage() {
   const toastManager = Toast.useToastManager();
+  const navigate = useNavigate();
   const [ play, setPlay ] = useState<Play | undefined>();
+  const playSessionToken = useAtMountPlaySessionToken();
 
   const getPlay = async () => {
+    if (!playSessionToken || !playSessionToken.campaignId || !playSessionToken.characterId) {
+      console.error('No play session token found. Cannot load play. This should have been loaded on play.tsx beforehand.');
+      navigate('/404');
+      return;
+    }
     try {
-      const { campaignId, characterId } = Play.extractId(playId);
-      if (!campaignId) {
-        throw new Error('Invalid play ID format. Missing campaign ID.');
-      }
-      if (!characterId) {
-        throw new Error('Invalid play ID format. Missing character ID.');
-      }
-      const result = await playController.startPlay(campaignId, characterId);
+      const result = await playController.startPlay(
+        playSessionToken.campaignId,
+        playSessionToken.characterId,
+      );
       setPlay(result);
     } catch (error) {
       console.error('Error fetching play:', error);
@@ -34,10 +35,11 @@ export function PlayPage({ playId }: Props) {
   };
 
   useEffect(() => {
+    if (!playSessionToken) return;
     getPlay();
-  }, [playId]);
+  }, [playSessionToken]);
 
-  if (!play) {
+  if (!play || !playSessionToken) {
     return <Loading type="spinner" page />;
   }
 

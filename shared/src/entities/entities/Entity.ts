@@ -1,4 +1,4 @@
-import type { DocumentJson } from '../json/Json';
+import type { ClientDocumentJson, DocumentJson, StoreDocumentJson } from '../json/Json';
 
 export abstract class Entity<StoreJsonT, ClientJsonT> {
   public abstract storeJson(): StoreJsonT;
@@ -43,7 +43,15 @@ export abstract class DocumentEntity<StoreJsonT extends DocumentJson, ClientJson
     this.deletedAt = json?.deletedAt ? copyDate(json.deletedAt) : null;
   }
 
-  protected copyDocumentJson(): DocumentJson {
+  protected clientDocumentJson(): ClientDocumentJson {
+    return {
+      createdAt: copyDate(this.createdAt).getTime(),
+      updatedAt: copyDate(this.updatedAt).getTime(),
+      deletedAt: this.deletedAt ? copyDate(this.deletedAt).getTime() : null,
+    };
+  }
+
+  protected storeDocumentJson(): StoreDocumentJson {
     return {
       createdAt: copyDate(this.createdAt),
       updatedAt: copyDate(this.updatedAt),

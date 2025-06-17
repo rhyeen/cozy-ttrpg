@@ -1,5 +1,5 @@
-import type { DocumentJson } from './Json';
-import type { PlayJson } from './Play.json';
+import type { ClientDocumentJson, StoreDocumentJson } from './Json';
+import type { ClientPlayJson } from './Play.json';
 
 export enum PlayerScope {
   Owner = 'owner',
@@ -34,28 +34,38 @@ export function expandScope(
   throw new Error(`Unknown scope: ${scope}`);
 }
 
-export interface PlayerJson {
+export interface RootPlayerJson {
   uid: string;
   invitedBy: string;
+  scopes: PlayerScope[];
+}
+
+export interface ClientPlayerJson extends RootPlayerJson {
+  invitedAt: number | null;
+  approvedAt: number | null;
+  deniedAt: number | null;
+  deletedAt: number | null;
+}
+
+export interface StorePlayerJson extends RootPlayerJson {
   invitedAt: Date | null;
   approvedAt: Date | null;
   deniedAt: Date | null;
   deletedAt: Date | null;
-  scopes: PlayerScope[];
 }
 
-export interface RootCampaignJson extends DocumentJson {
+export interface RootCampaignJson {
   name: string;
   description: string;
   id: string;
 }
 
-export interface StoreCampaignJson extends RootCampaignJson {
+export interface StoreCampaignJson extends StoreDocumentJson, RootCampaignJson {
   players_uids: string[];
   characters_ids: string[];
 }
 
-export interface ClientCampaignJson extends RootCampaignJson {
-  players: PlayerJson[];
-  plays: PlayJson[];
+export interface ClientCampaignJson extends ClientDocumentJson, RootCampaignJson {
+  players: ClientPlayerJson[];
+  plays: ClientPlayJson[];
 }

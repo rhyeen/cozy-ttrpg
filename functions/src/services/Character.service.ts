@@ -1,8 +1,9 @@
 import { firestore } from 'firebase-admin';
 import { Service } from './Service';
-import { Character, CharacterFactory, type CharacterJson, FullPlayEvent, PlayEventOperation } from '@rhyeen/cozy-ttrpg-shared';
+import { Character, CharacterFactory, type ClientCharacterJson, FullPlayEvent, PlayEventOperation } from '@rhyeen/cozy-ttrpg-shared';
 import { HttpsError } from 'firebase-functions/https';
 import { PlayEventService } from './PlayEvent.service';
+import { PlayRequest } from '../utils/playRequest';
 
 export class CharacterService extends Service{
   private factory: CharacterFactory;
@@ -61,10 +62,10 @@ export class CharacterService extends Service{
 
   public async updateCharacter(
     uid: string,
-    characterJson: CharacterJson,
+    characterJson: ClientCharacterJson,
     options?: {
       isVerifiedGMOfCharacter?: boolean,
-      event?: { campaignId: string },
+      playRequest?: PlayRequest,
     },
   ): Promise<Character | null> {
     if (!characterJson.id) {
@@ -77,7 +78,7 @@ export class CharacterService extends Service{
     if (existingCharacter.uid !== uid && !options?.isVerifiedGMOfCharacter) {
       throw new HttpsError('permission-denied', 'Only the owner can update the character. If you are a GM, update your player\'s characters through the play endpoints.');
     }
-    const updatedCharacter = this.factory.storeJson(characterJson);
+    const updatedCharacter = this.factory.clientJson(characterJson);
     // @NOTE: These fields are not allowed to be updated
     updatedCharacter.uid = existingCharacter.uid;
     updatedCharacter.createdAt = existingCharacter.createdAt;
@@ -85,12 +86,13 @@ export class CharacterService extends Service{
     updatedCharacter.deletedAt = existingCharacter.deletedAt;
     updatedCharacter.id = existingCharacter.id;
     let event: FullPlayEvent | undefined;
-    if (options?.event) {
+    if (options?.playRequest) {
       event = new FullPlayEvent(
         PlayEventOperation.Update,
         'character',
+        updatedCharacter.id,
         {
-          campaignId: options.event.campaignId,
+          campaignId: options.playRequest.campaignId,
         },
         null,
         updatedCharacter.clientJson(),

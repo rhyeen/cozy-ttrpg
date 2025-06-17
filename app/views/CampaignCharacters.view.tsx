@@ -4,7 +4,7 @@ import Loading from '../components/Loading';
 import Header from 'app/components/Header';
 import Section from 'app/components/Section';
 import { Campaign, Character, FriendConnection, Play, User } from '@rhyeen/cozy-ttrpg-shared';
-import { selectFirebaseUser } from 'app/store/userSlice';
+import { selectFirebaseUser } from 'app/store/user.slice';
 import { useSelector } from 'react-redux';
 import Button from 'app/components/Button';
 import { useNavigate } from 'react-router';
@@ -12,6 +12,7 @@ import IconButton from 'app/components/IconButton';
 import ArrowBackIcon from 'app/components/Icons/ArrowBack';
 import { CharacterCard } from './Character.card';
 import { CharacterSheet } from './play/CharacterSheet';
+import { Controller } from 'app/controllers/Controller';
 
 interface Props {
   campaign: Campaign;
@@ -56,7 +57,8 @@ export function CampaignCharactersView({
     setLoading(true);
     const newCharacter = await characterController.createSelfCharacter();
     const newPlay = await playController.setSelfPlay(newCharacter.id, campaign.id, true);
-    navigate(`/play/${newPlay.id}`);
+    Controller.setPlaySessionToken(newPlay);
+    navigate(`/play`);
   };
 
   const handleCharacterUpdate = async (character: Character) => {
@@ -77,7 +79,6 @@ export function CampaignCharactersView({
       setViewCharacter(undefined);
       return <Loading type="spinner" page />;
     }
-    const play = plays?.find((p) => p.characterId === character.id);
     return (
       <CharacterSheet
         character={character}
@@ -86,7 +87,6 @@ export function CampaignCharactersView({
         friendConnections={friendConnections}
         onClose={() => setViewCharacter(undefined)}
         onCharacterUpdate={handleCharacterUpdate}
-        play={play}
       />
     );
   }
@@ -112,7 +112,7 @@ export function CampaignCharactersView({
           onViewCharacter={() => setViewCharacter(character)}
           campaigns={[campaign]}
           onSetCampaign={onSetCampaign}
-          playOnClick
+          onPlayOnClick={() => navigate('/play')}
         />
       ))}
       <Button

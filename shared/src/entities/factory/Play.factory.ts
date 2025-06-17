@@ -1,11 +1,11 @@
 import { copyDate, EntityFactory } from '../entities/Entity';
 import { Play } from '../entities/Play';
-import type { PlayJson } from '../json/Play.json';
+import type { ClientPlayJson, StorePlayJson } from '../json/Play.json';
 
 export class PlayFactory extends EntityFactory<
-  Play, PlayJson, PlayJson, undefined, undefined
+  Play, StorePlayJson, ClientPlayJson, undefined, undefined
 > {
-  private rootJson(json: PlayJson): Play {
+  private rootJson(json: ClientPlayJson | StorePlayJson): Play {
     return new Play(
       json.uid,
       json.characterId,
@@ -15,11 +15,11 @@ export class PlayFactory extends EntityFactory<
     );
   }
 
-  public storeJson(json: PlayJson): Play {
+  public storeJson(json: StorePlayJson): Play {
     return this.rootJson(json);
   }
 
-  public clientJson(json: PlayJson): Play {
+  public clientJson(json: ClientPlayJson): Play {
     return this.rootJson(json);
   }
 }

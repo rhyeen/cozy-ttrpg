@@ -1,7 +1,10 @@
-import type { DocumentJson } from './Json';
+import type { ClientDocumentJson, StoreDocumentJson } from './Json';
 
-export interface UserJson extends DocumentJson {
+export interface RootUserJson {
   uid: string;
   email: string;
   displayName: string;
 }
+
+export interface ClientUserJson extends ClientDocumentJson, RootUserJson {}
+export interface StoreUserJson extends StoreDocumentJson, RootUserJson {}

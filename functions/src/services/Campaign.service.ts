@@ -1,6 +1,6 @@
 import { firestore } from 'firebase-admin';
 import { Service } from './Service';
-import { Campaign, CampaignFactory, type ClientCampaignJson, expandScope, Player, type PlayerJson, PlayerScope, type PlayJson, type StoreCampaignJson } from '@rhyeen/cozy-ttrpg-shared';
+import { Campaign, CampaignFactory, type ClientCampaignJson, expandScope, Player, type StorePlayerJson, PlayerScope, type StorePlayJson, type StoreCampaignJson } from '@rhyeen/cozy-ttrpg-shared';
 import { HttpsError } from 'firebase-functions/https';
 import { FieldValue } from 'firebase-admin/firestore';
 
@@ -51,16 +51,16 @@ export class CampaignService extends Service{
     const playerSnapshot = await this.db.collection(campaignSnapshot.ref.parent.path)
     .doc(campaignSnapshot.id).collection('players').get();
     const playerJsons = playerSnapshot.docs.map(doc => {
-      return doc.data() as PlayerJson;
+      return doc.data() as StorePlayerJson;
     });
-    const playJsons: PlayJson[] = [];
+    const playJsons: StorePlayJson[] = [];
     await Promise.all(playerJsons.map(async playerJson => {
       const playSnapshot = await this.db.collection(campaignSnapshot.ref.parent.path)
       .doc(campaignSnapshot.id)
       .collection('players')
       .doc(playerJson.uid)
       .collection('characters').get();
-      playJsons.push(...playSnapshot.docs.map(doc => doc.data() as PlayJson));
+      playJsons.push(...playSnapshot.docs.map(doc => doc.data() as StorePlayJson));
     }));
     const campaignJson = campaignSnapshot.data() as StoreCampaignJson;
     return this.factory.storeJson(campaignJson, {

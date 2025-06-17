@@ -8,17 +8,25 @@ export enum PlayEventOperation {
 export interface RootPlayEventJson {
   id: string;
   operation: PlayEventOperation;
+  entityClass: string;
   entityId: string;
-  createdAt: Date;
 }
 
 export interface PublicPlayEventPushTo {
   campaignId: string;
 }
 
-export interface PublicPlayEventJson extends RootPlayEventJson {
+export interface RootPublicPlayEventJson extends RootPlayEventJson {
   pushTo: PublicPlayEventPushTo;
   data: any;
+}
+
+export interface ClientPublicPlayEventJson extends RootPublicPlayEventJson {
+  createdAt: number;
+}
+
+export interface StorePublicPlayEventJson extends RootPublicPlayEventJson {
+  createdAt: Date;
 }
 
 export interface PrivatePlayEventPushTo {
@@ -29,14 +37,30 @@ export interface PrivatePlayEventPushTo {
   }[];
 }
 
-export interface PrivatePlayEventJson extends RootPlayEventJson {
+export interface RootPrivatePlayEventJson extends RootPlayEventJson {
   pushTo: PrivatePlayEventPushTo;
   data: any;
 }
 
-export interface FullPlayEventJson extends RootPlayEventJson {
+export interface ClientPrivatePlayEventJson extends RootPrivatePlayEventJson {
+  createdAt: number;
+}
+
+export interface StorePrivatePlayEventJson extends RootPrivatePlayEventJson {
+  createdAt: Date;
+}
+
+export interface RootFullPlayEventJson extends RootPlayEventJson {
   publicPushTo: PublicPlayEventPushTo;
   privatePushTo: PrivatePlayEventPushTo | null;
   publicData: any;
   privateData: any | null;
+}
+
+export interface ClientFullPlayEventJson extends RootFullPlayEventJson {
+  createdAt: number;
+}
+
+export interface StoreFullPlayEventJson extends RootFullPlayEventJson {
+  createdAt: Date;
 }

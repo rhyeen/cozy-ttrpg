@@ -4,7 +4,7 @@ import Card from 'app/components/Card';
 import Paragraph from 'app/components/Paragraph';
 import { useFindFriend } from 'app/utils/hooks/useFriend';
 import { useSelector } from 'react-redux';
-import { selectFirebaseUser } from 'app/store/userSlice';
+import { selectFirebaseUser } from 'app/store/user.slice';
 import { useNavigate } from 'react-router';
 import IconButton from 'app/components/IconButton';
 import PlayCircleIcon from 'app/components/Icons/PlayCircle';
@@ -22,6 +22,7 @@ import Book2Icon from 'app/components/Icons/Book2';
 import RadioButtonUncheckedIcon from 'app/components/Icons/RadioButtonUnchecked';
 import SaveStateIcon from 'app/components/Icons/SaveState';
 import Form from 'app/components/Form';
+import { Controller } from 'app/controllers/Controller';
 
 interface Props {
   friendConnections: FriendConnection[];
@@ -32,7 +33,7 @@ interface Props {
   character: Character;
   campaigns: Campaign[];
   onSetCampaign: (campaign: Campaign) => void;
-  playOnClick?: boolean;
+  onPlayOnClick?: () => void;
 }
 
 export const CharacterCard: React.FC<Props> = ({
@@ -44,7 +45,7 @@ export const CharacterCard: React.FC<Props> = ({
   onCharacterUpdate,
   onViewCharacter,
   onSetCampaign,
-  playOnClick,
+  onPlayOnClick,
 }) => {
   const toastManager = Toast.useToastManager();
   const firebaseUser = useSelector(selectFirebaseUser);
@@ -65,10 +66,11 @@ export const CharacterCard: React.FC<Props> = ({
   });
 
   const handlePlay = (campaign: Campaign | undefined) => {
-    if (!campaign) return;
+    if (!campaign || !onPlayOnClick) return;
     const play = campaign.plays.find(play => play.characterId === character.id);
     if (play) {
-      navigate(`/play/${play.id}`);
+      Controller.setPlaySessionToken(play);
+      onPlayOnClick();
     }
   };
 
@@ -167,8 +169,9 @@ export const CharacterCard: React.FC<Props> = ({
 
   return (
     <>
-      <Card onClick={playOnClick && campaignsWithCharacter.length === 1 ?
-          () => handlePlay(campaignsWithCharacter[0]) : onViewCharacter}>
+      <Card onClick={onPlayOnClick ?
+          campaignsWithCharacter.length === 1 ? () => handlePlay(campaignsWithCharacter[0]) : undefined :
+          onViewCharacter}>
         <Card.Header>
           <Card.Header.Left>
             <Header type="h4">{character.name || character.nickname || 'Unnamed Character'}</Header>
