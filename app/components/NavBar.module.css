@@ -17,4 +17,9 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  min-width: 0;
+}
+
+.right {
+  flex-shrink: 0;
 }

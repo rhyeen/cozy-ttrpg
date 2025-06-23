@@ -1,5 +1,5 @@
 import Loading from 'app/components/Loading';
-import type { Route } from "./+types/home";
+import type { Route } from "../+types/home";
 import { PlayPage } from 'app/pages/Play.page';
 import { useAtMountPlaySessionToken } from 'app/utils/hooks/usePlaySessionToken';
 import { MyCharactersView } from 'app/views/MyCharacters.view';

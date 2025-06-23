@@ -9,6 +9,7 @@ interface ButtonProps {
   disabled?: boolean;
   loading?: boolean;
   asComponent?: React.ElementType;
+  noTextWrap?: boolean;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -19,12 +20,13 @@ const Button: React.FC<ButtonProps> = ({
   disabled = false,
   loading = false,
   asComponent = 'button',
+  noTextWrap = false,
 }) => {
   const Component = asComponent;
   return (
     <Component
       onClick={onClick}
-      className={`${styles.wrapper} ${styles[type]}`}
+      className={`${styles.wrapper} ${styles[type]} ${noTextWrap ? styles.noTextWrap : ''}`}
       type={submit ? 'submit' : 'button'}
       disabled={disabled || loading}
     >

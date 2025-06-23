@@ -11,20 +11,12 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ children, type, iconLeft, iconRight }) => {
   const HeadingTag = type as keyof JSX.IntrinsicElements;
 
-  const header = (
-    <HeadingTag className={styles[type]}>
-      {children}
-    </HeadingTag>
-  );
-
-  if (!iconLeft && !iconRight) {
-    return header;
-  }
-
   return (
     <div className={styles.wrapper}>
       {iconLeft && iconLeft}
-      {header}
+      <HeadingTag className={styles[type]}>
+        {children}
+      </HeadingTag>
       {iconRight && iconRight}
     </div>
   );

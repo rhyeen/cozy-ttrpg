@@ -1,8 +1,10 @@
-/* app/components/Header.module.css */
 .wrapper {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  
+  /* @NOTE: In case we have an IconButton on the header. */
+  min-height: 2.25rem;
 }
 
 .h1, .h2, .h3, .h4, .h5, .h6 {

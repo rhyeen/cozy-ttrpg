@@ -68,8 +68,43 @@
 }
 
 .textTrigger {
+  padding: 0.5rem;
+  color: var(--secondaryTextColor);
+  border: 0.125rem solid var(--borderColor);
+  border-radius: 2rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.textTrigger:hover {
+  background-color: var(--secondaryBackgroundColorHover);
+}
+
+.textTriggerTextIcon {
+  margin-top: -0.5rem;
+  margin-bottom: -0.5rem;
+}
+
+.textTriggerText {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+}
+
+.textTrigger.open {
+  background-color: var(--secondaryBackgroundColorHover);
+  border-color: var(--primaryBorderColor);
+}
+
+.trigger .textTriggerTextIcon svg {
+  fill: var(--borderColor);
+  transition: all 0.2s ease-in-out;
+}
+
+.trigger.open .textTriggerTextIcon svg {
+  fill: var(--primaryBorderColor);
+}
+
+.trigger:hover .textTriggerTextIcon svg {
+  fill: var(--primaryBorderColor);
 }

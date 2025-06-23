@@ -34,16 +34,27 @@ const Menu: React.FC<MenuProps> = ({ items, icon, loading, disabled, text }) => 
           {text.label}
         </div>
       }
-      <BaseMenu.Trigger className={`${styles.trigger} ${text ? inputStyles.inputMenu : ''}`}>
-        {(!text || icon) &&
+      <BaseMenu.Trigger className={`
+          ${styles.trigger}
+          ${text ? text.label ? inputStyles.inputMenu : styles.textTrigger : ''}
+          ${open ? styles.open : ''}
+        `}>
+        {(!text) &&
           <IconButton asDiv active={open}>
             {icon || <MenuIcon />}
           </IconButton>
         }
         {!!text &&
-          <div className={styles.textTrigger}>
+          <div className={`${styles.textTriggerText} ${open ? styles.open : ''}`}>
+            {!!icon &&
+              <div className={styles.textTriggerTextIcon}>
+                <IconButton asDiv>{icon}</IconButton>
+              </div>
+            }
             {text.trigger}
-            <ChevronIcon position={open ? 'up' : 'down'} size="24" color="var(--secondaryTextColor)" />
+            <div className={styles.textTriggerTextIcon}>
+              <ChevronIcon position={open ? 'up' : 'down'} size="24" />
+            </div>
           </div>
         }
       </BaseMenu.Trigger>

@@ -92,120 +92,124 @@ export function CampaignView({
   const playerCount = campaign.players ? campaign.players.length : 0;
 
   return (
-    <Section>
-      <Header type="h3" iconLeft={
-        <IconButton onClick={() => navigate('/campaigns')}>
-          <ArrowBackIcon />
-        </IconButton>
-      }>Campaigns</Header>
-      <Header
-        type="h1"
-        iconRight={canEdit ? (
-          <Menu
-            icon={<SettingsIcon />}
-            items={[
-              {
-                label: 'Play Game',
-                onClick: () => navigate(`/campaigns/${campaign.id}/play`),
-                icon: <PlayCircleIcon />,
-              },
-              {
-                label: 'Manage Players',
-                onClick: () => navigate(`/campaigns/${campaign.id}/players`),
-                icon: <GroupAddIcon />,
-              },
-              {
-                label: 'View Characters',
-                onClick: () => navigate(`/campaigns/${campaign.id}/characters`),
-                icon: <FaceIcon />,
-              },
-              {
-                label: 'Delete Campaign',
-                onClick: () => {
-                  setDeleteCampaign(true);
+    <>
+      <Section>
+        <Header type="h3" iconLeft={
+          <IconButton onClick={() => navigate('/campaigns')}>
+            <ArrowBackIcon />
+          </IconButton>
+        }>Campaigns</Header>
+        <Header
+          type="h1"
+          iconRight={canEdit ? (
+            <Menu
+              icon={<SettingsIcon />}
+              items={[
+                {
+                  label: 'Play Game',
+                  onClick: () => navigate(`/campaigns/${campaign.id}/play`),
+                  icon: <PlayCircleIcon />,
                 },
-                icon: <DeleteIcon />,
-              },
-            ]}
-          />
-        ) : undefined}
-      >Campaign</Header>
-      {playerCount < 2 && 
-        <Card onClick={() => navigate(`/campaigns/${campaign.id}/players`)}>
-          <Card.Header>
-            <Card.Header.Left>
-              <Header type="h3">Missing players!</Header>
-              <Paragraph>It's a lot more fun with friends! Invite others to join.</Paragraph>
-            </Card.Header.Left>
-            <Card.Header.Right>
-              <ErrorIcon color="var(--errorTextColor)" />
-            </Card.Header.Right>
-          </Card.Header>
-          <Card.Body>
-            <Button
-              type="primary"
-              onClick={() => navigate(`/campaigns/${campaign.id}/players`)}
-            >
-              Invite Players
-            </Button>
-          </Card.Body>
-        </Card>
-      }
-      <Button
-        type={playerCount < 2 ? 'secondary' : 'primary'}
-        onClick={() => navigate(`/campaigns/${campaign.id}/play`)}
-      >
-        Play Game
-      </Button>
-      {playerCount >= 2 && (
+                {
+                  label: 'Manage Players',
+                  onClick: () => navigate(`/campaigns/${campaign.id}/players`),
+                  icon: <GroupAddIcon />,
+                },
+                {
+                  label: 'View Characters',
+                  onClick: () => navigate(`/campaigns/${campaign.id}/characters`),
+                  icon: <FaceIcon />,
+                },
+                {
+                  label: 'Delete Campaign',
+                  onClick: () => {
+                    setDeleteCampaign(true);
+                  },
+                  icon: <DeleteIcon />,
+                },
+              ]}
+            />
+          ) : undefined}
+        >Campaign</Header>
+        {playerCount < 2 && 
+          <Card onClick={() => navigate(`/campaigns/${campaign.id}/players`)}>
+            <Card.Header>
+              <Card.Header.Left>
+                <Header type="h3">Missing players!</Header>
+                <Paragraph>It's a lot more fun with friends! Invite others to join.</Paragraph>
+              </Card.Header.Left>
+              <Card.Header.Right>
+                <ErrorIcon color="var(--errorTextColor)" />
+              </Card.Header.Right>
+            </Card.Header>
+            <Card.Body>
+              <Button
+                type="primary"
+                onClick={() => navigate(`/campaigns/${campaign.id}/players`)}
+              >
+                Invite Players
+              </Button>
+            </Card.Body>
+          </Card>
+        }
         <Button
-          type="secondary"
-          onClick={() => navigate(`/campaigns/${campaign.id}/players`)}
+          type={playerCount < 2 ? 'secondary' : 'primary'}
+          onClick={() => navigate(`/campaigns/${campaign.id}/play`)}
         >
-          {canEdit ? `Manage Players (${playerCount})` : 'View Players'}
+          Play Game
         </Button>
-      )}
-      <Form>
-        <Header type="h3">Campaign Settings</Header>
-        <Input
-          type="text"
-          label="Campaign Name"
-          value={campaignName}
-          onChange={(e) => {
-            setCampaignName(e.target.value);
-            setCampaignNameError(null);
-          }}
-          onBlur={() => editCampaignHandler('name')}
-          saveState={campaignNameSaveState}
-          onStateChange={setCampaignNameSaveState}
-          error={campaignNameError}
-          readOnly={!canEdit}
-        />
-        <Input
-          type="text"
-          label="Campaign Description"
-          value={campaignDescription}
-          onChange={(e) => {
-            setCampaignDescription(e.target.value);
-            setCampaignDescriptionError(null);
-          }}
-          onBlur={() => editCampaignHandler('description')}
-          saveState={campaignDescriptionSaveState}
-          onStateChange={setCampaignDescriptionSaveState}
-          error={campaignDescriptionError}
-          readOnly={!canEdit}
-        />
-      </Form>
-      <Modal
-        title="Delete Campaign"
-        secondaryBtn
-        primaryBtn={{ onClick: handleDeleteCampaign, label: 'Delete' }}
-        open={deleteCampaign}
-        onOpenChange={() => setDeleteCampaign(false)}
-        loading={loading}
-      >
-        Are you sure you want to delete this campaign? This action cannot currently be undone.
-      </Modal>
-    </Section>
+        {playerCount >= 2 && (
+          <Button
+            type="secondary"
+            onClick={() => navigate(`/campaigns/${campaign.id}/players`)}
+          >
+            {canEdit ? `Manage Players (${playerCount})` : 'View Players'}
+          </Button>
+        )}
+      </Section>
+      <Section>
+        <Form>
+          <Header type="h3">Campaign Settings</Header>
+          <Input
+            type="text"
+            label="Campaign Name"
+            value={campaignName}
+            onChange={(e) => {
+              setCampaignName(e.target.value);
+              setCampaignNameError(null);
+            }}
+            onBlur={() => editCampaignHandler('name')}
+            saveState={campaignNameSaveState}
+            onStateChange={setCampaignNameSaveState}
+            error={campaignNameError}
+            readOnly={!canEdit}
+          />
+          <Input
+            type="text"
+            label="Campaign Description"
+            value={campaignDescription}
+            onChange={(e) => {
+              setCampaignDescription(e.target.value);
+              setCampaignDescriptionError(null);
+            }}
+            onBlur={() => editCampaignHandler('description')}
+            saveState={campaignDescriptionSaveState}
+            onStateChange={setCampaignDescriptionSaveState}
+            error={campaignDescriptionError}
+            readOnly={!canEdit}
+          />
+        </Form>
+        <Modal
+          title="Delete Campaign"
+          secondaryBtn
+          primaryBtn={{ onClick: handleDeleteCampaign, label: 'Delete' }}
+          open={deleteCampaign}
+          onOpenChange={() => setDeleteCampaign(false)}
+          loading={loading}
+        >
+          Are you sure you want to delete this campaign? This action cannot currently be undone.
+        </Modal>
+      </Section>
+    </>
   );
 }
