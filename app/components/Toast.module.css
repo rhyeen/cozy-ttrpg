@@ -27,10 +27,10 @@
   margin: 0 auto;
   box-sizing: border-box;
   background: canvas;
-  color: #403b34;
+  color: var(--secondaryTextColor);
   padding: 1rem;
   width: 100%;
-  box-shadow: 0 0px 0px 0.25rem #c4bead99;
+  box-shadow: 0 0px 0px 0.25rem var(--borderColor)99;
   background-clip: padding-box;
   border-radius: 0.5rem;
   bottom: 0;
@@ -115,6 +115,6 @@
   cursor: pointer;
 
   &:hover {
-    background-color: #eeefe9;
+    background-color: var(--secondaryBackgroundColor);
   }
 }

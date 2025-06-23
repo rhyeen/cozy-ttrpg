@@ -1,7 +1,5 @@
 import Header from 'app/components/Header';
 import { FriendConnection, User } from '@rhyeen/cozy-ttrpg-shared';
-import { selectFirebaseUser } from 'app/store/userSlice';
-import { useSelector } from 'react-redux';
 import Card from 'app/components/Card';
 import IconButton from 'app/components/IconButton';
 import { useEffect, useState } from 'react';

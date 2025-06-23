@@ -6,6 +6,7 @@
   user-select: none;
   border: none;
   background: none;
+  cursor: pointer;
 }
 
 .positioner {
@@ -17,7 +18,7 @@
   padding: 0.75rem 0.25rem;
   border-radius: 1rem;
   background-color: canvas;
-  border: 0.125rem solid #c4bead;
+  border: 0.125rem solid var(--borderColor);
   transition: all 0.2s ease-in-out;
   transform-origin: var(--transform-origin);
   outline: 0;
@@ -38,7 +39,7 @@
   font-size: 0.85rem;
   line-height: 1rem;
   align-items: center;
-  color: #403b34;
+  color: var(--secondaryTextColor);
   gap: 0.5rem;
   transition: all 0.2s ease-in-out;
   border-radius: 0.5rem;
@@ -48,20 +49,27 @@
   }
 
   &[data-highlighted] {
-    background-color: #d9e80a;
-    color: #5e6f34;
-    fill: #5e6f34;
+    background-color: var(--borderFocusColor);
+    color: var(--primaryBackgroundColor);
+    fill: var(--primaryBackgroundColor);
   }
 
   &[data-highlighted] svg {
-    fill: #5e6f34;
+    fill: var(--primaryBackgroundColor);
   }
 
   &:active {
-    color: #403b34;
+    color: var(--secondaryTextColor);
   }
 
   &:active svg {
-    fill: #403b34;
+    fill: var(--secondaryTextColor);
   }
+}
+
+.textTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }

@@ -1,6 +1,6 @@
 import { firestore } from 'firebase-admin';
 import { Service } from './Service';
-import { Campaign, CampaignFactory, CampaignJson, expandScope, Player, PlayerScope } from '@rhyeen/cozy-ttrpg-shared';
+import { Campaign, CampaignFactory, type ClientCampaignJson, expandScope, Player, type StorePlayerJson, PlayerScope, type StorePlayJson, type StoreCampaignJson } from '@rhyeen/cozy-ttrpg-shared';
 import { HttpsError } from 'firebase-functions/https';
 import { FieldValue } from 'firebase-admin/firestore';
 
@@ -18,25 +18,74 @@ export class CampaignService extends Service{
     const snapshot = await this.db.collection('campaigns')
       .where('players_uids', 'array-contains', uid)
       .get();
-    const data = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
+    if (snapshot.empty) {
+      return [];
+    }
+    const campaigns = await Promise.all(snapshot.docs.map(async (doc) => {
+      const campaign = await this.getFillCampaignBySnapshot(doc);
+      return campaign ? campaign : null;
     }));
-    return data.map(c => this.factory.fromJSON(c as any));
+    return campaigns.filter(c => c !== null) as Campaign[];
   }
 
   public async getCampaign(campaignId: string, assertPlayerUid?: string): Promise<Campaign | null> {
     const snapshot = await this.db.collection('campaigns').doc(campaignId).get();
-    if (!snapshot.exists) {
+    const campaign = await this.getFillCampaignBySnapshot(snapshot);
+    if (!campaign) {
       return null;
     }
     if (assertPlayerUid) {
-      const campaign = this.factory.fromJSON(snapshot.data() as any);
-      if (!campaign.players.some(p => p.uid === assertPlayerUid)) {
-        return null;
+      if (!this.playerInCampaign(campaign, assertPlayerUid)) {
+        throw new HttpsError('not-found', 'Player not found in campaign');
       }
     }
-    return this.factory.fromJSON(snapshot.data() as any);
+    return campaign;
+  }
+
+  private async getFillCampaignBySnapshot(
+    campaignSnapshot: firestore.DocumentSnapshot,
+  ): Promise<Campaign | null> {
+    if (!campaignSnapshot.exists) {
+      return null;
+    }
+    const playerSnapshot = await this.db.collection(campaignSnapshot.ref.parent.path)
+    .doc(campaignSnapshot.id).collection('players').get();
+    const playerJsons = playerSnapshot.docs.map(doc => {
+      return doc.data() as StorePlayerJson;
+    });
+    const playJsons: StorePlayJson[] = [];
+    await Promise.all(playerJsons.map(async playerJson => {
+      const playSnapshot = await this.db.collection(campaignSnapshot.ref.parent.path)
+      .doc(campaignSnapshot.id)
+      .collection('players')
+      .doc(playerJson.uid)
+      .collection('characters').get();
+      playJsons.push(...playSnapshot.docs.map(doc => doc.data() as StorePlayJson));
+    }));
+    const campaignJson = campaignSnapshot.data() as StoreCampaignJson;
+    return this.factory.storeJson(campaignJson, {
+      players: playerJsons,
+      plays: playJsons,
+    });
+  }
+
+  private playerInCampaign(
+    campaign: StoreCampaignJson | Campaign | Player[],
+    playerUid: string,
+  ): boolean {
+    if (Array.isArray(campaign)) {
+      return campaign.some(p => p.uid === playerUid);
+    }
+    if (campaign instanceof Campaign) {
+      if (campaign.players.find(p => p.uid === playerUid)) {
+        return true;
+      }
+    } else {
+      if (campaign.players_uids.find(p => p === playerUid)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   public async deleteCampaign(
@@ -61,9 +110,9 @@ export class CampaignService extends Service{
 
   public async createCampaign(
     uid: string,
-    campaign: CampaignJson
+    campaign: ClientCampaignJson
   ): Promise<Campaign> {
-    const newCampaign = this.factory.fromJSON(campaign);
+    const newCampaign = this.factory.clientJson(campaign);
     newCampaign.id = Campaign.generateId();
     newCampaign.players = [
       new Player({
@@ -76,13 +125,20 @@ export class CampaignService extends Service{
         scopes: expandScope(PlayerScope.Owner),
       }),
     ];
-    await this.db.collection('campaigns').doc(newCampaign.id).set(newCampaign.toJSON(true));
+    const campaignRef = this.db.collection('campaigns').doc(newCampaign.id);
+    // @NOTE: Intentionally not doing a transaction or promise.all here
+    // because we want to ensure the campaign is created before adding the player.
+    await campaignRef.set(newCampaign.storeJson());
+    if (!newCampaign.players[0]) {
+      throw new Error('Campaign must have at least one player');
+    }
+    await campaignRef.collection('players').doc(uid).set(newCampaign.players[0].storeJson());
     return newCampaign;
   }
 
   public async updateCampaign(
     uid: string,
-    campaign: CampaignJson,
+    campaign: ClientCampaignJson,
   ): Promise<Campaign> {
     const existingCampaign = await this.getCampaign(campaign.id, uid);
     if (!existingCampaign) {
@@ -98,11 +154,12 @@ export class CampaignService extends Service{
     ) {
       throw new HttpsError('permission-denied', 'You are not allowed to update this campaign');
     }
-    const updatedCampaign = this.factory.fromJSON(campaign);
+    const updatedCampaign = this.factory.clientJson(campaign);
     updatedCampaign.id = existingCampaign.id;
     updatedCampaign.name = campaign.name;
     updatedCampaign.description = campaign.description;
-    await this.db.collection('campaigns').doc(existingCampaign.id).set(updatedCampaign.toJSON(true));
+    const campaignRef = this.db.collection('campaigns').doc(existingCampaign.id);
+    await campaignRef.set(updatedCampaign.storeJson());
     return updatedCampaign;
   }
 
@@ -141,23 +198,29 @@ export class CampaignService extends Service{
       deletedAt: null,
       scopes: expandScope(PlayerScope.Player),
     });
-    await campaignRef.update({
-      players: FieldValue.arrayUnion(newPlayer.toJSON(true)),
-      players_uids: FieldValue.arrayUnion(playerUid),
-    });
+    await Promise.all([
+      campaignRef.update({
+        players_uids: FieldValue.arrayUnion(playerUid),
+      }),
+      campaignRef.collection('players').doc(playerUid).set(newPlayer.storeJson())
+    ]);
     return newPlayer;
   }
 
   public async updatePlayerStatus(
     uid: string,
+    playerUid: string,
     campaignId: string,
     status: 'approved' | 'denied',
-  ): Promise<Player>{
+  ): Promise<Player> {
+    if (uid !== playerUid) {
+      throw new HttpsError('permission-denied', 'You can only update your own player status');
+    }
     const existingCampaign = await this.getCampaign(campaignId, uid);
     if (!existingCampaign) {
       throw new HttpsError('not-found', 'Campaign not found');
     }
-    const player = existingCampaign.players.find(p => p.uid === uid);
+    const player = existingCampaign.players.find(p => p.uid === playerUid);
     if (!player) {
       throw new HttpsError('not-found', 'Player not found');
     }
@@ -168,9 +231,8 @@ export class CampaignService extends Service{
       player.deniedAt = new Date();
       player.approvedAt = null;
     }
-    await this.db.collection('campaigns').doc(campaignId).update({
-      players: existingCampaign.players.map(p => p.toJSON(true)),
-    });
+    const campaignRef = this.db.collection('campaigns').doc(campaignId);
+    await campaignRef.collection('players').doc(playerUid).set(player.storeJson());
     return player;
   }
 
@@ -212,9 +274,8 @@ export class CampaignService extends Service{
       throw new HttpsError('permission-denied', 'You cannot assign a GM scope to a player if you are not a GM or an owner');
     }
     player.scopes = scopes;
-    await this.db.collection('campaigns').doc(campaignId).update({
-      players: existingCampaign.players.map(p => p.toJSON(true)),
-    });
+    const campaignRef = this.db.collection('campaigns').doc(campaignId);
+    await campaignRef.collection('players').doc(playerUid).set(player.storeJson());
     return player;
   }
 
@@ -249,10 +310,11 @@ export class CampaignService extends Service{
       throw new HttpsError('permission-denied', 'You cannot remove yourself from the campaign if you run it');
     }
     const campaignRef = this.db.collection('campaigns').doc(campaignId);
-    const updatedPlayers = existingCampaign.players.filter(p => p.uid !== playerUid);
-    await campaignRef.update({
-      players: updatedPlayers.map(p => p.toJSON(true)),
-      [`players_uids`]: FieldValue.arrayRemove(playerUid),
-    });
+    await Promise.all([
+      campaignRef.update({
+        players_uids: FieldValue.arrayRemove(playerUid),
+      }),
+      campaignRef.collection('players').doc(playerUid).delete(),
+    ]);
   }
 }

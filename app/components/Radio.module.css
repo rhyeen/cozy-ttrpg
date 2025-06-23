@@ -24,19 +24,19 @@
   align-items: center;
   justify-content: center;
   border-radius: 100%;
-  outline: 0 solid #d9e80a;
+  outline: 0 solid var(--borderFocusColor);
   padding: 0;
   margin: 0;
-  border: 0.125rem solid #5e6f34;
+  border: 0.125rem solid var(--primaryBackgroundColor);
   transition: all 0.125s ease-in-out;
 
   &[data-unchecked] {
-    border: 0.125rem solid #c4bead;
+    border: 0.125rem solid var(--borderColor);
     background-color: transparent;
   }
 
   &[data-checked] {
-    background-color: #5e6f34;
+    background-color: var(--primaryBackgroundColor);
   }
 
   &[data-checked]:active {

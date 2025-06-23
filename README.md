@@ -47,6 +47,17 @@ npm run serve
 The app, functions, and database will all be on different localhost ports.
 Read the terminal for each command to access the different parts.
 
+#### Test Users
+
+We have these test users:
+* test2@example.com (password what you think it is)
+* test3@example.com (password what you think it is)
+
+Note that any test user is possible as we don't do email validation yet.
+Authentication is currently done against backend, even locally, instead of
+emulator.
+
+
 ## Building for Production
 
 Build is ran using the standard `npm run build` command in both folders, but
@@ -92,10 +103,10 @@ This closer mimics what we have to do when publishing `/shared` anyway.
 
 #### Shared folder changes not being picked up by Vite
 
-While Vite is running, go to its `vite.config.ts` and just update something on it.
+* Make sure you run `npm start`, not `npm run serve`.
+* If needed, try "dev:flush" to flush the caches.
+* Last resort: remove node_modules and do an `npm i`.
 
-For example, comment out the alias line `'@rhyeen/cozy-ttrpg-shared' : pat...`, save, then readd it (sometimes, it actually only works if you don't add it back in. Go figures....).
-
-This flushes the Vite caches and reretrieves the dependencies.
-
-If you aren't sure if the newest shared code is coming through, go to `shared/src/index.ts` and update the console.info there with a new version number and see if it comes through on the console.
+Likely, you're using vite.config.prod.ts instead of vite.config.dev.ts,
+because the dev one should grab the files right from the /shared folder
+rather than using the symlink. Symlink is only necessary for /functions

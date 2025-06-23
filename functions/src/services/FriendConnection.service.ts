@@ -68,7 +68,7 @@ export class FriendConnectionService extends Service{
     if (snapshot.empty) {
       return [];
     }
-    return snapshot.docs.map(doc => this.factory.fromJSON(doc.data() as any));
+    return snapshot.docs.map(doc => this.factory.storeJson(doc.data() as any));
   }
 
   public async inviteFriend(
@@ -117,7 +117,7 @@ export class FriendConnectionService extends Service{
         },
       }),
     );
-    await this.db.collection('friendConnections').doc(friendConnection.id).set(friendConnection.toJSON(true));
+    await this.db.collection('friendConnections').doc(friendConnection.id).set(friendConnection.storeJson());
     return friendConnection;
   }
 
@@ -128,7 +128,7 @@ export class FriendConnectionService extends Service{
     if (!snapshot.exists) {
       return null;
     }
-    return this.factory.fromJSON(snapshot.data() as any);
+    return this.factory.storeJson(snapshot.data() as any);
   }
 
   public async updateFriendStatus(

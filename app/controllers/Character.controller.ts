@@ -1,4 +1,4 @@
-import type { Character, CharacterJson } from '@rhyeen/cozy-ttrpg-shared';
+import type { Character, ClientCharacterJson } from '@rhyeen/cozy-ttrpg-shared';
 import { characterFactory } from '../utils/factories';
 import { Controller } from './Controller';
 
@@ -10,39 +10,31 @@ export class CharacterController extends Controller {
   public async getSelfCharacters(): Promise<Character[]> {
     const result = await this.callFirebase<
       undefined,
-      { items: CharacterJson[] | null }
+      { items: ClientCharacterJson[] | null }
     >('getSelfCharacters', undefined);
-    return result.items ? result.items.map(characterFactory.fromJSON) : [];
+    return result.items ? result.items.map(c => characterFactory.clientJson(c)) : [];
   }
 
   public async createSelfCharacter(): Promise<Character> {
     const result = await this.callFirebase<
       undefined,
-      { item: CharacterJson }
+      { item: ClientCharacterJson }
     >('createSelfCharacter', undefined);
-    return characterFactory.fromJSON(result.item);
-  }
-
-  public async getCampaignCharacters(
-    campaignId: string,
-  ): Promise<Character[]> {
-    const result = await this.callFirebase<
-      { campaignId: string },
-      { items: CharacterJson[] }
-    >('getCampaignCharacters', { campaignId });
-    return result.items.map(characterFactory.fromJSON);
+    return characterFactory.clientJson(result.item);
   }
 
   public async updateCharacter(
     character: Character,
+    event?: { campaignId: string },
   ): Promise<Character> {
     const result = await this.callFirebase<
-      { character: CharacterJson },
-      { item: CharacterJson }
+      { character: ClientCharacterJson, event: { campaignId: string } | null },
+      { item: ClientCharacterJson }
     >('updateCharacter', {
-      character: character.toJSON(false),
+      character: character.clientJson(),
+      event: event || null,
     });
-    return characterFactory.fromJSON(result.item);
+    return characterFactory.clientJson(result.item);
   }
 
   public async deleteCharacter(

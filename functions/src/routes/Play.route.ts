@@ -1,7 +1,7 @@
 import { firestore } from 'firebase-admin';
 import { Route } from './Route';
 import { PlayService } from '../services/Play.service';
-import { CallableRequest, HttpsError, HttpsFunction } from 'firebase-functions/https';
+import { type CallableRequest, HttpsError, type HttpsFunction } from 'firebase-functions/https';
 import { CharacterService } from '../services/Character.service';
 import { Character } from '@rhyeen/cozy-ttrpg-shared';
 
@@ -15,29 +15,24 @@ export class PlayRoute extends Route {
     this.characterService = new CharacterService(db);
   }
 
-  public async getSelfPlays(
-    request: CallableRequest<any>,
-  ): Promise<HttpsFunction> {
-    const plays = await this.service.getUserPlays(this.getUidFromRequest(request));
-    return this.handleJsonResponse({ items: plays.map(play => play.toJSON(false)) });
-  }
-
-  public async createSelfPlay(
+  public async setSelfPlay(
     request: CallableRequest<any>,
   ): Promise<HttpsFunction> {
     const data = {
       characterId: request.data.characterId,
       campaignId: request.data.campaignId,
+      isAdding: request.data.isAdding,
     };
     if (!data.characterId || !data.campaignId) {
       throw new HttpsError('invalid-argument', 'Character ID and Campaign ID are required');
     }
-    const user = await this.service.createPlay(
+    const user = await this.service.setPlay(
       this.getUidFromRequest(request),
       data.characterId,
       data.campaignId,
+      data.isAdding,
     );
-    return this.handleJsonResponse({ item: user.toJSON(false) });
+    return this.handleJsonResponse({ item: user.clientJson() });
   }
 
   public async getCampaignPlays(
@@ -58,8 +53,8 @@ export class PlayRoute extends Route {
     );
     const filteredCharacters = characters.filter(character => character !== null) as Character[];
     return this.handleJsonResponse({
-      plays: plays.map(play => play.toJSON(false)),
-      characters: filteredCharacters.map(character => character.toJSON(false)),
+      plays: plays.map(play => play.clientJson()),
+      characters: filteredCharacters.map(character => character.clientJson()),
     });
   }
 
@@ -67,15 +62,20 @@ export class PlayRoute extends Route {
     request: CallableRequest<any>,
   ): Promise<HttpsFunction> {
     const data = {
-      playId: request.data.playId,
+      campaignId: request.data.campaignId,
+      characterId: request.data.characterId,
     };
-    if (!data.playId) {
-      throw new HttpsError('invalid-argument', 'Play ID is required');
+    if (!data.characterId) {
+      throw new HttpsError('invalid-argument', 'Character ID is required');
+    }
+    if (!data.campaignId) {
+      throw new HttpsError('invalid-argument', 'Campaign ID is required');
     }
     const play = await this.service.startPlay(
+      data.campaignId,
       this.getUidFromRequest(request),
-      data.playId,
+      data.characterId,
     );
-    return this.handleJsonResponse({ play: play.toJSON(false) });
+    return this.handleJsonResponse({ play: play.clientJson() });
   }
 }

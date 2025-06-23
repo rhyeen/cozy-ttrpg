@@ -29,13 +29,13 @@ function SaveStateIcon({ state, onStateChange, hideIcon }: SaveProps) {
         {hideIcon}
       </div>
       <div className={styles.fade} style={{ opacity: state === 'saving' ? 1 : 0 }}>
-        <SyncIcon animation color='#d9e80a' />
+        <SyncIcon animation color='var(--borderFocusColor)' />
       </div>
       <div className={styles.fade} style={{ opacity: state === 'success' ? 1 : 0 }}>
-        <CheckCircleIcon color='#4caf50' />
+        <CheckCircleIcon color='var(--iconSuccessColor)' />
       </div>
       <div className={styles.fade} style={{ opacity: state === 'error' ? 1 : 0 }}>
-        <ErrorIcon color='#d01a4a' />
+        <ErrorIcon color='var(--iconErrorColor)' />
       </div>
     </div>
   );

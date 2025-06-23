@@ -10,14 +10,13 @@ import Input from 'app/components/Input';
 import Modal from 'app/components/Modal';
 import Paragraph from 'app/components/Paragraph';
 import Section from 'app/components/Section';
-import { selectFirebaseUser } from 'app/store/userSlice';
+import { selectFirebaseUser } from 'app/store/user.slice';
 import { characterController } from 'app/utils/controller';
 import { useFindFriend } from 'app/utils/hooks/useFriend';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 interface Props {
-  play?: Play;
   campaign?: Campaign;
   character: Character;
   onCharacterUpdate: (character: Character) => void;
@@ -27,7 +26,6 @@ interface Props {
 }
 
 export const CharacterSheet: React.FC<Props> = ({
-  play,
   character,
   onClose,
   onCharacterUpdate,
@@ -91,7 +89,7 @@ export const CharacterSheet: React.FC<Props> = ({
               <ArrowBackIcon />
             </IconButton>
           ) : undefined}
-          iconRight={play ? (
+          iconRight={canEdit ? (
             <IconButton onClick={() => setViewNameDetails(true)}>
               <ReceiptLongIcon />
             </IconButton>

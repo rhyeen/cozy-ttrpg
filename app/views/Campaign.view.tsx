@@ -20,7 +20,7 @@ import Card from 'app/components/Card';
 import Paragraph from 'app/components/Paragraph';
 import ErrorIcon from 'app/components/Icons/Error';
 import { useSelector } from 'react-redux';
-import { selectFirebaseUser } from 'app/store/userSlice';
+import { selectFirebaseUser } from 'app/store/user.slice';
 import FaceIcon from 'app/components/Icons/Face';
 
 interface Props {
@@ -138,7 +138,7 @@ export function CampaignView({
               <Paragraph>It's a lot more fun with friends! Invite others to join.</Paragraph>
             </Card.Header.Left>
             <Card.Header.Right>
-              <ErrorIcon color="#d01a4a" />
+              <ErrorIcon color="var(--errorTextColor)" />
             </Card.Header.Right>
           </Card.Header>
           <Card.Body>

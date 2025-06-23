@@ -1,9 +1,10 @@
 import { copyDate, DocumentEntity, Entity } from './Entity';
-import type { CampaignJson, PlayerJson, PlayerScope } from '../json/Campaign.json';
+import type { ClientCampaignJson, ClientPlayerJson, PlayerScope, RootCampaignJson, RootPlayerJson, StoreCampaignJson, StorePlayerJson } from '../json/Campaign.json';
 import { generateId } from '../../utils/idGenerator';
+import { Play } from './Play';
 import { DocumentJson } from '../json/Json';
 
-export class Player extends Entity<PlayerJson> {
+export class Player extends Entity<StorePlayerJson, ClientPlayerJson> {
   public uid: string;
   public scopes: PlayerScope[];
   public invitedBy: string;
@@ -12,7 +13,7 @@ export class Player extends Entity<PlayerJson> {
   public deniedAt: Date | null;
   public deletedAt: Date | null;
 
-  constructor(json: PlayerJson) {
+  constructor(json: StorePlayerJson | ClientPlayerJson) {
     super();
     this.uid = json.uid;
     this.invitedBy = json.invitedBy;
@@ -23,25 +24,42 @@ export class Player extends Entity<PlayerJson> {
     this.scopes = [...json.scopes];
   }
 
-  public toJSON(toStore: boolean): PlayerJson {
+  private rootJson(): RootPlayerJson {
     return {
       uid: this.uid,
       invitedBy: this.invitedBy,
-      invitedAt: this.invitedAt,
-      approvedAt: this.approvedAt,
-      deniedAt: this.deniedAt,
-      deletedAt: this.deletedAt,
       scopes: [...this.scopes],
     };
   }
 
+  public storeJson(): StorePlayerJson {
+    return {
+      ...this.rootJson(),
+      invitedAt: this.invitedAt ? copyDate(this.invitedAt) : null,
+      approvedAt: this.approvedAt ? copyDate(this.approvedAt) : null,
+      deniedAt: this.deniedAt ? copyDate(this.deniedAt) : null,
+      deletedAt: this.deletedAt ? copyDate(this.deletedAt) : null,
+    };
+  }
+
+  public clientJson(): ClientPlayerJson {
+    return {
+      ...this.rootJson(),
+      invitedAt: this.invitedAt ? this.invitedAt.getTime() : null,
+      approvedAt: this.approvedAt ? this.approvedAt.getTime() : null,
+      deniedAt: this.deniedAt ? this.deniedAt.getTime() : null,
+      deletedAt: this.deletedAt ? this.deletedAt.getTime() : null,
+    };
+  }
+
   public copy(): Player {
-    return new Player(this.toJSON(true));
+    return new Player(this.storeJson());
   }
 }
 
-export class Campaign extends DocumentEntity<CampaignJson> {
+export class Campaign extends DocumentEntity<StoreCampaignJson, ClientCampaignJson> {
   public players: Player[];
+  public plays: Play[];
   public name: string;
   public description: string;
   public id: string;
@@ -51,6 +69,7 @@ export class Campaign extends DocumentEntity<CampaignJson> {
     name: string,
     description: string,
     players: Player[],
+    plays: Play[],
     documentJson?: DocumentJson,
   ) {
     super(documentJson);
@@ -58,16 +77,32 @@ export class Campaign extends DocumentEntity<CampaignJson> {
     this.name = name;
     this.id = id;
     this.description = description;
+    this.plays = plays;
   }
 
-  public toJSON(toStore: boolean): CampaignJson {
+  private rootJson(): RootCampaignJson {
     return {
       name: this.name,
-      players: this.players.map((player) => player.toJSON(toStore)),
       id: this.id,
       description: this.description,
-      players_uids: toStore ? this.players.map((player) => player.uid) : [],
-      ...this.copyDocumentJson(),
+    };
+  }
+
+  public storeJson(): StoreCampaignJson {
+    return {
+      ...this.rootJson(),
+      ...this.storeDocumentJson(),
+      players_uids: this.players.map((player) => player.uid),
+      characters_ids: this.plays.map((play) => play.characterId),
+    };
+  }
+
+  public clientJson(): ClientCampaignJson {
+    return {
+      ...this.rootJson(),
+      ...this.clientDocumentJson(),
+      players: this.players.map((player) => player.clientJson()),
+      plays: this.plays.map((play) => play.clientJson()),
     };
   }
 
@@ -77,7 +112,8 @@ export class Campaign extends DocumentEntity<CampaignJson> {
       this.name,
       this.description,
       this.players.map((player) => player.copy()),
-      this.copyDocumentJson(),
+      this.plays.map((play) => play.copy()),
+      this.clientDocumentJson(),
     );
   }
 

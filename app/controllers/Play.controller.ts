@@ -1,4 +1,4 @@
-import type { Character, CharacterJson, Play, PlayJson } from '@rhyeen/cozy-ttrpg-shared';
+import { Play, type Character, type ClientCharacterJson, type ClientPlayJson } from '@rhyeen/cozy-ttrpg-shared';
 import { characterFactory, playFactory } from '../utils/factories';
 import { Controller } from './Controller';
 
@@ -7,23 +7,16 @@ export class PlayController extends Controller {
     super();
   }
 
-  public async getSelfPlays(campaignId: string): Promise<Play[]> {
-    const result = await this.callFirebase<
-      { campaignId: string },
-      { items: PlayJson[] | null }
-    >('getSelfPlays', { campaignId });
-    return result.items ? result.items.map(playFactory.fromJSON) : [];
-  }
-
-  public async createSelfPlay(
+  public async setSelfPlay(
     characterId: string,
     campaignId: string,
+    isAdding: boolean,
   ): Promise<Play> {
     const result = await this.callFirebase<
-      { characterId: string; campaignId: string },
-      { item: PlayJson }
-    >('createSelfPlay', { characterId, campaignId });
-    return playFactory.fromJSON(result.item);
+      { characterId: string; campaignId: string; isAdding: boolean },
+      { item: ClientPlayJson }
+    >('setSelfPlay', { characterId, campaignId, isAdding });
+    return playFactory.clientJson(result.item);
   }
 
   public async getCampaignPlays(
@@ -31,21 +24,22 @@ export class PlayController extends Controller {
   ): Promise<{ plays: Play[], characters: Character[] }> {
     const result = await this.callFirebase<
       { campaignId: string },
-      { plays: PlayJson[], characters: CharacterJson[] }
+      { plays: ClientPlayJson[], characters: ClientCharacterJson[] }
     >('getCampaignPlays', { campaignId });
     return {
-      plays: result.plays ? result.plays.map(playFactory.fromJSON) : [],
-      characters: result.characters ? result.characters.map(characterFactory.fromJSON) : [],
+      plays: result.plays ? result.plays.map(p => playFactory.clientJson(p)) : [],
+      characters: result.characters ? result.characters.map(c => characterFactory.clientJson(c)) : [],
     };
   }
 
   public async startPlay(
-    playId: string,
+    campaignId: string,
+    characterId: string,
   ): Promise<Play> {
     const result = await this.callFirebase<
-      { playId: string },
-      { play: PlayJson }
-    >('startPlay', { playId });
-    return playFactory.fromJSON(result.play);
+      { campaignId: string, characterId: string },
+      { play: ClientPlayJson }
+    >('startPlay', { campaignId, characterId });
+    return playFactory.clientJson(result.play);
   }
 }

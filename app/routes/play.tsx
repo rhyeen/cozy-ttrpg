@@ -1,7 +1,8 @@
-import { useNavigate, useParams } from 'react-router';
+import Loading from 'app/components/Loading';
 import type { Route } from "./+types/home";
 import { PlayPage } from 'app/pages/Play.page';
-import Loading from 'app/components/Loading';
+import { useAtMountPlaySessionToken } from 'app/utils/hooks/usePlaySessionToken';
+import { MyCharactersView } from 'app/views/MyCharacters.view';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -11,13 +12,22 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Play() {
-  const { playId } = useParams();
-  const navigate = useNavigate();
+  const playSessionToken = useAtMountPlaySessionToken();
 
-  if (!playId) {
-    navigate('/404');
+  const reload = () => {
+    window.location.reload();
+  };
+
+  if (!playSessionToken) {
     return <Loading type="spinner" page />;
   }
 
-  return <PlayPage playId={playId} />;
+  // @NOTE: If we don't have a play session token yet, we need to have the user
+  // select their campaign and character first. But we don't want to navigate
+  // as the URL may contain necessary parameters for the play session.
+  if (!playSessionToken.playId) {
+    return <MyCharactersView onSelectForPlay={reload} />;
+  }
+
+  return <PlayPage />;
 }

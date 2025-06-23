@@ -16,7 +16,7 @@
   border-radius: 1.5rem;
   outline: none;
   background-color: transparent;
-  background-image: linear-gradient(to right, #5e6f34 35%, #c6c9b6 65%);
+  background-image: linear-gradient(to right, var(--primaryBackgroundColor) 35%, var(--switchOffBackgroundColor) 65%);
   background-size: 6.5rem 100%;
   background-position-x: 100%;
   background-repeat: no-repeat;
@@ -26,7 +26,7 @@
   cursor: pointer;
 
   &:active {
-    background-color: #d9e80a;
+    background-color: var(--borderFocusColor);
   }
 
   &[data-checked] {
@@ -34,11 +34,11 @@
   }
 
   &[data-checked]:active {
-    outline: 0.125rem solid #d9e80a;
+    outline: 0.125rem solid var(--borderFocusColor);
   }
 
   &[data-unchecked]:active {
-    outline: 0.125rem solid #d9e80a;
+    outline: 0.125rem solid var(--borderFocusColor);
   }
 
   &:focus-visible {
@@ -47,9 +47,9 @@
       inset: 0;
       position: absolute;
       border-radius: inherit;
-      outline: 0.125rem solid #d9e80a;
+      outline: 0.125rem solid var(--borderFocusColor);
       outline-offset: 0;
-      box-shadow: 0 0 0.5rem #e5f017;
+      box-shadow: 0 0 0.5rem var(--boxShadowFocusColor);
     }
   }
 }
@@ -60,7 +60,7 @@
   border-radius: 100%;
   background-color: canvas;
   transition: translate 150ms ease;
-  border: 0.125rem solid #5e6f34;
+  border: 0.125rem solid var(--primaryBackgroundColor);
   transition: all 250ms ease;
 
   &[data-checked] {
@@ -87,10 +87,10 @@
 }
 
 .label {
-  color: #403b34;
+  color: var(--secondaryTextColor);
   transition: all 250ms ease;
 }
 
 .disabled .label {
-  color: #909090;
+  color: var(--primaryDisabledTextColor);
 }

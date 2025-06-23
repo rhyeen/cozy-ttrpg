@@ -1,6 +1,7 @@
 import { firestore } from 'firebase-admin';
 import type { Response } from 'express';
-import { CallableRequest, HttpsError } from 'firebase-functions/https';
+import { type CallableRequest, HttpsError } from 'firebase-functions/https';
+import { getPlayRequest, PlayRequest } from '../utils/playRequest';
 
 export class Route {
   protected db: firestore.Firestore;
@@ -60,5 +61,11 @@ export class Route {
     request: CallableRequest<any>,
   ): string {
     return this.getUserFromRequest(request).uid;
+  }
+
+  protected getPlayFromRequest(
+    request: CallableRequest<any>,
+  ): PlayRequest | undefined {
+    return getPlayRequest(request) || undefined;
   }
 }

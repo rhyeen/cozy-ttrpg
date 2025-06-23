@@ -1,9 +1,9 @@
-import { DocumentJson } from '../json/Json';
-import { CharacterJson } from '../json/Character.json';
+import type { DocumentJson } from '../json/Json';
+import type { ClientCharacterJson, RootCharacterJson, StoreCharacterJson } from '../json/Character.json';
 import { DocumentEntity } from './Entity';
 import { generateId } from '../../utils/idGenerator';
 
-export class Character extends DocumentEntity<CharacterJson> {
+export class Character extends DocumentEntity<StoreCharacterJson, ClientCharacterJson> {
   public id: string;
   public name?: string;
   public nickname?: string;
@@ -23,13 +23,26 @@ export class Character extends DocumentEntity<CharacterJson> {
     this.nickname = nickname;
   }
 
-  public toJSON(toStore: boolean): CharacterJson {
+  private rootJson(): RootCharacterJson {
     return {
-      ...this.copyDocumentJson(),
       id: this.id,
       uid: this.uid,
       name: this.name || '',
       nickname: this.nickname || '',
+    };
+  }
+
+  public storeJson(): StoreCharacterJson {
+    return {
+      ...this.rootJson(),
+      ...this.storeDocumentJson(),
+    };
+  }
+
+  public clientJson(): ClientCharacterJson {
+    return {
+      ...this.rootJson(),
+      ...this.clientDocumentJson(),
     };
   }
 
@@ -39,7 +52,7 @@ export class Character extends DocumentEntity<CharacterJson> {
       this.uid,
       this.name,
       this.nickname,
-      this.copyDocumentJson(),
+      this.clientDocumentJson(),
     );
   }
 

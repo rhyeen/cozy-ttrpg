@@ -1,3 +1,4 @@
+export { copyDate } from './entities/Entity';
 export * from './entities/Campaign';
 export * from './factory/Campaign.factory';
 export * from './json/Campaign.json';
@@ -17,3 +18,7 @@ export * from './factory/Character.factory';
 export * from './json/Play.json';
 export * from './entities/Play';
 export * from './factory/Play.factory';
+
+export * from './json/PlayEvent.json';
+export * from './entities/PlayEvent';
+export * from './factory/PlayEvent.factory';

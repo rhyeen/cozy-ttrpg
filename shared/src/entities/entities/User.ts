@@ -1,30 +1,47 @@
-import { DocumentJson } from '../json/Json';
-import { UserJson } from '../json/User.json';
+import { type DocumentJson } from '../json/Json';
+import { ClientUserJson, RootUserJson, StoreUserJson, UserColorTheme } from '../json/User.json';
 import { DocumentEntity } from './Entity';
 
-export class User extends DocumentEntity<UserJson> {
+export class User extends DocumentEntity<StoreUserJson, ClientUserJson> {
   public uid: string;
   public email: string;
   public displayName: string;
+  public colorTheme: UserColorTheme | null;
 
   constructor(
     uid: string,
     email: string,
     displayName: string,
+    colorTheme?: UserColorTheme,
     documentJson?: DocumentJson,
   ) {
     super(documentJson);
     this.uid = uid;
     this.email = email;
+    this.colorTheme = colorTheme || null;
     this.displayName = displayName;
   }
 
-  public toJSON(toStore: boolean): UserJson {
+  private rootJson(): RootUserJson {
     return {
-      ...this.copyDocumentJson(),
       uid: this.uid,
       email: this.email,
+      colorTheme: this.colorTheme,
       displayName: this.displayName,
+    };
+  }
+
+  public storeJson(): StoreUserJson {
+    return {
+      ...this.rootJson(),
+      ...this.storeDocumentJson(),
+    };
+  }
+
+  public clientJson(): ClientUserJson {
+    return {
+      ...this.rootJson(),
+      ...this.clientDocumentJson(),
     };
   }
 
@@ -33,7 +50,8 @@ export class User extends DocumentEntity<UserJson> {
       this.uid,
       this.email,
       this.displayName,
-      this.copyDocumentJson(),
+      this.colorTheme || undefined,
+      this.clientDocumentJson(),
     );
   }
 }

@@ -25,12 +25,8 @@ const friendConnectionRoute = new FriendConnectionRoute(db);
 const characterRoute = new CharacterRoute(db);
 const playRoute = new PlayRoute(db);
 
-export const getSelfPlays = onCall(async (request) => {
-  return await playRoute.getSelfPlays(request);
-});
-
-export const createSelfPlay = onCall(async (request) => {
-  return await playRoute.createSelfPlay(request);
+export const setSelfPlay = onCall(async (request) => {
+  return await playRoute.setSelfPlay(request);
 });
 
 export const getCampaignPlays = onCall(async (request) => {

@@ -1,9 +1,15 @@
-import { DocumentJson } from './Json';
+import type { ClientDocumentJson, StoreDocumentJson } from './Json';
 
-export interface PlayJson extends DocumentJson {
-  id: string;
+export interface RootPlayJson {
   uid: string;
   campaignId: string;
-  lastPlayedAt: Date | null;
   characterId: string;
+}
+
+export interface ClientPlayJson extends ClientDocumentJson, RootPlayJson {
+  lastPlayedAt: number | null;
+}
+
+export interface StorePlayJson extends StoreDocumentJson, RootPlayJson {
+  lastPlayedAt: Date | null;
 }

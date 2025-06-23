@@ -10,15 +10,15 @@
 }
 
 .item:nth-child(even) {
-  background-color: #f0f0f0;
+  background-color: var(--rowEvenBackgroundColor);
 }
 
 .key {
   font-weight: bold;
-  color: #474e2d;
+  color: var(--primaryBackgroundColorHover);
   padding-right: 0.5rem;
 }
 
 .value {
-  color: #5e6f34;
+  color: var(--primaryBackgroundColor);
 }

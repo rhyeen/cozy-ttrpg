@@ -1,7 +1,7 @@
 .wrapper {
   width: 100vw;
   height: 100vh;
-  background-color: #cfd1dc;
+  background-color: var(--baseBackgroundColor);
   display: flex;
   flex-direction: column;
   padding: 0.5rem 0.25rem;
@@ -9,9 +9,9 @@
 
 .scrollWrapper {
   border-radius: 1rem;
-  background-color: white;
-  border-top: 1rem solid white;
-  border-bottom: 1rem solid white;
+  background-color: var(--innerBaseBackgroundColor);
+  border-top: 1rem solid var(--innerBaseBackgroundColor);
+  border-bottom: 1rem solid var(--innerBaseBackgroundColor);
   padding: 0 1rem;
   container-type: inline-size;
   box-sizing: border-box;
@@ -24,7 +24,7 @@
 }
 
 .content {
-  background-color: white;
+  background-color: var(--innerBaseBackgroundColor);
   padding: 1rem 0rem;
   width: 100%;
   box-sizing: border-box;

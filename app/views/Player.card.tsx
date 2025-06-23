@@ -2,7 +2,6 @@ import { Toast } from '@base-ui-components/react';
 import { Campaign, expandScope, FriendConnection, Player, PlayerScope, User } from '@rhyeen/cozy-ttrpg-shared';
 import Button from 'app/components/Button';
 import Card from 'app/components/Card';
-import Divider from 'app/components/Divider';
 import Form from 'app/components/Form';
 import Header from 'app/components/Header';
 import IconButton from 'app/components/IconButton';
@@ -18,7 +17,7 @@ import Paragraph from 'app/components/Paragraph';
 import Radio from 'app/components/Radio';
 import Section from 'app/components/Section';
 import Switch from 'app/components/Switch';
-import { selectFirebaseUser } from 'app/store/userSlice';
+import { selectFirebaseUser } from 'app/store/user.slice';
 import { useFindFriend, useFriendIsSelf } from 'app/utils/hooks/useFriend';
 import { listFormatter } from 'app/utils/listFormatter';
 import { campaignController, friendConnectionController } from 'app/utils/controller';
@@ -175,7 +174,7 @@ export const PlayerCard: React.FC<Props> = ({
     setLoading(true);
     try {
       const updatedPlayer = new Player({
-        ...player.toJSON(true),
+        ...player.clientJson(),
         scopes,
       });
       await campaignController.updatePlayerScopes(

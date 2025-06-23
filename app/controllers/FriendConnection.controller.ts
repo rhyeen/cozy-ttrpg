@@ -1,4 +1,4 @@
-import type { FriendConnection, FriendConnectionJson, PlayerScope, User, UserJson } from '@rhyeen/cozy-ttrpg-shared';
+import type { FriendConnection, ClientFriendConnectionJson, User, ClientUserJson } from '@rhyeen/cozy-ttrpg-shared';
 import { friendConnectionFactory, userFactory } from '../utils/factories';
 import { Controller } from './Controller';
 
@@ -13,11 +13,11 @@ export class FriendConnectionController extends Controller {
   }> {
     const result = await this.callFirebase<
       undefined,
-      { friendConnections: FriendConnectionJson[]; users: UserJson[] }
+      { friendConnections: ClientFriendConnectionJson[]; users: ClientUserJson[] }
     >('getFriendConnections', undefined);
     return {
-      friendConnections: result.friendConnections.map(i => friendConnectionFactory.fromJSON(i)),
-      users: result.users.map(i => userFactory.fromJSON(i))
+      friendConnections: result.friendConnections.map(i => friendConnectionFactory.clientJson(i)),
+      users: result.users.map(i => userFactory.clientJson(i))
     };
   }
 
@@ -26,9 +26,9 @@ export class FriendConnectionController extends Controller {
   ): Promise<FriendConnection> {
     const result = await this.callFirebase<
       { uid: string },
-      { connection: FriendConnectionJson }
+      { connection: ClientFriendConnectionJson }
     >('inviteFriend', { uid });
-    return friendConnectionFactory.fromJSON(result.connection);
+    return friendConnectionFactory.clientJson(result.connection);
   }
 
   public async inviteFriendViaEmail(
@@ -36,9 +36,9 @@ export class FriendConnectionController extends Controller {
   ): Promise<FriendConnection> {
     const result = await this.callFirebase<
       { email: string },
-      { connection: FriendConnectionJson }
+      { connection: ClientFriendConnectionJson }
     >('inviteFriend', { email });
-    return friendConnectionFactory.fromJSON(result.connection);
+    return friendConnectionFactory.clientJson(result.connection);
   }
 
   public async updateFriendStatus(

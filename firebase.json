@@ -33,15 +33,18 @@
   ],
   "emulators": {
     "functions": {
-      "port": 5001
+      "port": 5201
     },
     "firestore": {
-      "port": 8080,
+      "port": 8280,
       "host": "localhost",
       "targets": {
         "default": "default",
         "dev-default": "dev-default"
       }
     }
+  },
+  "firestore": {
+    "rules": "functions/firestore.rules"
   }
 }

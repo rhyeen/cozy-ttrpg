@@ -2,25 +2,25 @@
   padding: 0.125rem;
   transition: all 0.2s ease-in-out;
   background: none;
-  border: 0.125rem solid #c4bead00;
+  border: 0.125rem solid var(--borderColor)00;
   border-radius: 1rem;
   cursor: pointer;
 }
 
 .wrapper:hover {
-  border: 0.125rem solid #c4bead55;
+  border: 0.125rem solid var(--borderColor)55;
 }
 
 .wrapper:focus {
   outline: none;
-  border-color: #d9e80a;
-  box-shadow: 0 0 0.5rem #e5f017;
+  border-color: var(--borderFocusColor);
+  box-shadow: 0 0 0.5rem var(--boxShadowFocusColor);
 }
 
 .wrapper:active,
 .wrapper.active {
-  border-color: #c4bead;
-  background-color: #eeefe9;
+  border-color: var(--borderColor);
+  background-color: var(--secondaryBackgroundColor);
 }
 
 .barWrapper {

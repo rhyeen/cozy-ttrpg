@@ -6,8 +6,8 @@
 .innerWrapper {
   border-radius: 1rem;
   background-color: canvas;
-  border: 0.125rem solid #c4bead;
-  box-shadow: 0 0rem 0 #c4bead;
+  border: 0.125rem solid var(--borderColor);
+  box-shadow: 0 0rem 0 var(--borderColor);
   padding: 1rem;
   transition: all 0.2s ease-in-out;
   min-height: 2.5rem;
@@ -28,12 +28,12 @@
 
 .clickable .innerWrapper {
   transition: all 0.1s ease-in-out;
-  box-shadow: 0 0.125rem 0 #c4bead;
+  box-shadow: 0 0.125rem 0 var(--borderColor);
 }
 
 .clickable .innerWrapper:hover {
   margin-top: 0;
-  box-shadow: 0 0rem 0 #c4bead;
+  box-shadow: 0 0rem 0 var(--borderColor);
   translate: 0 0.125rem;
 }
 

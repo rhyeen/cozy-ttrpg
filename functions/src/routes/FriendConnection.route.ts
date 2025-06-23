@@ -1,7 +1,7 @@
 import { firestore } from 'firebase-admin';
 import { Route } from './Route';
 import { FriendConnectionService } from '../services/FriendConnection.service';
-import { CallableRequest, HttpsError, HttpsFunction } from 'firebase-functions/https';
+import { type CallableRequest, HttpsError, type HttpsFunction } from 'firebase-functions/https';
 
 export class FriendConnectionRoute extends Route {
   private service: FriendConnectionService;
@@ -17,8 +17,8 @@ export class FriendConnectionRoute extends Route {
       this.getUidFromRequest(request),
     );
     return this.handleJsonResponse({
-      friendConnections: connections.friendConnections.map(c => c.toJSON(false)),
-      users: connections.users.map(u => u.toJSON(false)),
+      friendConnections: connections.friendConnections.map(c => c.clientJson()),
+      users: connections.users.map(u => u.clientJson()),
     });
   }
 
@@ -38,7 +38,7 @@ export class FriendConnectionRoute extends Route {
       email,
       uid,
     );
-    return this.handleJsonResponse({ connection: connection.toJSON(false) });
+    return this.handleJsonResponse({ connection: connection.clientJson() });
   }
 
   public async updateFriendStatus(

@@ -1,11 +1,11 @@
 import { EntityFactory } from '../entities/Entity';
 import { Character } from '../entities/Character';
-import { CharacterJson } from '../json/Character.json';
+import type { ClientCharacterJson, StoreCharacterJson } from '../json/Character.json';
 
 export class CharacterFactory extends EntityFactory<
-  Character, CharacterJson
+  Character, StoreCharacterJson, ClientCharacterJson, undefined, undefined
 > {
-  public fromJSON(json: CharacterJson): Character {
+  private rootJson(json: ClientCharacterJson | StoreCharacterJson): Character {
     return new Character(
       json.id,
       json.uid,
@@ -13,5 +13,13 @@ export class CharacterFactory extends EntityFactory<
       json.nickname,
       json,
     );
+  }
+
+  public storeJson(json: StoreCharacterJson): Character {
+    return this.rootJson(json);
+  }
+
+  public clientJson(json: ClientCharacterJson): Character {
+    return this.rootJson(json);
   }
 }

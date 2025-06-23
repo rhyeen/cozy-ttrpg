@@ -1,5 +1,5 @@
-import { Player, type Campaign, type CampaignJson, type PlayerJson, type PlayerScope } from '@rhyeen/cozy-ttrpg-shared';
-import { campaignFactory } from '../utils/factories';
+import { Play, Player, PlayFactory, type Campaign, type ClientCampaignJson, type ClientPlayerJson, type PlayerScope } from '@rhyeen/cozy-ttrpg-shared';
+import { campaignFactory, playFactory } from '../utils/factories';
 import { Controller } from './Controller';
 
 export class CampaignController extends Controller {
@@ -10,25 +10,25 @@ export class CampaignController extends Controller {
   public async getCampaigns(): Promise<Campaign[]> {
     const result = await this.callFirebase<
       undefined,
-      { items: CampaignJson[] }
+      { items: ClientCampaignJson[] }
     >('getCampaigns', undefined);
-    return result.items.map(i => campaignFactory.fromJSON(i));
+    return result.items.map(i => campaignFactory.clientJson(i));
   }
 
   public async createCampaign(campaign: Campaign): Promise<Campaign> {
     const result = await this.callFirebase<
-      { campaign: CampaignJson },
-      { item: CampaignJson }
-    >('createCampaign', { campaign: campaign.toJSON(false) });
-    return campaignFactory.fromJSON(result.item);
+      { campaign: ClientCampaignJson },
+      { item: ClientCampaignJson }
+    >('createCampaign', { campaign: campaign.clientJson() });
+    return campaignFactory.clientJson(result.item);
   }
 
   public async updateCampaign(campaign: Campaign): Promise<Campaign> {
     const result = await this.callFirebase<
-      { campaign: CampaignJson },
-      { item: CampaignJson }
-    >('updateCampaign', { campaign: campaign.toJSON(false) });
-    return campaignFactory.fromJSON(result.item);
+      { campaign: ClientCampaignJson },
+      { item: ClientCampaignJson }
+    >('updateCampaign', { campaign: campaign.clientJson() });
+    return campaignFactory.clientJson(result.item);
   }
 
   public async deleteCampaign(campaignId: string): Promise<void> {
@@ -44,7 +44,7 @@ export class CampaignController extends Controller {
   ): Promise<Player> {
     const result = await this.callFirebase<
       { campaignId: string; playerUid: string },
-      { item: PlayerJson }
+      { item: ClientPlayerJson }
     >('addPlayer', { campaignId, playerUid });
     return new Player(result.item);
   }
@@ -66,7 +66,7 @@ export class CampaignController extends Controller {
   ): Promise<Player> {
     const result = await this.callFirebase<
       { campaignId: string; status: 'approved' | 'denied' },
-      { item: PlayerJson }
+      { item: ClientPlayerJson }
     >('updateSelfPlayerStatus', { campaignId, status });
     return new Player(result.item);
   }
@@ -78,7 +78,7 @@ export class CampaignController extends Controller {
   ): Promise<Player> {
     const result = await this.callFirebase<
       { campaignId: string; playerUid: string; scopes: PlayerScope[] },
-      { item: PlayerJson }
+      { item: ClientPlayerJson }
     >('updatePlayerScopes', { campaignId, playerUid, scopes });
     return new Player(result.item);
   }
