@@ -43,7 +43,6 @@ export function usePlayEventSnapshot(
     return onSnapshot(myQ, snap => {
       snap.docChanges().forEach(change => {
         const data = change.doc.data() as StorePrivatePlayEventJson;
-        data.createdAt = copyDate(data.createdAt);
         data.id = change.doc.id;
         const event = privatePlayEventFactory.storeJson(data);
         dispatch(playEventActions.addPrivateEvent(event.clientJson()));

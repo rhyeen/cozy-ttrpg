@@ -25,14 +25,12 @@ export class CharacterController extends Controller {
 
   public async updateCharacter(
     character: Character,
-    event?: { campaignId: string },
   ): Promise<Character> {
     const result = await this.callFirebase<
-      { character: ClientCharacterJson, event: { campaignId: string } | null },
+      { character: ClientCharacterJson },
       { item: ClientCharacterJson }
     >('updateCharacter', {
       character: character.clientJson(),
-      event: event || null,
     });
     return characterFactory.clientJson(result.item);
   }

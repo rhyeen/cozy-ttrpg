@@ -13,7 +13,7 @@ export function getPlayRequest(request: CallableRequest<any>): PlayRequest | nul
   }
   
   const playData = data._play;
-  if (!playData.campaign || !playData.character || !request.auth?.uid) {
+  if (!playData.campaignId || !playData.characterId || !request.auth?.uid) {
     return null;
   }
 

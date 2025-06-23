@@ -91,7 +91,7 @@ function handleCharacterEvent(
   state.characters[event.entityId] = {
     ...state.characters[event.entityId],
     ...event.data,
-    updatedAt: new Date(event.createdAt),
+    updatedAt: new Date(event.createdAt).getTime(),
   };
 }
 
@@ -103,7 +103,7 @@ function handleCampaignEvent(
   state.campaign = {
     ...state.campaign,
     ...event.data,
-    updatedAt: new Date(event.createdAt),
+    updatedAt: new Date(event.createdAt).getTime(),
   };
 }
 
