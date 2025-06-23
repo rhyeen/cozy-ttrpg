@@ -16,7 +16,7 @@ export default [
     ...prefix("play", [
       layout("layouts/Play.layout.tsx", [
         index("routes/play/index.tsx"),
-        route("play/characters/:characterId", "routes/play/character.tsx"),
+        route("characters/:characterId", "routes/play/character.tsx"),
       ]),
     ]),
   ]),

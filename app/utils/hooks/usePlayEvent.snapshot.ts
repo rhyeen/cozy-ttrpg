@@ -1,6 +1,6 @@
 import { collection, onSnapshot, orderBy, query, where } from "firebase/firestore";
 import { firestore } from '../firebase';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { copyDate, type StorePrivatePlayEventJson, type StorePublicPlayEventJson } from '@rhyeen/cozy-ttrpg-shared';
 import { campaignController, playController } from '../controller';
@@ -13,6 +13,11 @@ export function usePlayEventSnapshot(
   characterId: string,
 ): void {
   const dispatch = useDispatch();
+  const [ loading, setLoading ] = useState<{
+    campaignId: string;
+    uid: string;
+    characterId: string;
+  } | null>(null);
 
   const onPublicEventSnapshot = () => {
     const eventsRef = collection(firestore, "campaigns", campaignId, "events");
@@ -68,12 +73,40 @@ export function usePlayEventSnapshot(
   };
 
   useEffect(() => {
+    if (
+      campaignId === loading?.campaignId &&
+      characterId === loading?.characterId &&
+      uid === loading?.uid
+    ) {
+      return;
+    }
+    setLoading({ campaignId, uid, characterId });
+  }, [campaignId, uid, characterId]);
+
+  /**
+   * We do this funky bit of logic for two reasons: to prevent subscribing
+   * to a stale play session that we moved away from and to prevent subscribing
+   * back-to-back if there are multiple React DOM loads (which there often are).
+   */
+  useEffect(() => {
+    if (!loading) {
+      return;
+    }
+    if (
+      campaignId !== loading.campaignId ||
+      characterId !== loading.characterId ||
+      uid !== loading.uid
+    ) {
+      return;
+    }
+    console.info('Subscribing to play snapshots for campaign:', campaignId, 'character:', characterId);
     const unsubscribePublic = onPublicEventSnapshot();
     const unsubscribePrivate = onPrivateEventSnapshot();
     initializeEntities();
     return () => {
+      console.info('Unsubscribing from play snapshots.');
       unsubscribePublic();
       unsubscribePrivate();
     };
-  }, [campaignId, uid, characterId]);
+  }, [loading]);
 }

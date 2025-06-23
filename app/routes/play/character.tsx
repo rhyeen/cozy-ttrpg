@@ -3,11 +3,11 @@ import type { Route } from "../+types/home";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Play" },
+    { title: "Play - My Character" },
     { name: "description", content: "" },
   ];
 }
 
-export default function PlayDashboard() {
+export default function PlayCharacter() {
   return <DashboardView />;
 }

@@ -75,7 +75,6 @@ export const CharacterCard: React.FC<Props> = ({
   };
 
   const toggleAssignCampaign = async (campaign: Campaign) => {
-    console.log('Toggling campaign assignment for:', campaign.id, assigningCampaigns[campaign.id]);
     if (assigningCampaigns[campaign.id] === 'saving') return;
     const remove = (campaign.plays.some((p) => p.characterId === character.id));
     setLoading(true);
