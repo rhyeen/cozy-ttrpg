@@ -36,10 +36,12 @@ export class UserRoute extends Route {
   ): Promise<HttpsFunction> {
     const data = {
       displayName: request.data.displayName,
+      colorTheme: request.data.colorTheme,
     };
     const user = await this.service.updateUser(
       this.getUidFromRequest(request),
       `${data.displayName}` || undefined,
+      data.colorTheme || undefined,
     );
     if (!user) {
       throw new HttpsError('not-found', 'User not found');

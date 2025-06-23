@@ -1,4 +1,4 @@
 .caption {
   font-size: 0.875rem;
-  color: #a69f87;
+  color:  var(--captionTextColor);
 }

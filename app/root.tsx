@@ -8,6 +8,7 @@ import {
 } from "react-router";
 import { Provider } from "react-redux";
 import { store } from "./store/store";
+import "./variables.css";
 import "./index.css";
 
 import type { Route } from "./+types/root";
@@ -20,6 +21,7 @@ import Divider from './components/Divider';
 import Button from './components/Button';
 import { Toast } from '@base-ui-components/react';
 import ToastViewPort from './components/ToastViewPort';
+import { ThemeProvider } from './layouts/Theme.provider';
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -58,12 +60,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
 export default function App() {
   return (
     <Provider store={store}>
-      <Toast.Provider>
-        <ProtectedRoute>
-          <Outlet />
-        </ProtectedRoute>
-        <ToastViewPort />
-      </Toast.Provider>
+      <ThemeProvider>
+        <Toast.Provider>
+          <ProtectedRoute>
+              <Outlet />
+          </ProtectedRoute>
+          <ToastViewPort />
+        </Toast.Provider>
+      </ThemeProvider>
     </Provider>
   );
 }
@@ -86,20 +90,22 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 
   return (
     <Provider store={store}>
-      <PrimaryLayoutForChildren>
-        <Section>
-          <Header type="h1">{message}</Header>
-          <Paragraph>{details}</Paragraph>
-          {stack && <Divider />}
-          {stack && <Paragraph>{stack}</Paragraph>}
-          <Button
-            type="primary"
-            onClick={() => window.location.href = '/'}
-          >
-            Back to Safety
-          </Button>
-        </Section>
-      </PrimaryLayoutForChildren>
+      <ThemeProvider>
+        <PrimaryLayoutForChildren>
+          <Section>
+            <Header type="h1">{message}</Header>
+            <Paragraph>{details}</Paragraph>
+            {stack && <Divider />}
+            {stack && <Paragraph>{stack}</Paragraph>}
+            <Button
+              type="primary"
+              onClick={() => window.location.href = '/'}
+            >
+              Back to Safety
+            </Button>
+          </Section>
+        </PrimaryLayoutForChildren>
+      </ThemeProvider>
     </Provider>
   );
 }

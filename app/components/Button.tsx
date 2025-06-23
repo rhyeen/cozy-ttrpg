@@ -4,7 +4,7 @@ import styles from './Button.module.css';
 interface ButtonProps {
   children: React.ReactNode;
   onClick: () => void;
-  type: 'primary' | 'secondary' | 'smallText' | 'icon';
+  type: 'primary' | 'secondary' | 'smallText' | 'icon' | 'infoBubble';
   submit?: boolean;
   disabled?: boolean;
   loading?: boolean;

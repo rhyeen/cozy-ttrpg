@@ -4,6 +4,7 @@ import { Controller } from './Controller';
 
 interface UpdateSelfAsUserRequest {
   displayName: string;
+  colorTheme: string | null;
 }
 
 interface CreateSelfAsUserRequest {
@@ -35,7 +36,10 @@ export class UserController extends Controller {
     const result = await this.callFirebase<
       UpdateSelfAsUserRequest,
       { item: ClientUserJson }
-    >('updateSelfAsUser', { displayName: user.displayName.trim() });
+    >('updateSelfAsUser', {
+      displayName: user.displayName.trim(),
+      colorTheme: user.colorTheme,
+    });
     return userFactory.clientJson(result.item);
   }
 }

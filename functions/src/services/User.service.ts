@@ -1,6 +1,6 @@
 import { firestore } from 'firebase-admin';
 import { Service } from './Service';
-import { User, UserFactory } from '@rhyeen/cozy-ttrpg-shared';
+import { User, UserColorTheme, UserFactory } from '@rhyeen/cozy-ttrpg-shared';
 import { HttpsError } from 'firebase-functions/https';
 
 export class UserService extends Service{
@@ -45,12 +45,14 @@ export class UserService extends Service{
   public async updateUser(
     uid: string,
     displayName?: string,
+    colorTheme?: UserColorTheme,
   ): Promise<User | null> {
     const user = await this.getUser(uid);
     if (!user) {
       return null;
     }
     user.displayName = displayName || user.displayName;
+    user.colorTheme = colorTheme || user.colorTheme;
     user.updatedAt = new Date();
     await this.db.collection('users').doc(user.uid).set(user.storeJson());
     return user;

@@ -14,8 +14,8 @@
 .wrapper .innerWrapper {
   padding: 0.25rem 0.5rem;
   padding-top: calc(0.25rem + 0.125rem + var(--fredoka-baseline-fix));
-  border: 0.125rem solid #c4bead;
-  box-shadow: 0 0.125rem 0 #c4bead;
+  border: 0.125rem solid var(--borderColor);
+  box-shadow: 0 0.125rem 0 var(--borderColor);
   cursor: pointer;
   
   border-radius: 0.5rem;
@@ -24,51 +24,65 @@
 }
 
 .wrapper:hover .innerWrapper,
-.wrapper:disabled .innerWrapper {
+.wrapper:disabled .innerWrapper,
+.wrapper.infoBubble .innerWrapper {
   margin-top: 0;
-  box-shadow: 0 0rem 0 #c4bead;
+  box-shadow: 0 0rem 0 var(--borderColor);
   translate: 0 0.125rem;
 }
 
 .wrapper:active .innerWrapper{
-  border-color: #c4bead;
+  border-color: var(--borderColor);
 }
 
 .wrapper:focus .innerWrapper {
-  border-color: #d9e80a;
-  box-shadow: 0 0 0.5rem #e5f017;
+  border-color: var(--borderFocusColor);
+  box-shadow: 0 0 0.5rem var(--boxShadowFocusColor);
   outline: none;
 }
 
 .primary .innerWrapper {
-  background-color: #5e6f34;
-  border-color: #38361a;
-  box-shadow: 0 0.125rem 0 #38361a;
-  color: #fff;
+  background-color: var(--primaryBackgroundColor);
+  border-color: var(--primaryBorderColor);
+  box-shadow: 0 0.125rem 0 var(--primaryBorderColor);
+  color: var(--primaryTextColor);
 }
 
 .primary:hover .innerWrapper {
-  background-color: #474e2d;
+  background-color: var(--primaryBackgroundColorHover);
 }
 
 .primary:active .innerWrapper,
 .primary:focus .innerWrapper {
-  border-color: #c5b808;
-  box-shadow: 0 0 0.5rem #c5b808;
+  border-color: var(--primaryBorderFocusColor);
+  box-shadow: 0 0 0.5rem var(--primaryBoxShadowFocusColor);
 }
 
 .secondary .innerWrapper {
-  background-color: #eeefe9;
-  color: #403b34;
+  background-color: var(--secondaryBackgroundColor);
+  color: var(--secondaryTextColor);
 }
 
 .secondary:hover .innerWrapper {
-  background-color: #d6d6c7;
+  background-color: var(--secondaryBackgroundColorHover);
+}
+
+.wrapper.infoBubble .innerWrapper {
+  border-radius: 2rem;
+}
+
+.infoBubble .innerWrapper {
+  background-color: none;
+  color: var(--secondaryTextColor);
+}
+
+.infoBubble:hover .innerWrapper {
+  background-color: var(--secondaryBackgroundColorHover);
 }
 
 .wrapper:disabled .innerWrapper {
-  background-color: #dedede;
-  color: #909090;
+  background-color:  var(--primaryDisabledBackgroundColor);
+  color: var(--primaryDisabledTextColor);
   cursor: not-allowed;
-  border-color: #c8c8c8;
+  border-color:  var(--primaryDisabledBorderColor);
 }

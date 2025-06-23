@@ -1,0 +1,69 @@
+:root {
+  --baseBackgroundColor: #cfd1dc;
+  --innerBaseBackgroundColor: #ffffff;
+
+  --helperTextColor: #948c70;
+  --captionTextColor: #a69f87;
+  --errorTextColor: #d01a4a;
+  --errorBorderColor: var(--errorTextColor);
+  --errorFillColor: var(--errorTextColor);
+  --errorFocusBoxShadowColor: #d01a4a99;
+
+  --rowEvenBackgroundColor: #f0f0f0;
+  --switchOffBackgroundColor: #c6c9b6;
+
+  --borderColor: #c4bead;
+  --borderFocusColor: #d9e80a;
+  --boxShadowFocusColor: #e5f017;
+
+  --primaryBackgroundColor: #5e6f34;
+  --primaryBorderColor: #38361a;
+  --primaryBackgroundColorHover: #474e2d;
+  --primaryBorderFocusColor: #c5b808;
+  --primaryBoxShadowFocusColor: var(--primaryBorderFocusColor);
+  --primaryTextColor: #ffffff;
+
+  --secondaryBackgroundColor: #eeefe9;
+  --secondaryTextColor: #403b34;
+  --secondaryBackgroundColorHover: #d6d6c7;
+
+  --disabledBackgroundColor: #dedede;
+  --disabledTextColor: #909090;
+  --disabledBorderColor: #c8c8c8;
+
+  --iconSaveColor: var(var(--borderFocusColor));
+  --iconSuccessColor: #4caf50;
+  --iconErrorColor: var(--errorTextColor);
+}
+
+[data-theme='seaBreeze']{
+  --primaryBackgroundColor: #1d6e91;
+  --primaryBorderColor: #083f5f;
+  --primaryBackgroundColorHover: #1c3057;
+  --primaryBorderFocusColor: #08bfc5;
+  --helperTextColor: #707094;
+  --captionTextColor: #878ea6;
+  --switchOffBackgroundColor: #b6c3c9;
+  --borderColor: #adc3c4;
+  --borderFocusColor: #7cfafa;
+  --boxShadowFocusColor: #3fffdc;
+  --secondaryBackgroundColor: #e9efed;
+  --secondaryTextColor: #2d4545;
+  --secondaryBackgroundColorHover: #c7d6d5;
+}
+
+[data-theme='poppyPink']{
+  --primaryBackgroundColor: #710140;
+  --primaryBorderColor: #e31f78;
+  --primaryBackgroundColorHover: #a20a65;
+  --primaryBorderFocusColor: #ffa8fc;
+  --helperTextColor: #837094;
+  --captionTextColor: #9387a6;
+  --switchOffBackgroundColor: #c7b6c9;
+  --borderColor: #f6a5c9;
+  --borderFocusColor: #fa3383;
+  --boxShadowFocusColor: #f45685;
+  --secondaryBackgroundColor: #fee2ef;
+  --secondaryTextColor: #562f38;
+  --secondaryBackgroundColorHover: #fbd3e8;
+}

@@ -32,9 +32,11 @@ export class Controller {
   }
 
   public static setPlaySessionToken(play: Play) {
-    sessionStorage.setItem('play_id', play.id);
-    sessionStorage.setItem('play_campaign_id', play.campaignId);
-    sessionStorage.setItem('play_character_id', play.characterId);
+    sessionStorage.setItem('_play', JSON.stringify({
+      playId: play.uid,
+      campaignId: play.campaignId,
+      characterId: play.characterId,
+    }));
   }
 
   public static getPlaySessionToken(): {
@@ -42,10 +44,20 @@ export class Controller {
     campaignId: string | null;
     characterId: string | null;
   } {
-    return {
-      playId: sessionStorage.getItem('play_id'),
-      campaignId: sessionStorage.getItem('play_campaign_id'),
-      characterId: sessionStorage.getItem('play_character_id'),
-    };
+    const playSession = sessionStorage.getItem('_play');
+    const parsed = JSON.parse(playSession || '');
+    if (parsed) {
+      return {
+        playId: parsed.playId || null,
+        campaignId: parsed.campaignId || null,
+        characterId: parsed.characterId || null,
+      };
+    } else {
+      return {
+        playId: null,
+        campaignId: null,
+        characterId: null,
+      };
+    }
   }
 }

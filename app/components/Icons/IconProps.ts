@@ -4,4 +4,4 @@ export interface IconProps {
 }
 
 export const DEFAULT_ICON_SIZE = '2rem';
-export const DEFAULT_ICON_COLOR = '#c4bead';
+export const DEFAULT_ICON_COLOR = 'var(--borderColor)';

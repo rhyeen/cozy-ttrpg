@@ -11,10 +11,19 @@ import { useNavigate } from 'react-router';
 import IconButton from './IconButton';
 import CottageIcon from './Icons/Cottage';
 import SupervisedUserCircleIcon from './Icons/SupervisedUserCircle';
+import { useSessionStorage } from '@uidotdev/usehooks';
+import { selectPlayCampaign } from 'app/store/playEvent.slice';
+import Button from './Button';
 
 const NavBar: React.FC = () => {
   const firebaseUser = useSelector(selectFirebaseUser);
   const navigate = useNavigate();
+  const playDetails = useSessionStorage('_play', null);
+  const campaign = useSelector(selectPlayCampaign);
+  // @NOTE: The reason we don't just rely on the campaign selector is that it
+  // doesn't go away when the play session ends. It will always return the last
+  // campaign that was played, even if the user is not currently playing a campaign.
+  const playCampaign = playDetails ? campaign : null;
 
   const logout = async () => {
     await auth.signOut();
@@ -60,6 +69,14 @@ const NavBar: React.FC = () => {
         <IconButton onClick={() => navigate('/')}>
           <CottageIcon />
         </IconButton>
+        { !!playCampaign &&
+          <Button
+            onClick={() => navigate('/play')}
+            type="infoBubble"
+          >
+            {`Playing ${playCampaign.name}`}
+          </Button>
+        }
       </div>
       <div className={styles.right}>
         <Menu

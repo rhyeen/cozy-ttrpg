@@ -10,6 +10,7 @@ export class UserFactory extends EntityFactory<
       json.uid,
       json.email,
       json.displayName,
+      json.colorTheme || undefined,
       json,
     );
   }

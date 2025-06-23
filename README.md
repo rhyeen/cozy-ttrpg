@@ -47,6 +47,17 @@ npm run serve
 The app, functions, and database will all be on different localhost ports.
 Read the terminal for each command to access the different parts.
 
+#### Test Users
+
+We have these test users:
+* test2@example.com (password what you think it is)
+* test3@example.com (password what you think it is)
+
+Note that any test user is possible as we don't do email validation yet.
+Authentication is currently done against backend, even locally, instead of
+emulator.
+
+
 ## Building for Production
 
 Build is ran using the standard `npm run build` command in both folders, but

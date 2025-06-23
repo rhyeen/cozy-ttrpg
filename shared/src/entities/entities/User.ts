@@ -1,21 +1,24 @@
 import { type DocumentJson } from '../json/Json';
-import { ClientUserJson, RootUserJson, StoreUserJson } from '../json/User.json';
+import { ClientUserJson, RootUserJson, StoreUserJson, UserColorTheme } from '../json/User.json';
 import { DocumentEntity } from './Entity';
 
 export class User extends DocumentEntity<StoreUserJson, ClientUserJson> {
   public uid: string;
   public email: string;
   public displayName: string;
+  public colorTheme: UserColorTheme | null;
 
   constructor(
     uid: string,
     email: string,
     displayName: string,
+    colorTheme?: UserColorTheme,
     documentJson?: DocumentJson,
   ) {
     super(documentJson);
     this.uid = uid;
     this.email = email;
+    this.colorTheme = colorTheme || null;
     this.displayName = displayName;
   }
 
@@ -23,6 +26,7 @@ export class User extends DocumentEntity<StoreUserJson, ClientUserJson> {
     return {
       uid: this.uid,
       email: this.email,
+      colorTheme: this.colorTheme,
       displayName: this.displayName,
     };
   }
@@ -46,6 +50,7 @@ export class User extends DocumentEntity<StoreUserJson, ClientUserJson> {
       this.uid,
       this.email,
       this.displayName,
+      this.colorTheme || undefined,
       this.clientDocumentJson(),
     );
   }

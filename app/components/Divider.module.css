@@ -7,7 +7,7 @@
 
 .divider {
   border: none;
-  border-top: 0.25rem dotted #c4bead66;
+  border-top: 0.25rem dotted var(--borderColor)66;
   width: 100%;
   margin: 1rem 0;
 }
@@ -15,7 +15,7 @@
 .label {
   padding: 0 1rem;
   margin-top: -0.125rem;
-  color: #c4bead;
+  color: var(--borderColor);
   font-weight: 600;
   text-transform: uppercase;
 }
