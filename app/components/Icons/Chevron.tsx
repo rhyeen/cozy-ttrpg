@@ -14,9 +14,9 @@ function ChevronIcon(props: ChevronIconProps) {
   } else if (props.position === 'down') {
     rotate = 90;
   } else if (props.position === 'left') {
-    rotate = 0;
-  } else if (props.position === 'right') {
     rotate = 180;
+  } else if (props.position === 'right') {
+    rotate = 0;
   }
   return (
     <svg

@@ -6,15 +6,22 @@ interface HeaderProps {
   type: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
   iconLeft?: React.ReactNode;
   iconRight?: React.ReactNode;
+  ignoreUppercase?: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({ children, type, iconLeft, iconRight }) => {
+const Header: React.FC<HeaderProps> = ({
+  children,
+  type,
+  iconLeft,
+  iconRight,
+  ignoreUppercase,
+}) => {
   const HeadingTag = type as keyof JSX.IntrinsicElements;
 
   return (
     <div className={styles.wrapper}>
       {iconLeft && iconLeft}
-      <HeadingTag className={styles[type]}>
+      <HeadingTag className={`${styles[type]} ${ignoreUppercase ? styles.ignoreUppercase : ''}`}>
         {children}
       </HeadingTag>
       {iconRight && iconRight}

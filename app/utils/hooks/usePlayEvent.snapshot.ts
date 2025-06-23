@@ -22,12 +22,11 @@ export function usePlayEventSnapshot(
   const onPublicEventSnapshot = () => {
     const eventsRef = collection(firestore, "campaigns", campaignId, "events");
     // @NOTE: Don't get events that are older than 1 minute
-    const publicQ = query(
+    const eventsQuery = query(
       eventsRef,
-      where("createdAt" , ">=", new Date(Date.now() - 60 * 1000)),
-      orderBy("createdAt"),
+      where("createdAt" , ">=", new Date(new Date().getTime() - (60 * 1000))),
     );
-    return onSnapshot(publicQ, snap => {
+    return onSnapshot(eventsQuery, snap => {
       snap.docChanges().forEach(change => {
         const data = change.doc.data() as StorePublicPlayEventJson;
         data.id = change.doc.id;
@@ -38,9 +37,13 @@ export function usePlayEventSnapshot(
   };
 
   const onPrivateEventSnapshot = () => {
-    const myEventsRef = collection(firestore, "campaigns", campaignId, "players", uid, "characters", characterId, "events");
-    const myQ = query(myEventsRef, orderBy("createdAt"));
-    return onSnapshot(myQ, snap => {
+    const eventsRef = collection(firestore, "campaigns", campaignId, "players", uid, "characters", characterId, "events");
+    // @NOTE: Don't get events that are older than 1 minute
+    const eventsQuery = query(
+      eventsRef,
+      where("createdAt" , ">=", new Date(new Date().getTime() - (60 * 1000))),
+    );
+    return onSnapshot(eventsQuery, snap => {
       snap.docChanges().forEach(change => {
         const data = change.doc.data() as StorePrivatePlayEventJson;
         data.id = change.doc.id;

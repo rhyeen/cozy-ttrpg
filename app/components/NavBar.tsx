@@ -82,6 +82,53 @@ const NavBar: React.FC = () => {
     return null;
   }
 
+  const playCampgaignCharacterSubMenu = [];
+  if (myCharacter) {
+    playCampgaignCharacterSubMenu.push({
+      label: myCharacter.nickname || myCharacter.name || myCharacter.id,
+      value: `/play/characters/${myCharacter.id}`,
+      onClick: () => navigate(`/play/characters/${myCharacter.id}`),
+    });
+    if (characters && characters.length > 1) {
+      playCampgaignCharacterSubMenu.push({ separator: true });
+    }
+  }
+  playCampgaignCharacterSubMenu.push(...(characters || [])
+  .sort((a, b): number => {
+    const aName = a.nickname || a.name || a.id;
+    const bName = b.nickname || b.name || b.id;
+    return aName.localeCompare(bName);
+  })
+  .filter(character => character.id !== myCharacter?.id)
+  .map(character => ({
+    label: character.nickname || character.name || character.id,
+    value: `/play/characters/${character.id}`,
+    onClick: () => navigate(`/play/characters/${character.id}`),
+  })));
+
+  const playCampaignMenuItems = [
+    {
+      label: 'Dashboard',
+      value: '/play',
+      icon: <CottageIcon />,
+      onClick: () => navigate('/play'),
+    },
+    {
+      label: 'Character',
+      value: '/play/characters',
+      icon: <FaceIcon />,
+      onClick: () => navigate('/play/characters/' + myCharacter?.id),
+      subMenu: playCampgaignCharacterSubMenu,
+    },
+  ];
+
+  const playCampaignSelectedMenuItem = [...playCampaignMenuItems].sort((a, b) => {
+    // count the number of slashes in the value
+    const aSlashes = (a.value.match(/\//g) || []).length;
+    const bSlashes = (b.value.match(/\//g) || []).length;
+    return bSlashes - aSlashes;
+  }).find(item => location.pathname.startsWith(item.value));
+
   return (
     <nav className={styles.wrapper}>
       <div className={styles.left}>
@@ -92,20 +139,9 @@ const NavBar: React.FC = () => {
         }
         { playCampaign && isPlayPath &&
           <Menu
-            icon={<CottageIcon />}
-            text={{ trigger: 'Dashboard' }}
-            items={[
-              {
-                label: 'Dashboard',
-                icon: <CottageIcon />,
-                onClick: () => navigate('/play'),
-              },
-              {
-                label: 'My Character',
-                icon: <FaceIcon />,
-                onClick: () => navigate('/play/characters/' + myCharacter?.id),
-              },
-            ]}
+            icon={playCampaignSelectedMenuItem?.icon}
+            text={{ trigger: playCampaignSelectedMenuItem?.label || '???' }}
+            items={playCampaignMenuItems}
           />    
         }
         { !!playCampaign && !isPlayPath &&

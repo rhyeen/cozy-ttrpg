@@ -1,5 +1,5 @@
 import { Toast } from '@base-ui-components/react';
-import { Campaign, Character, FriendConnection, Play, PlayerScope, User } from '@rhyeen/cozy-ttrpg-shared';
+import { Campaign, Character, FriendConnection, PlayerScope, User } from '@rhyeen/cozy-ttrpg-shared';
 import Form from 'app/components/Form';
 import Header from 'app/components/Header';
 import IconButton from 'app/components/IconButton';
@@ -13,6 +13,7 @@ import Section from 'app/components/Section';
 import { selectFirebaseUser } from 'app/store/user.slice';
 import { characterController } from 'app/utils/controller';
 import { useFindFriend } from 'app/utils/hooks/useFriend';
+import { useIsPlaying } from 'app/utils/hooks/usePlaySessionToken';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
@@ -46,6 +47,7 @@ export const CharacterSheet: React.FC<Props> = ({
   const friend = useFindFriend(character.uid, friendConnections, friendUsers);
   const selfIsCharacter = character.uid === firebaseUser?.uid;
   const selfAsPlayer = campaign?.players.find((p) => p.uid === firebaseUser?.uid);
+  const isPlaying = useIsPlaying();
 
   const canEdit = (
     firebaseUser?.uid === character.uid ||
@@ -60,11 +62,17 @@ export const CharacterSheet: React.FC<Props> = ({
   const editCharacterHandler = async (saving: 'nickname' | 'name') => {
     const setSaveState = saving === 'nickname' ? setNicknameSaveState : setNameSaveState;
     const errorState = saving === 'nickname' ? setNicknameError : setNameError;
+    if (saving === 'nickname' && nickname === character.nickname) {
+      return;
+    }
+    if (saving === 'name' && name === character.name) {
+      return;
+    }
     setSaveState('saving');
     try {
       const updatedCharacter = character.copy();
-      updatedCharacter.name = name;
-      updatedCharacter.nickname = nickname;
+      updatedCharacter.name = name.trim();
+      updatedCharacter.nickname = nickname.trim();
       await characterController.updateCharacter(updatedCharacter);
       onCharacterUpdate(updatedCharacter);
       setSaveState('success');
@@ -82,8 +90,10 @@ export const CharacterSheet: React.FC<Props> = ({
   return (
     <>
       <Section>
+        <Paragraph type="overline">Character Sheet</Paragraph>
         <Header
           type="h1"
+          ignoreUppercase
           iconLeft={onClose ? (
             <IconButton onClick={onClose}>
               <ArrowBackIcon />
@@ -95,8 +105,8 @@ export const CharacterSheet: React.FC<Props> = ({
             </IconButton>
           ) : undefined}
         >
-          <Paragraph type="caption">Character Sheet</Paragraph>
           {character.name || 'Unnamed Character'}
+          {character.nickname ? ` (${character.nickname})` : ''}
         </Header>
       </Section>
       <Modal

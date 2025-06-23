@@ -35,8 +35,14 @@ export default function PlayCharacter() {
     getFriends();
   }, []);
 
+  useEffect(() => {
+    if (!characterId) {
+      navigate('/404');
+      return;
+    }
+  }, [characterId, navigate]);
+
   if (!character) {
-    navigate('/404');
     return <Loading type="spinner" page />;
   }
 

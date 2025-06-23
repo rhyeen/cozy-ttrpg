@@ -78,6 +78,7 @@ function mergeEvents(
         ...oldestData.data,
         ...newestData.data,
       };
+      merged[key].createdAt = Math.max(newestData.createdAt, oldestData.createdAt);
     }
   }
   return Object.values(merged);
