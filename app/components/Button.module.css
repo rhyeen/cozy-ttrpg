@@ -4,7 +4,11 @@
   background: none;
   border: none;
   box-sizing: border-box;
-  max-width: 20rem;
+  max-width: var(--formWidth);
+}
+
+.wrapper.noTextWrap {
+  overflow: hidden;
 }
 
 .wrapper:focus {
@@ -23,6 +27,12 @@
   transition: all 0.2s ease-in-out;
 }
 
+.wrapper.noTextWrap .innerWrapper {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .wrapper:hover .innerWrapper,
 .wrapper:disabled .innerWrapper,
 .wrapper.infoBubble .innerWrapper {
@@ -39,6 +49,11 @@
   border-color: var(--borderFocusColor);
   box-shadow: 0 0 0.5rem var(--boxShadowFocusColor);
   outline: none;
+}
+
+.wrapper.noTextWrap:focus .innerWrapper {
+  /* Box-shadow gets clipped by overflow: hidden */
+  box-shadow: none;
 }
 
 .primary .innerWrapper {

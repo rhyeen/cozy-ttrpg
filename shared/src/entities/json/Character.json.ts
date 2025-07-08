@@ -5,6 +5,10 @@ export interface RootCharacterJson {
   uid: string;
   name: string;
   nickname: string;
+  background?: string;
+  private: {
+    background?: string;
+  };
 }
 
 export interface ClientCharacterJson extends ClientDocumentJson, RootCharacterJson {}

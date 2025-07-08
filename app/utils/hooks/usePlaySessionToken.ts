@@ -1,5 +1,17 @@
 import { Controller } from 'app/controllers/Controller';
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router';
+
+export function useIsPlaying(): boolean {
+  const location = useLocation();
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+
+  useEffect(() => {
+    setIsPlaying(location.pathname.startsWith('/play'));
+  }, [location.pathname]);
+
+  return isPlaying;
+}
 
 /**
  * Note that this hook does not listen for changes to the play session token.

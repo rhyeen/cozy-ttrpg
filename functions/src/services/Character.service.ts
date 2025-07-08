@@ -4,6 +4,7 @@ import { Character, CharacterFactory, type ClientCharacterJson, FullPlayEvent, P
 import { HttpsError } from 'firebase-functions/https';
 import { PlayEventService } from './PlayEvent.service';
 import { PlayRequest } from '../utils/playRequest';
+import { splitPrivatePublicJson } from '@rhyeen/cozy-ttrpg-shared/dist/entities/entities/Entity';
 
 export class CharacterService extends Service{
   private factory: CharacterFactory;
@@ -62,7 +63,7 @@ export class CharacterService extends Service{
 
   public async updateCharacter(
     uid: string,
-    characterJson: ClientCharacterJson,
+    characterJson: Partial<ClientCharacterJson>,
     options?: {
       isVerifiedGMOfCharacter?: boolean,
       playRequest?: PlayRequest,
@@ -78,29 +79,33 @@ export class CharacterService extends Service{
     if (existingCharacter.uid !== uid && !options?.isVerifiedGMOfCharacter) {
       throw new HttpsError('permission-denied', 'Only the owner can update the character. If you are a GM, update your player\'s characters through the play endpoints.');
     }
-    const updatedCharacter = this.factory.clientJson(characterJson);
-    // @NOTE: These fields are not allowed to be updated
-    updatedCharacter.uid = existingCharacter.uid;
-    updatedCharacter.createdAt = existingCharacter.createdAt;
-    updatedCharacter.updatedAt = new Date();
-    updatedCharacter.deletedAt = existingCharacter.deletedAt;
-    updatedCharacter.id = existingCharacter.id;
+    const updatedCharacter = existingCharacter.copy();
+    updatedCharacter.update(characterJson);
+    const diffs = splitPrivatePublicJson(
+      updatedCharacter.clientPartialJson(existingCharacter)
+    );
     let event: FullPlayEvent | undefined;
     if (options?.playRequest) {
       event = new FullPlayEvent(
+        uid,
         PlayEventOperation.Update,
         'character',
         updatedCharacter.id,
         {
           campaignId: options.playRequest.campaignId,
         },
-        null,
-        updatedCharacter.clientJson(),
-        null,
+        {
+          campaignId: options.playRequest.campaignId,
+          plays: [{ playerUid: uid, characterId: updatedCharacter.id }],
+        },
+        diffs.public,
+        diffs.private,
       );
     }
     await Promise.all([
-      this.db.collection('characters').doc(existingCharacter.id).set(updatedCharacter.storeJson()),
+      this.db.collection('characters').doc(existingCharacter.id).update(
+        updatedCharacter.storePartialJson(existingCharacter)
+      ),
       this.eventService.addEvent(event),
     ]);
     return updatedCharacter;

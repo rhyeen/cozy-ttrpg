@@ -5,6 +5,7 @@
   border: 0.125rem solid var(--borderColor)00;
   border-radius: 1rem;
   cursor: pointer;
+  min-width: calc(2rem + 0.25rem);
 }
 
 .wrapper:hover {

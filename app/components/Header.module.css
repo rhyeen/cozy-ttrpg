@@ -1,12 +1,11 @@
-/* app/components/Header.module.css */
 .wrapper {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-}
-
-.h1, .h2, .h3, .h4, .h5, .h6 {
-  overflow-wrap: break-word;
+  
+  /* @NOTE: In case we have an IconButton on the header. */
+  min-height: 2.25rem;
+  --headerOneSize: 2.5rem;  
 }
 
 .h1, .h2, .h3, .h6 {
@@ -14,26 +13,42 @@
   color: var(--primaryBackgroundColorHover);
 }
 
+.ignoreUppercase {
+  text-transform: none;
+}
+
 .h1 {
-  font-size: 2.5rem;
+  font-size: var(--headerOneSize);
 }
 
 .h2 {
-  font-size: 2rem;
+  font-size: calc(var(--headerOneSize) * 0.8);
 }
 
 .h3 {
-  font-size: 1.5rem;
+  font-size: calc(var(--headerOneSize) * 0.6);
 }
 
 .h4 {
-  font-size: 1.5rem;
+  font-size: calc(var(--headerOneSize) * 0.6);
 }
 
 .h5 {
-  font-size: 1.25rem;
+  font-size: calc(var(--headerOneSize) * 0.5);
 }
 
 .h6 {
-  font-size: 1rem;
+  font-size: calc(var(--headerOneSize) * 0.4);
+}
+
+@media (max-width: 500px) {
+  .wrapper {
+    --headerOneSize: 2rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .wrapper {
+    --headerOneSize: 1.5rem;
+  }
 }

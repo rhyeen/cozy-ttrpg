@@ -1,4 +1,6 @@
-import type { ClientCharacterJson, ClientCampaignJson, ClientPrivatePlayEventJson, ClientPublicPlayEventJson } from '@rhyeen/cozy-ttrpg-shared';
+import { current } from '@reduxjs/toolkit/react';
+import { type ClientCharacterJson, type ClientCampaignJson, type ClientPrivatePlayEventJson, type ClientPublicPlayEventJson, CharacterFactory } from '@rhyeen/cozy-ttrpg-shared';
+import { characterFactory } from 'app/utils/factories';
 
 export const MAX_ROTATING_EVENTS = 30;
 
@@ -20,11 +22,17 @@ export interface PlayState {
 
 export function handleEvent(
   state: PlayState,
-  event: ClientPrivatePlayEventJson | ClientPublicPlayEventJson,
+  incomingEvent: ClientPrivatePlayEventJson | ClientPublicPlayEventJson,
 ): void {
-  rotateEvent(state, event);
+  // @NOTE: If you are planning to console.log state, note that state is actually a draft,
+  // the objects in it are Proxy objects. Use current(state) to get the actual state values,
+  // but please only do this for console logging or debugging purposes.
+  // See: https://stackoverflow.com/a/64653310/6090140
+  rotateEvent(state, incomingEvent);
   const events = mergeEvents(state.rotatingEvents);
   for (const event of events) {
+    if (event.entityClass !== incomingEvent.entityClass) return;
+    if (event.entityId !== incomingEvent.entityId) return;
     switch (event.entityClass) {
       case 'character':
         handleCharacterEvent(state, event);
@@ -52,6 +60,7 @@ function rotateEvent(
     createdAt: event.createdAt,
     data: event.data,
   };
+  // console.log('rotate event.data', event.data);
   state.rotatingEventIndex = nextIndex;
 }
 
@@ -65,33 +74,45 @@ function mergeEvents(
   events: StateEventJson[],
 ): StateEventJson[] {
   const merged: Record<string, StateEventJson> = {};
-  for (const event of events) {
+  const sortedEvents = [...events].sort((a, b) => a.createdAt - b.createdAt);
+  for (const event of sortedEvents) {
     const key = `${event.entityClass}-${event.entityId}`;
     if (!merged[key]) {
       merged[key] = { ...event };
     } else {
-      const existingEventIsOlder = merged[key].createdAt < event.createdAt;
-      const newestData = existingEventIsOlder ? event : merged[key];
-      const oldestData = existingEventIsOlder ? merged[key] : event;
       // Merge data if the event already exists
       merged[key].data = {
-        ...oldestData.data,
-        ...newestData.data,
+        ...merged[key].data,
+        ...event.data,
       };
+      merged[key].createdAt = event.createdAt;
     }
   }
   return Object.values(merged);
+}
+
+function missingEntityError(
+  event: StateEventJson,
+): void {
+  // @NOTE: This is safe, because it means we've never seen this entity before
+    // so when we call it via routes, it will be fully created with the latest updates.
+  console.warn(`Event for entity class ${event.entityClass} with ID ${event.entityId} not found in state, skipping event.`);
 }
 
 function handleCharacterEvent(
   state: PlayState,
   event: StateEventJson,
 ): void {
+  // console.log('Handling character event', event.data.private);
   if (eventIsStale(state.characters[event.entityId], event)) return;
+  // console.log('Not stale', event.data.private);
+  const json = state.characters[event.entityId];
+  if (!json) return missingEntityError(event);
+  const entity = characterFactory.clientJson(json);
+  entity.update(event.data as Partial<ClientCharacterJson>);
   state.characters[event.entityId] = {
-    ...state.characters[event.entityId],
-    ...event.data,
-    updatedAt: new Date(event.createdAt),
+    ...entity.clientJson(),
+    updatedAt: new Date(event.createdAt).getTime(),
   };
 }
 
@@ -103,7 +124,7 @@ function handleCampaignEvent(
   state.campaign = {
     ...state.campaign,
     ...event.data,
-    updatedAt: new Date(event.createdAt),
+    updatedAt: new Date(event.createdAt).getTime(),
   };
 }
 
@@ -111,5 +132,9 @@ function eventIsStale(
   entity: { updatedAt: number } | undefined | null,
   event: StateEventJson,
 ): boolean {
-  return !!entity && entity.updatedAt >= event.createdAt;
+  // @NOTE: We cannot assume an event that triggered relatively soon to be
+  // stale. It is possible that we received out of createdAt order two events
+  // of the same nature (i.e. a private and public event). So we have to give
+  // some (3 second) leeway here.
+  return !!entity && entity.updatedAt >= event.createdAt + 3000;
 }

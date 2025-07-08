@@ -28,7 +28,9 @@
   padding: 1rem 0rem;
   width: 100%;
   box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(var(--formWidth), 100%), 1fr));
+  grid-auto-rows: minmax(10rem, auto);
+  gap: 1rem;
+  max-width: 41rem;
 }

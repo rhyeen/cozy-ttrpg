@@ -34,7 +34,16 @@ export class PlayEventService extends Service{
       const eventRef = characterRef.collection('events').doc();
       batch.set(eventRef, event.storeJson());
     }
-    await batch.commit();
+    await Promise.all([
+      batch.commit(),
+      this.createPrivateGameMasterEvent(event),
+    ]);
+    return event;
+  }
+
+  private async createPrivateGameMasterEvent(event: PrivatePlayEvent): Promise<PrivatePlayEvent> {
+    const campaignRef = this.db.collection('campaigns').doc(event.pushTo.campaignId);
+    await campaignRef.collection('gm-events').add(event.storeJson());
     return event;
   }
 }

@@ -4,7 +4,7 @@ import styles from './Paragraph.module.css';
 interface ParagraphProps {
   children: React.ReactNode;
   align?: 'center';
-  type?: 'caption';
+  type?: 'caption' | 'overline';
 }
 
 const Paragraph: React.FC<ParagraphProps> = ({ children, align, type }) => {

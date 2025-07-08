@@ -2,16 +2,14 @@ import { firestore } from 'firebase-admin';
 import { Route } from './Route';
 import { CharacterService } from '../services/Character.service';
 import { type CallableRequest, HttpsError, type HttpsFunction } from 'firebase-functions/https';
-import { CharacterFactory, type ClientCharacterJson } from '@rhyeen/cozy-ttrpg-shared';
+import { type ClientCharacterJson } from '@rhyeen/cozy-ttrpg-shared';
 
 export class CharacterRoute extends Route {
   private service: CharacterService;
-  private factory: CharacterFactory;
   
   constructor(db: firestore.Firestore) {
     super(db);
     this.service = new CharacterService(db);
-    this.factory = new CharacterFactory();
   }
 
   public async getSelfCharacters(
@@ -47,25 +45,14 @@ export class CharacterRoute extends Route {
   public async updateCharacter(
     request: CallableRequest<any>,
   ): Promise<HttpsFunction> {
-    let characterJson: ClientCharacterJson;
-    try {
-      // @NOTE: Just to validate and scrub the character data
-      characterJson = this.factory.clientJson(request.data.character).clientJson();
-    } catch (error) {
-      throw new HttpsError('invalid-argument', 'Invalid character data');
-    }
     const data = {
-      character: characterJson,
-      event: request.data.event,
+      partialCharacterJson: request.data.character as Partial<ClientCharacterJson>,
     };
-    const character = await this.service.updateCharacter(
+    await this.service.updateCharacter(
       this.getUidFromRequest(request),
-      data.character,
+      data.partialCharacterJson,
       { playRequest: this.getPlayFromRequest(request) },
     );
-    if (!character) {
-      throw new HttpsError('not-found', 'Character not found');
-    }
-    return this.handleJsonResponse({ item: character.clientJson() });
+    return this.handleOkResponse();
   }
 }

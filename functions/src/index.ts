@@ -8,14 +8,14 @@ import { FriendConnectionRoute } from './routes/FriendConnection.route';
 import { CharacterRoute } from './routes/Character.route';
 import { PlayRoute } from './routes/Play.route';
 
-// Initialize Firebase Admin SDK
 initializeApp();
 
 const db = getFirestore();
 if (process.env.FUNCTIONS_EMULATOR) {
   db.settings({
-    host: "localhost:8080",
+    host: "localhost:8280",
     ssl: false,
+    ignoreUndefinedProperties: true,
   });
 }
 

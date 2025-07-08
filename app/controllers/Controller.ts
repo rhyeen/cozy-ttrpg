@@ -45,7 +45,7 @@ export class Controller {
     characterId: string | null;
   } {
     const playSession = sessionStorage.getItem('_play');
-    const parsed = JSON.parse(playSession || '');
+    const parsed = playSession ? JSON.parse(playSession) : null;
     if (parsed) {
       return {
         playId: parsed.playId || null,
