@@ -1,5 +1,5 @@
-import { Play, type Character, type ClientCharacterJson, type ClientPlayJson } from '@rhyeen/cozy-ttrpg-shared';
-import { characterFactory, playFactory } from '../utils/factories';
+import { Campaign, Play, type Character, type ClientCampaignJson, type ClientCharacterJson, type ClientPlayJson } from '@rhyeen/cozy-ttrpg-shared';
+import { campaignFactory, characterFactory, playFactory } from '../utils/factories';
 import { Controller } from './Controller';
 
 export class PlayController extends Controller {
@@ -35,11 +35,17 @@ export class PlayController extends Controller {
   public async startPlay(
     campaignId: string,
     characterId: string,
-  ): Promise<Play> {
+  ): Promise<{
+    play: Play;
+    campaign: Campaign;
+  }> {
     const result = await this.callFirebase<
       { campaignId: string, characterId: string },
-      { play: ClientPlayJson }
+      { play: ClientPlayJson, campaign: ClientCampaignJson }
     >('startPlay', { campaignId, characterId });
-    return playFactory.clientJson(result.play);
+    return {
+      play: playFactory.clientJson(result.play),
+      campaign: campaignFactory.clientJson(result.campaign),
+    };
   }
 }

@@ -3,16 +3,19 @@ import { Route } from './Route';
 import { PlayService } from '../services/Play.service';
 import { type CallableRequest, HttpsError, type HttpsFunction } from 'firebase-functions/https';
 import { CharacterService } from '../services/Character.service';
-import { Character } from '@rhyeen/cozy-ttrpg-shared';
+import { Character, PlayerScope } from '@rhyeen/cozy-ttrpg-shared';
+import { CampaignService } from '../services/Campaign.service';
 
 export class PlayRoute extends Route {
   private service: PlayService;
   private characterService: CharacterService;
+  private campaignService: CampaignService;
 
   constructor(db: firestore.Firestore) {
     super(db);
     this.service = new PlayService(db);
     this.characterService = new CharacterService(db);
+    this.campaignService = new CampaignService(db);
   }
 
   public async setSelfPlay(
@@ -44,17 +47,30 @@ export class PlayRoute extends Route {
     if (!data.campaignId) {
       throw new HttpsError('invalid-argument', 'Campaign ID is required');
     }
-    const plays = await this.service.getCampaignPlays(
-      this.getUidFromRequest(request),
-      `${data.campaignId}`
-    );
+    const [ plays, campaign ] = await Promise.all([
+      this.service.getCampaignPlays(
+        this.getUidFromRequest(request),
+        `${data.campaignId}`
+      ),
+      this.campaignService.getCampaign(
+        `${data.campaignId}`,
+        this.getUidFromRequest(request),
+      )
+    ]);
+    const thisPlayer = campaign?.players.find(p => p.uid === this.getUidFromRequest(request));
+    const thisPlayerIsGM = thisPlayer?.scopes.includes(PlayerScope.GameMaster);
     const characters = await Promise.all(
       plays.map(play => this.characterService.getCharacter(play.characterId))
     );
     const filteredCharacters = characters.filter(character => character !== null) as Character[];
     return this.handleJsonResponse({
       plays: plays.map(play => play.clientJson()),
-      characters: filteredCharacters.map(character => character.clientJson()),
+      characters: filteredCharacters.map(character => {
+        if (!thisPlayerIsGM && character.uid !== thisPlayer?.uid) {
+          character.private = {};
+        }
+        return character.clientJson();
+      }),
     });
   }
 
@@ -71,11 +87,14 @@ export class PlayRoute extends Route {
     if (!data.campaignId) {
       throw new HttpsError('invalid-argument', 'Campaign ID is required');
     }
-    const play = await this.service.startPlay(
+    const res = await this.service.startPlay(
       data.campaignId,
       this.getUidFromRequest(request),
       data.characterId,
     );
-    return this.handleJsonResponse({ play: play.clientJson() });
+    return this.handleJsonResponse({
+      play: res.play.clientJson(),
+      campaign: res.campaign.clientJson(),
+    });
   }
 }

@@ -3,6 +3,6 @@
   flex-direction: column;
   justify-content: space-between;
   width: 100%;
-  max-width: 20rem;
+  max-width: var(--formWidth);
   row-gap: 1rem; /* Adjust the gap as needed */
 }

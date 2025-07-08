@@ -13,5 +13,11 @@ service cloud.firestore {
       allow read: if request.auth.uid == playerUid;
       allow write: if false; // only backend writes these
     }
+
+    // Private events are readable to all game masters in the game—a duplicate of player-specific branches
+    match /campaigns/{campaignId}/gm-events/{eventId} {
+      allow read: if exists(/databases/$(db)/documents/campaigns/$(campaignId)/gms/$(request.auth.uid));
+      allow write: if false; // only backend writes these
+    }
   }
 }

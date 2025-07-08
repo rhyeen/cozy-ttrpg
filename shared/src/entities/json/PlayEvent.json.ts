@@ -10,6 +10,7 @@ export interface RootPlayEventJson {
   operation: PlayEventOperation;
   entityClass: string;
   entityId: string;
+  createdBy: string;
 }
 
 export interface PublicPlayEventPushTo {

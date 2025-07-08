@@ -4,7 +4,7 @@
   background: none;
   border: none;
   box-sizing: border-box;
-  max-width: 20rem;
+  max-width: var(--formWidth);
 }
 
 .wrapper.noTextWrap {

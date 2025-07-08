@@ -133,6 +133,7 @@ export class CampaignService extends Service{
       throw new Error('Campaign must have at least one player');
     }
     await campaignRef.collection('players').doc(uid).set(newCampaign.players[0].storeJson());
+    await campaignRef.collection('gms').doc(uid).set({ uid, updatedAt: new Date() });
     return newCampaign;
   }
 
@@ -202,7 +203,10 @@ export class CampaignService extends Service{
       campaignRef.update({
         players_uids: FieldValue.arrayUnion(playerUid),
       }),
-      campaignRef.collection('players').doc(playerUid).set(newPlayer.storeJson())
+      campaignRef.collection('players').doc(playerUid).set(newPlayer.storeJson()),
+      newPlayer.scopes.includes(PlayerScope.GameMaster) ?
+        campaignRef.collection('gms').doc(playerUid).set({ uid: playerUid, updatedAt: new Date() }) :
+        undefined
     ]);
     return newPlayer;
   }
@@ -275,7 +279,12 @@ export class CampaignService extends Service{
     }
     player.scopes = scopes;
     const campaignRef = this.db.collection('campaigns').doc(campaignId);
-    await campaignRef.collection('players').doc(playerUid).set(player.storeJson());
+    await Promise.all([
+      campaignRef.collection('players').doc(playerUid).set(player.storeJson()),
+      player.scopes.includes(PlayerScope.GameMaster) ?
+        campaignRef.collection('gms').doc(playerUid).set({ uid: playerUid, updatedAt: new Date() }) :
+        campaignRef.collection('gms').doc(playerUid).delete(),
+    ]);
     return player;
   }
 
@@ -315,6 +324,7 @@ export class CampaignService extends Service{
         players_uids: FieldValue.arrayRemove(playerUid),
       }),
       campaignRef.collection('players').doc(playerUid).delete(),
+      campaignRef.collection('gms').doc(playerUid).delete(),
     ]);
   }
 }

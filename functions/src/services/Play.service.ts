@@ -1,6 +1,6 @@
 import { firestore } from 'firebase-admin';
 import { Service } from './Service';
-import { Play, PlayFactory, type StorePlayJson, PlayerScope } from '@rhyeen/cozy-ttrpg-shared';
+import { Play, PlayFactory, type StorePlayJson, PlayerScope, Campaign } from '@rhyeen/cozy-ttrpg-shared';
 import { HttpsError } from 'firebase-functions/https';
 import { CampaignService } from './Campaign.service';
 import { CharacterService } from './Character.service';
@@ -41,15 +41,26 @@ export class PlayService extends Service{
     uid: string,
     campaignId: string,
   ): Promise<Play[]> {
-    const snapshot = await this.db.collection('campaigns').doc(campaignId)
-      .collection('players').doc(uid)
-      .collection('characters').get();
-    if (snapshot.empty) {
+    const playersSnapshot = await this.db.collection('campaigns').doc(campaignId)
+      .collection('players').get();
+    if (playersSnapshot.empty) {
       return [];
     }
-    const playJsons = snapshot.docs.map(doc => {
-      return doc.data() as StorePlayJson;
-    });
+    if (!playersSnapshot.docs.find(doc => doc.id === uid)) {
+      return [];
+    }
+    const characterSnapshots = await Promise.all(
+      playersSnapshot.docs.map(async doc => this.db.collection('campaigns').doc(campaignId)
+      .collection('players').doc(doc.id)
+      .collection('characters').get())
+    );
+    const playJsons = characterSnapshots.map(snapshot => {
+      if (snapshot.empty) {
+        return [];
+      }
+      return snapshot.docs.map(doc => doc.data() as StorePlayJson);
+    }).flat();
+
     return playJsons.map(playJson => this.factory.storeJson(playJson));
   }
 
@@ -121,10 +132,16 @@ export class PlayService extends Service{
     campaignId: string,
     uid: string,
     characterId: string,
-  ): Promise<Play> {
-    const play = await this.getPlay(campaignId, uid, characterId);
+  ): Promise<{ play: Play, campaign: Campaign }> {
+    const [play, campaign] = await Promise.all([
+      this.getPlay(campaignId, uid, characterId),
+      this.campaignService.getCampaign(campaignId),
+    ]);
     if (!play) {
       throw new HttpsError('not-found', 'Play not found');
+    }
+    if (!campaign) {
+      throw new HttpsError('not-found', 'Campaign not found');
     }
     if (play.doc.uid !== uid) {
       throw new HttpsError('permission-denied', 'User does not own the play');
@@ -132,6 +149,9 @@ export class PlayService extends Service{
     await this.db.collection(play.ref.parent.path).doc(play.ref.id).update({
       lastPlayedAt: new Date(),
     });
-    return play.doc;
+    return {
+      play: play.doc,
+      campaign: campaign,
+    };
   }
 }

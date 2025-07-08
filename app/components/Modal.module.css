@@ -19,7 +19,7 @@
 
 .formMax.popup {
   /* 20rem is normal form + 2 for the padding */
-  min-width: calc(20rem + 2rem);
+  min-width: calc(var(--formWidth) + 2rem);
 }
 
 .popup {
@@ -28,7 +28,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  min-width: 20rem;
+  min-width: var(--formWidth);
   max-width: calc(100vw - 4rem);
   padding: 1rem;
   border-radius: 1rem;

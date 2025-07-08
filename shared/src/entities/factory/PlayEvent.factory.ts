@@ -7,6 +7,7 @@ export class PublicPlayEventFactory extends EntityFactory<
 > {
   private rootJson(json: ClientPublicPlayEventJson | StorePublicPlayEventJson): PublicPlayEvent {
     return new PublicPlayEvent(
+      json.createdBy,
       json.operation,
       json.entityClass,
       json.entityId,
@@ -31,6 +32,7 @@ export class PrivatePlayEventFactory extends EntityFactory<
 > {
   private rootJson(json: ClientPrivatePlayEventJson | StorePrivatePlayEventJson): PrivatePlayEvent {
     return new PrivatePlayEvent(
+      json.createdBy,
       json.operation,
       json.entityClass,
       json.entityId,

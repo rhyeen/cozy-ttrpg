@@ -2,7 +2,7 @@ import { collection, onSnapshot, orderBy, query, where } from "firebase/firestor
 import { firestore } from '../firebase';
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { copyDate, type StorePrivatePlayEventJson, type StorePublicPlayEventJson } from '@rhyeen/cozy-ttrpg-shared';
+import { type StorePrivatePlayEventJson, type StorePublicPlayEventJson } from '@rhyeen/cozy-ttrpg-shared';
 import { campaignController, playController } from '../controller';
 import { playEventActions } from 'app/store/playEvent.slice';
 import { privatePlayEventFactory, publicPlayEventFactory } from '../factories';
@@ -11,12 +11,14 @@ export function usePlayEventSnapshot(
   campaignId: string,
   uid: string,
   characterId: string,
+  isGameMaster: boolean,
 ): void {
   const dispatch = useDispatch();
   const [ loading, setLoading ] = useState<{
     campaignId: string;
     uid: string;
     characterId: string;
+    isGameMaster: boolean;
   } | null>(null);
 
   const onPublicEventSnapshot = () => {
@@ -53,6 +55,27 @@ export function usePlayEventSnapshot(
     });
   };
 
+  const onPrivateGameMasterEventSnapshot = () => {
+    const eventsRef = collection(firestore, "campaigns", campaignId, "gm-events");
+    // @NOTE: Don't get events that are older than 1 minute
+    const eventsQuery = query(
+      eventsRef,
+      where("createdAt" , ">=", new Date(new Date().getTime() - (60 * 1000))),
+    );
+    return onSnapshot(eventsQuery, snap => {
+      snap.docChanges().forEach(change => {
+        const data = change.doc.data() as StorePrivatePlayEventJson;
+        data.id = change.doc.id;
+        if (data.createdBy === uid) {
+          // Skip events created by the current user, as they are already handled in the private event
+          return;
+        }
+        const event = privatePlayEventFactory.storeJson(data);
+        dispatch(playEventActions.addPrivateEvent(event.clientJson()));
+      });
+    });
+  };
+
   const getCampaign = async () => {
     const result = await campaignController.getCampaigns();
     const campaign = result.find(campaign => campaign.id === campaignId);
@@ -78,12 +101,13 @@ export function usePlayEventSnapshot(
     if (
       campaignId === loading?.campaignId &&
       characterId === loading?.characterId &&
-      uid === loading?.uid
+      uid === loading?.uid &&
+      isGameMaster === loading?.isGameMaster
     ) {
       return;
     }
-    setLoading({ campaignId, uid, characterId });
-  }, [campaignId, uid, characterId]);
+    setLoading({ campaignId, uid, characterId, isGameMaster: isGameMaster || false });
+  }, [campaignId, uid, characterId, isGameMaster]);
 
   /**
    * We do this funky bit of logic for two reasons: to prevent subscribing
@@ -97,18 +121,23 @@ export function usePlayEventSnapshot(
     if (
       campaignId !== loading.campaignId ||
       characterId !== loading.characterId ||
-      uid !== loading.uid
+      uid !== loading.uid ||
+      isGameMaster !== loading.isGameMaster
     ) {
       return;
     }
     console.info('Subscribing to play snapshots for campaign:', campaignId, 'character:', characterId);
     const unsubscribePublic = onPublicEventSnapshot();
     const unsubscribePrivate = onPrivateEventSnapshot();
+    let unsubscribePrivateGameMaster = isGameMaster ?
+      onPrivateGameMasterEventSnapshot() :
+      () => {};
     initializeEntities();
     return () => {
       console.info('Unsubscribing from play snapshots.');
       unsubscribePublic();
       unsubscribePrivate();
+      unsubscribePrivateGameMaster();
     };
   }, [loading]);
 }

@@ -6,13 +6,16 @@ export class CharacterFactory extends EntityFactory<
   Character, StoreCharacterJson, ClientCharacterJson, undefined, undefined
 > {
   private rootJson(json: ClientCharacterJson | StoreCharacterJson): Character {
-    return new Character(
+    const root = new Character(
       json.id,
       json.uid,
       json.name,
       json.nickname,
       json,
     );
+    root.background = json.background;
+    root.private.background = json.private?.background;
+    return root;
   }
 
   public storeJson(json: StoreCharacterJson): Character {

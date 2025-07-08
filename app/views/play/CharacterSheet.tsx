@@ -4,9 +4,12 @@ import Form from 'app/components/Form';
 import Header from 'app/components/Header';
 import IconButton from 'app/components/IconButton';
 import ArrowBackIcon from 'app/components/Icons/ArrowBack';
+import HistoryEduIcon from 'app/components/Icons/HistoryEdu';
 import ReceiptLongIcon from 'app/components/Icons/ReceiptLong';
 import type { SaveState } from 'app/components/Icons/SaveState';
 import Input from 'app/components/Input';
+import InputMultiLine from 'app/components/InputMultiLine';
+import Menu from 'app/components/Menu';
 import Modal from 'app/components/Modal';
 import Paragraph from 'app/components/Paragraph';
 import Section from 'app/components/Section';
@@ -26,6 +29,10 @@ interface Props {
   onClose?: () => void;
 }
 
+enum Tab {
+  Background = 'background',
+}
+
 export const CharacterSheet: React.FC<Props> = ({
   character,
   onClose,
@@ -39,6 +46,12 @@ export const CharacterSheet: React.FC<Props> = ({
   const [nickname, setNickname] = useState('');
   const [nicknameError, setNicknameError] = useState<string | null>(null);
   const [nicknameSaveState, setNicknameSaveState] = useState<SaveState>('hide');
+  const [background, setBackground] = useState(character.background || '');
+  const [backgroundError, setBackgroundError] = useState<string | null>(null);
+  const [backgroundSaveState, setBackgroundSaveState] = useState<SaveState>('hide');
+  const [privateBackground, setPrivateBackground] = useState(character.private.background || '');
+  const [privateBackgroundError, setPrivateBackgroundError] = useState<string | null>(null);
+  const [privateBackgroundSaveState, setPrivateBackgroundSaveState] = useState<SaveState>('hide');
 
   const [name, setName] = useState('');
   const [nameError, setNameError] = useState<string | null>(null);
@@ -47,6 +60,14 @@ export const CharacterSheet: React.FC<Props> = ({
   const friend = useFindFriend(character.uid, friendConnections, friendUsers);
   const selfIsCharacter = character.uid === firebaseUser?.uid;
   const selfAsPlayer = campaign?.players.find((p) => p.uid === firebaseUser?.uid);
+  const [tab, setTab] = useState<Tab>(Tab.Background);
+  const tabItems = [
+    {
+      label: 'Background',
+      value: Tab.Background,
+      icon: <HistoryEduIcon />,
+    },
+  ];
   const isPlaying = useIsPlaying();
 
   const canEdit = (
@@ -57,23 +78,57 @@ export const CharacterSheet: React.FC<Props> = ({
   useEffect(() => {
     setNickname(character.nickname || '');
     setName(character.name || '');
+    setBackground(character.background || '');
+    setPrivateBackground(character.private.background || '');
   }, [character]);
 
-  const editCharacterHandler = async (saving: 'nickname' | 'name') => {
-    const setSaveState = saving === 'nickname' ? setNicknameSaveState : setNameSaveState;
-    const errorState = saving === 'nickname' ? setNicknameError : setNameError;
-    if (saving === 'nickname' && nickname === character.nickname) {
-      return;
+  const editCharacterHandler = async (
+    saving: 'nickname' | 'name' | 'background' | 'privateBackground',
+  ) => {
+    let setSaveState;
+    let errorState;
+    switch (saving) {
+      case 'background':
+        setSaveState = setBackgroundSaveState;
+        errorState = setBackgroundError;
+        break;
+      case 'nickname':
+        setSaveState = setNicknameSaveState;
+        errorState = setNicknameError;
+        break;
+      case 'name':
+        setSaveState = setNameSaveState;
+        errorState = setNameError;
+        break;
+      case 'privateBackground':
+        setSaveState = setPrivateBackgroundSaveState;
+        errorState = setPrivateBackgroundError;
+        break;
+      default:
+        throw new Error('Invalid saving type');
     }
-    if (saving === 'name' && name === character.name) {
-      return;
-    }
+    if (saving === 'nickname' && nickname === character.nickname) return;
+    if (saving === 'name' && name === character.name) return;
+    if (saving === 'background' && background === character.background) return;
     setSaveState('saving');
     try {
       const updatedCharacter = character.copy();
-      updatedCharacter.name = name.trim();
-      updatedCharacter.nickname = nickname.trim();
-      await characterController.updateCharacter(updatedCharacter);
+      if (name.trim() !== character.name || '') {
+        updatedCharacter.name = name.trim();
+      }
+      if (nickname.trim() !== character.nickname || '') {
+        updatedCharacter.nickname = nickname.trim();
+      }
+      if (background.trim() !== character.background || '') {
+        updatedCharacter.background = background.trim();
+      }
+      if (privateBackground.trim() !== character.private.background || '') {
+        updatedCharacter.private.background = privateBackground.trim();
+      }
+      await characterController.updateCharacter(
+        updatedCharacter,
+        character,
+      );
       onCharacterUpdate(updatedCharacter);
       setSaveState('success');
     } catch (error) {
@@ -87,12 +142,14 @@ export const CharacterSheet: React.FC<Props> = ({
     }
   };
 
+  
+
   return (
     <>
       <Section>
         <Paragraph type="overline">Character Sheet</Paragraph>
         <Header
-          type="h1"
+          type="h2"
           ignoreUppercase
           iconLeft={onClose ? (
             <IconButton onClick={onClose}>
@@ -108,7 +165,36 @@ export const CharacterSheet: React.FC<Props> = ({
           {character.name || 'Unnamed Character'}
           {character.nickname ? ` (${character.nickname})` : ''}
         </Header>
+        <Menu
+          icon={tabItems.find(t => t.value === tab)?.icon}
+          text={{ trigger: tabItems.find(t => t.value === tab)?.label || '???' }}
+          items={tabItems}
+        />
       </Section>
+      {tab === Tab.Background &&
+        <Section>
+          <InputMultiLine
+            label="Public Background"
+            value={background}
+            onChange={(e) => setBackground(e.target.value)}
+            onBlur={() => editCharacterHandler('background')}
+            saveState={backgroundSaveState}
+            onStateChange={setBackgroundSaveState}
+            error={backgroundError}
+            readOnly={!canEdit}
+          />
+          <InputMultiLine
+            label="Private Background"
+            value={privateBackground}
+            onChange={(e) => setPrivateBackground(e.target.value)}
+            onBlur={() => editCharacterHandler('privateBackground')}
+            saveState={privateBackgroundSaveState}
+            onStateChange={setPrivateBackgroundSaveState}
+            error={privateBackgroundError}
+            readOnly={!canEdit}
+          />
+        </Section>
+      }
       <Modal
         title={canEdit ? 'Edit Character Name' : 'Character Name'}
         secondaryBtn
