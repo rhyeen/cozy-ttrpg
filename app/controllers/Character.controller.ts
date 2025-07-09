@@ -31,7 +31,10 @@ export class CharacterController extends Controller {
       { character: Partial<ClientCharacterJson> },
       undefined
     >('updateCharacter', {
-      character: updatedCharacter.clientPartialJson(originalCharacter),
+      character: {
+        id: originalCharacter.id,
+        ...updatedCharacter.clientPartialJson(originalCharacter),
+      },
     });
   }
 

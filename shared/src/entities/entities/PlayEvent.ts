@@ -244,7 +244,9 @@ export class FullPlayEvent extends PlayEvent<StoreFullPlayEventJson, ClientFullP
     );
   }
 
-  public extractPublic(): PublicPlayEvent {
+  public extractPublic(): PublicPlayEvent | null {
+    const publicPushTo = this.publicPushToJson();
+    if (!publicPushTo || !this.publicData) return null;
     return new PublicPlayEvent(
       this.createdBy,
       this.operation,

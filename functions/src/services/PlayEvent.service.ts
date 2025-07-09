@@ -12,9 +12,10 @@ export class PlayEventService extends Service{
   public async addEvent(event: FullPlayEvent | undefined | null): Promise<FullPlayEvent | null> {
     if (!event) return null;
     let privatePlayEvent = event.extractPrivate();
+    let publicPlayEvent = event.extractPublic();
     await Promise.all([
       privatePlayEvent ? this.createPrivateEvent(privatePlayEvent) : undefined,
-      this.createPublicEvent(event.extractPublic()),
+      publicPlayEvent ? this.createPublicEvent(event.extractPublic()) : undefined,
     ]);
     return event;
   }

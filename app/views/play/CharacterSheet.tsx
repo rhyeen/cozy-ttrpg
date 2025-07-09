@@ -33,19 +33,20 @@ enum Tab {
   Background = 'background',
 }
 
-export const CharacterSheet: React.FC<Props> = ({
-  character,
-  onClose,
-  onCharacterUpdate,
-  friendUsers,
-  friendConnections,
-  campaign,
-}) => {
+export const CharacterSheet: React.FC<Props> = (props: Props) => {
+  const {
+    onClose,
+    onCharacterUpdate,
+    friendUsers,
+    friendConnections,
+    campaign,
+  } = props;
   const toastManager = Toast.useToastManager();
   const [viewNameDetails, setViewNameDetails] = useState(false);
-  const [nickname, setNickname] = useState('');
+  const [nickname, setNickname] = useState(props.character.nickname || '');
   const [nicknameError, setNicknameError] = useState<string | null>(null);
   const [nicknameSaveState, setNicknameSaveState] = useState<SaveState>('hide');
+  const [character, setCharacter] = useState<Character>(props.character);
   const [background, setBackground] = useState(character.background || '');
   const [backgroundError, setBackgroundError] = useState<string | null>(null);
   const [backgroundSaveState, setBackgroundSaveState] = useState<SaveState>('hide');
@@ -53,7 +54,7 @@ export const CharacterSheet: React.FC<Props> = ({
   const [privateBackgroundError, setPrivateBackgroundError] = useState<string | null>(null);
   const [privateBackgroundSaveState, setPrivateBackgroundSaveState] = useState<SaveState>('hide');
 
-  const [name, setName] = useState('');
+  const [name, setName] = useState(character.name || '');
   const [nameError, setNameError] = useState<string | null>(null);
   const [nameSaveState, setNameSaveState] = useState<SaveState>('hide');
   const firebaseUser = useSelector(selectFirebaseUser);
@@ -76,11 +77,21 @@ export const CharacterSheet: React.FC<Props> = ({
   );
 
   useEffect(() => {
-    setNickname(character.nickname || '');
-    setName(character.name || '');
-    setBackground(character.background || '');
-    setPrivateBackground(character.private.background || '');
-  }, [character]);
+    setNickname(props.character.nickname || '');
+    setName(props.character.name || '');
+    setBackground(props.character.background || '');
+    // @NOTE: We need this check for any fields that are private because we could
+    // receive both a private and public version of the event. If the public one comes in first,
+    // and we were the one that wrote the data that triggered the event, then the value we
+    // have in the field will be overwritten by the newly updated character, which does not
+    // yet have the private data set. So we don't update what we wrote in the field, if we
+    // were the one that wrote it. Give the private event time to catch up and it will all
+    // sync up anyway.
+    if (character.private.background === privateBackground) {
+      setPrivateBackground(props.character.private.background || '');
+    }
+    setCharacter(props.character);
+  }, [props.character]);
 
   const editCharacterHandler = async (
     saving: 'nickname' | 'name' | 'background' | 'privateBackground',
@@ -129,7 +140,7 @@ export const CharacterSheet: React.FC<Props> = ({
         updatedCharacter,
         character,
       );
-      onCharacterUpdate(updatedCharacter);
+      if (!isPlaying) onCharacterUpdate(updatedCharacter);
       setSaveState('success');
     } catch (error) {
       console.error('Error updating character:', error);

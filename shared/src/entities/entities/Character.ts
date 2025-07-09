@@ -42,7 +42,8 @@ export class Character extends DocumentEntity<StoreCharacterJson, ClientCharacte
 
   private rootPartialJson(diff: Character): Partial<RootCharacterJson> {
     return {
-      id: this.id,
+      // @NOTE: Because the ID is immutable, we should never include it.
+      id: undefined,
       uid: diff.uid !== this.uid ? this.uid : undefined,
       name: diff.name !== this.name ? this.name : undefined,
       nickname: diff.nickname !== this.nickname ? this.nickname : undefined,
