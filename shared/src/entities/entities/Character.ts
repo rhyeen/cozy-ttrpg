@@ -1,17 +1,26 @@
 import type { DocumentJson } from '../json/Json';
-import type { ClientCharacterJson, RootCharacterJson, StoreCharacterJson } from '../json/Character.json';
+import type { ClientCharacterJson, PartialClientCharacterJson, PartialRootCharacterJson, PartialStoreCharacterJson, RootCharacterJson, StoreCharacterJson } from '../json/Character.json';
 import { DocumentEntity, removeUndefinedFields } from './Entity';
 import { generateId } from '../../utils/idGenerator';
+import { StorageImage } from './StorageFile';
 
-export class Character extends DocumentEntity<StoreCharacterJson, ClientCharacterJson> {
+export class Character extends DocumentEntity<
+StoreCharacterJson,
+ClientCharacterJson,
+PartialStoreCharacterJson,
+PartialClientCharacterJson
+> {
   public id: string;
-  public name?: string;
-  public nickname?: string;
+  public name: string;
+  public nickname: string;
   public uid: string;
-  public background?: string;
+  public background: string | null = null;
   public private: {
-    background?: string;
-  } = {};
+    background: string | null;
+  } = {
+    background: null,
+  };
+  public profileImage: StorageImage | null = null;
 
   constructor(
     id: string,
@@ -23,8 +32,8 @@ export class Character extends DocumentEntity<StoreCharacterJson, ClientCharacte
     super(documentJson);
     this.id = id;
     this.uid = uid;
-    this.name = name;
-    this.nickname = nickname;
+    this.name = name || '';
+    this.nickname = nickname || '';
   }
 
   private rootJson(): RootCharacterJson {
@@ -35,12 +44,13 @@ export class Character extends DocumentEntity<StoreCharacterJson, ClientCharacte
       nickname: this.nickname || '',
       background: this.background,
       private: {
-        background: this.private.background,
+        background: this.private.background || null,
       },
+      profileImage: this.profileImage?.json() || null,
     };
   }
 
-  private rootPartialJson(diff: Character): Partial<RootCharacterJson> {
+  private rootPartialJson(diff: Character): PartialRootCharacterJson {
     return {
       // @NOTE: Because the ID is immutable, we should never include it.
       id: undefined,
@@ -52,10 +62,11 @@ export class Character extends DocumentEntity<StoreCharacterJson, ClientCharacte
         background: diff.private.background !== this.private.background ?
           this.private.background : undefined,
       },
+      profileImage: StorageImage.partialJson(this.profileImage, diff.profileImage),
     };
   }
 
-  public override update(updates: Partial<ClientCharacterJson>): void {
+  public override update(updates: PartialClientCharacterJson): void {
     // @NOTE: There are several fields that are not allowed to be updated
     if (updates.name !== undefined) this.name = updates.name;
     if (updates.nickname !== undefined) this.nickname = updates.nickname;
@@ -79,14 +90,14 @@ export class Character extends DocumentEntity<StoreCharacterJson, ClientCharacte
     };
   }
 
-  public override storePartialJson(diff: Character): Partial<StoreCharacterJson> {
+  public override storePartialJson(diff: Character): PartialStoreCharacterJson {
     return removeUndefinedFields({
       ...this.rootPartialJson(diff),
       ...this.storePartialDocumentJson(diff),
     });
   }
 
-  public override clientPartialJson(diff: Character): Partial<ClientCharacterJson> {
+  public override clientPartialJson(diff: Character): PartialClientCharacterJson {
     return removeUndefinedFields({
       ...this.rootPartialJson(diff),
       ...this.clientPartialDocumentJson(diff),

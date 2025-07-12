@@ -1,4 +1,4 @@
-import type { Character, ClientCharacterJson } from '@rhyeen/cozy-ttrpg-shared';
+import type { Character, ClientCharacterJson, PartialClientCharacterJson } from '@rhyeen/cozy-ttrpg-shared';
 import { characterFactory } from '../utils/factories';
 import { Controller } from './Controller';
 
@@ -28,7 +28,7 @@ export class CharacterController extends Controller {
     originalCharacter: Character,
   ): Promise<void> {
     await this.callFirebase<
-      { character: Partial<ClientCharacterJson> },
+      { character: PartialClientCharacterJson },
       undefined
     >('updateCharacter', {
       character: {

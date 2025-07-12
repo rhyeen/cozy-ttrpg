@@ -1,21 +1,30 @@
-import type { ClientDocumentJson, DocumentJson, StoreDocumentJson } from '../json/Json';
+import type { ClientDocumentJson, DocumentJson, PartialClientDocumentJson, PartialStoreDocumentJson, StoreDocumentJson } from '../json/Json';
 
-export abstract class Entity<StoreJsonT, ClientJsonT> {
+export abstract class Entity<
+StoreJsonT,
+ClientJsonT,
+PartialStoreJsonT,
+PartialClientJsonT
+> {
   public abstract storeJson(): StoreJsonT;
   public abstract clientJson(): ClientJsonT;
 
   /**
    * Compares the current entity with the provided diff entity and returns only the fields that have changed.
    */
-  public storePartialJson(diff: Entity<StoreJsonT, ClientJsonT>): Partial<StoreJsonT> {
-    return this.storeJson();
+  public storePartialJson(
+    diff: Entity<StoreJsonT, ClientJsonT, PartialStoreJsonT, PartialClientJsonT>,
+  ): PartialStoreJsonT {
+    return this.storeJson() as any as PartialStoreJsonT;
   }
 
   /**
    * Compares the current entity with the provided diff entity and returns only the fields that have changed.
    */
-  public clientPartialJson(diff: Entity<StoreJsonT, ClientJsonT>): Partial<ClientJsonT> {
-    return this.clientJson();
+  public clientPartialJson(
+    diff: Entity<StoreJsonT, ClientJsonT, PartialStoreJsonT, PartialClientJsonT>
+  ): PartialClientJsonT {
+    return this.clientJson() as any as PartialClientJsonT;
   }
 
   /**
@@ -26,7 +35,7 @@ export abstract class Entity<StoreJsonT, ClientJsonT> {
     throw new Error('Not implemented: This entity does not support partial updates');
   }
 
-  public abstract copy(): Entity<StoreJsonT, ClientJsonT>;
+  public abstract copy(): Entity<StoreJsonT, ClientJsonT, PartialStoreJsonT, PartialClientJsonT>;
 }
 
 export function copyDate(
@@ -96,7 +105,7 @@ export function splitPrivatePublicJson(
   return { public: publicJson, private: privateJson };
 }
 
-export abstract class EntityFactory<T extends Entity<StoreJsonT, ClientJsonT>, StoreJsonT, ClientJsonT, StoreOtherT, ClientOtherT> {
+export abstract class EntityFactory<T extends Entity<StoreJsonT, ClientJsonT, PartialStoreJsonT, PartialClientJsonT>, StoreJsonT, ClientJsonT, StoreOtherT, ClientOtherT, PartialStoreJsonT, PartialClientJsonT> {
   public abstract storeJson(json: StoreJsonT, other: StoreOtherT): T;
   public abstract clientJson(json: ClientJsonT, other: ClientOtherT): T;
 
@@ -110,9 +119,11 @@ export abstract class EntityFactory<T extends Entity<StoreJsonT, ClientJsonT>, S
 }
 
 export abstract class DocumentEntity<
-  StoreJsonT extends DocumentJson,
-  ClientJsonT extends DocumentJson
-> extends Entity<StoreJsonT, ClientJsonT> {
+  StoreJsonT extends StoreDocumentJson,
+  ClientJsonT extends ClientDocumentJson,
+  PartialStoreJsonT extends PartialStoreDocumentJson | undefined,
+  PartialClientJsonT extends PartialClientDocumentJson | undefined
+> extends Entity<StoreJsonT, ClientJsonT, PartialStoreJsonT, PartialClientJsonT> {
   public createdAt: Date;
   public updatedAt: Date;
   public deletedAt: Date | null;
@@ -133,9 +144,8 @@ export abstract class DocumentEntity<
   }
 
   protected clientPartialDocumentJson(
-    diff: DocumentEntity<StoreJsonT, ClientJsonT>,
-  ): Partial<ClientDocumentJson> {
-
+    diff: DocumentEntity<StoreJsonT, ClientJsonT, PartialStoreJsonT, PartialClientJsonT>,
+  ): PartialClientDocumentJson {
     return {
       createdAt: diff.createdAt.getTime() !== this.createdAt.getTime() ?
         copyDate(this.createdAt).getTime() : undefined,
@@ -156,8 +166,8 @@ export abstract class DocumentEntity<
   }
 
   protected storePartialDocumentJson(
-    diff: DocumentEntity<StoreJsonT, ClientJsonT>,
-  ): Partial<StoreDocumentJson> {
+    diff: DocumentEntity<StoreJsonT, ClientJsonT, PartialStoreJsonT, PartialClientJsonT>,
+  ): PartialStoreDocumentJson {
     return {
       createdAt: diff.createdAt.getTime() !== this.createdAt.getTime() ?
         copyDate(this.createdAt) : undefined,

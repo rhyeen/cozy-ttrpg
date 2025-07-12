@@ -3,7 +3,7 @@ import { Play } from '../entities/Play';
 import type { ClientPlayJson, StorePlayJson } from '../json/Play.json';
 
 export class PlayFactory extends EntityFactory<
-  Play, StorePlayJson, ClientPlayJson, undefined, undefined
+  Play, StorePlayJson, ClientPlayJson, undefined, undefined, undefined, undefined
 > {
   private rootJson(json: ClientPlayJson | StorePlayJson): Play {
     return new Play(

@@ -4,7 +4,12 @@ import { generateId } from '../../utils/idGenerator';
 import { Play } from './Play';
 import { DocumentJson } from '../json/Json';
 
-export class Player extends Entity<StorePlayerJson, ClientPlayerJson> {
+export class Player extends Entity<
+StorePlayerJson,
+ClientPlayerJson,
+undefined,
+undefined
+> {
   public uid: string;
   public scopes: PlayerScope[];
   public invitedBy: string;
@@ -57,7 +62,12 @@ export class Player extends Entity<StorePlayerJson, ClientPlayerJson> {
   }
 }
 
-export class Campaign extends DocumentEntity<StoreCampaignJson, ClientCampaignJson> {
+export class Campaign extends DocumentEntity<
+  StoreCampaignJson,
+  ClientCampaignJson,
+  undefined,
+  undefined
+> {
   public players: Player[];
   public plays: Play[];
   public name: string;

@@ -1,7 +1,12 @@
 import { ClientFullPlayEventJson, ClientPrivatePlayEventJson, ClientPublicPlayEventJson, PlayEventOperation, RootFullPlayEventJson, RootPrivatePlayEventJson, RootPublicPlayEventJson, StoreFullPlayEventJson, StorePrivatePlayEventJson, StorePublicPlayEventJson, type PrivatePlayEventPushTo, type PublicPlayEventPushTo,type RootPlayEventJson } from '../json/PlayEvent.json';
 import { copyDate, Entity } from './Entity';
 
-export abstract class PlayEvent<StoreJson, ClientJson> extends Entity<StoreJson, ClientJson> {
+export abstract class PlayEvent<StoreJson, ClientJson> extends Entity<
+StoreJson,
+ClientJson,
+undefined,
+undefined
+> {
   public id: string;
   public operation: PlayEventOperation;
   public entityId: string;

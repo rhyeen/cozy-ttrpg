@@ -15,7 +15,7 @@ export class PlayEventService extends Service{
     let publicPlayEvent = event.extractPublic();
     await Promise.all([
       privatePlayEvent ? this.createPrivateEvent(privatePlayEvent) : undefined,
-      publicPlayEvent ? this.createPublicEvent(event.extractPublic()) : undefined,
+      publicPlayEvent ? this.createPublicEvent(publicPlayEvent) : undefined,
     ]);
     return event;
   }

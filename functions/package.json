@@ -5,7 +5,7 @@
     "build": "tsc",
     "build:watch": "tsc --watch",
     "build:watch:background": "tsc -w &>/dev/null &",
-    "serve": "FUNCTIONS_EMULATOR=true npm run build:watch:background && firebase emulators:start --only functions,firestore",
+    "serve": "FUNCTIONS_EMULATOR=true npm run build:watch:background && firebase emulators:start --only functions,firestore,storage",
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",

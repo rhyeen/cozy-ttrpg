@@ -1,5 +1,5 @@
 import { current } from '@reduxjs/toolkit/react';
-import { type ClientCharacterJson, type ClientCampaignJson, type ClientPrivatePlayEventJson, type ClientPublicPlayEventJson, CharacterFactory } from '@rhyeen/cozy-ttrpg-shared';
+import { type ClientCharacterJson, type ClientCampaignJson, type ClientPrivatePlayEventJson, type ClientPublicPlayEventJson, CharacterFactory, type PartialClientCharacterJson } from '@rhyeen/cozy-ttrpg-shared';
 import { characterFactory } from 'app/utils/factories';
 
 export const MAX_ROTATING_EVENTS = 30;
@@ -109,7 +109,7 @@ function handleCharacterEvent(
   const json = state.characters[event.entityId];
   if (!json) return missingEntityError(event);
   const entity = characterFactory.clientJson(json);
-  entity.update(event.data as Partial<ClientCharacterJson>);
+  entity.update(event.data as PartialClientCharacterJson);
   state.characters[event.entityId] = {
     ...entity.clientJson(),
     updatedAt: new Date(event.createdAt).getTime(),

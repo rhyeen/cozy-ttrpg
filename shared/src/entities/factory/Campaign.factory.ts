@@ -8,7 +8,7 @@ export class CampaignFactory extends EntityFactory<
   Campaign, StoreCampaignJson, ClientCampaignJson, {
     players: StorePlayerJson[];
     plays: StorePlayJson[];
-  }, undefined
+  }, undefined, undefined, undefined
 > {
 
   public storeJson(

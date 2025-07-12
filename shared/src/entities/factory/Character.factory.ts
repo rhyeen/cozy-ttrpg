@@ -1,9 +1,9 @@
 import { EntityFactory } from '../entities/Entity';
 import { Character } from '../entities/Character';
-import type { ClientCharacterJson, StoreCharacterJson } from '../json/Character.json';
+import type { ClientCharacterJson, PartialClientCharacterJson, PartialStoreCharacterJson, StoreCharacterJson } from '../json/Character.json';
 
 export class CharacterFactory extends EntityFactory<
-  Character, StoreCharacterJson, ClientCharacterJson, undefined, undefined
+  Character, StoreCharacterJson, ClientCharacterJson, undefined, undefined, PartialStoreCharacterJson, PartialClientCharacterJson
 > {
   private rootJson(json: ClientCharacterJson | StoreCharacterJson): Character {
     const root = new Character(
@@ -14,7 +14,7 @@ export class CharacterFactory extends EntityFactory<
       json,
     );
     root.background = json.background;
-    root.private.background = json.private?.background;
+    root.private.background = json.private?.background || null;
     return root;
   }
 

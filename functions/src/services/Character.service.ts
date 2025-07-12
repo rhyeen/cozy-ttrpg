@@ -1,6 +1,6 @@
 import { firestore } from 'firebase-admin';
 import { Service } from './Service';
-import { Character, CharacterFactory, type ClientCharacterJson, FullPlayEvent, PlayEventOperation } from '@rhyeen/cozy-ttrpg-shared';
+import { Character, CharacterFactory, FullPlayEvent, PartialClientCharacterJson, PlayEventOperation } from '@rhyeen/cozy-ttrpg-shared';
 import { HttpsError } from 'firebase-functions/https';
 import { PlayEventService } from './PlayEvent.service';
 import { PlayRequest } from '../utils/playRequest';
@@ -63,7 +63,7 @@ export class CharacterService extends Service{
 
   public async updateCharacter(
     uid: string,
-    characterJson: Partial<ClientCharacterJson>,
+    characterJson: PartialClientCharacterJson,
     options?: {
       isVerifiedGMOfCharacter?: boolean,
       playRequest?: PlayRequest,
@@ -104,7 +104,7 @@ export class CharacterService extends Service{
     }
     await Promise.all([
       this.db.collection('characters').doc(existingCharacter.id).update(
-        updatedCharacter.storePartialJson(existingCharacter)
+        updatedCharacter.storePartialJson(existingCharacter) as any
       ),
       this.eventService.addEvent(event),
     ]);

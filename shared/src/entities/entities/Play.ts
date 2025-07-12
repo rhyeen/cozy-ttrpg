@@ -3,7 +3,12 @@ import type { ClientPlayJson, RootPlayJson, StorePlayJson } from '../json/Play.j
 import { copyDate, DocumentEntity } from './Entity';
 import { Buffer } from 'buffer';
 
-export class Play extends DocumentEntity<StorePlayJson, ClientPlayJson> {
+export class Play extends DocumentEntity<
+StorePlayJson,
+ClientPlayJson,
+undefined,
+undefined
+> {
   public characterId: string;
   public campaignId: string;
   public uid: string;
