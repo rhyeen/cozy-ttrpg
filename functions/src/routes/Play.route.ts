@@ -67,7 +67,7 @@ export class PlayRoute extends Route {
       plays: plays.map(play => play.clientJson()),
       characters: filteredCharacters.map(character => {
         if (!thisPlayerIsGM && character.uid !== thisPlayer?.uid) {
-          character.private = {};
+          character.private = { background: null };
         }
         return character.clientJson();
       }),

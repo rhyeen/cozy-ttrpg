@@ -21,7 +21,6 @@ const app = initializeApp(firebaseConfig);
 const functions = getFunctions(app, "us-central1");
 const firestore = getFirestore(app);
 const storage = getStorage(app);
-const storageRef = ref(storage);
 
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
@@ -33,5 +32,5 @@ if (import.meta.env.DEV) {
   connectStorageEmulator(storage, 'localhost', 9299);
 }
 
-export { auth, googleProvider, functions, firestore, storageRef };
+export { auth, googleProvider, functions, firestore, storage };
 export default app;

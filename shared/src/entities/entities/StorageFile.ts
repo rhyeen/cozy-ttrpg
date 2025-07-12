@@ -12,18 +12,20 @@ undefined
   public folderId: string | null;
   public ownerUid: string;
   public contentType: FileContentType;
-  public size: number;
+  public bytes: number;
   public fileName: string;
+  public bucketId: string;
 
-  constructor(json: StoreStorageFileJson) {
+  constructor(json: StoreStorageFileJson | ClientStorageFileJson) {
     super(json);
     this.uid = json.uid;
     this.id = json.id;
     this.folderId = json.folderId;
     this.ownerUid = json.ownerUid;
     this.contentType = json.contentType;
-    this.size = json.size;
+    this.bytes = json.bytes;
     this.fileName = json.fileName;
+    this.bucketId = json.bucketId;
   }
 
   private rootJson(): RootStorageFileJson {
@@ -33,8 +35,9 @@ undefined
       folderId: this.folderId,
       ownerUid: this.ownerUid,
       contentType: this.contentType,
-      size: this.size,
+      bytes: this.bytes,
       fileName: this.fileName,
+      bucketId: this.bucketId,
     };
   }
 
@@ -54,6 +57,10 @@ undefined
 
   public copy(): StorageFile {
     return new StorageFile(this.storeJson());
+  }
+
+  public get url(): string {
+    return `/b/${this.bucketId}/o/users/${this.ownerUid}/images/${this.id}`;
   }
 }
 

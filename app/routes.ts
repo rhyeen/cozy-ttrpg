@@ -13,6 +13,7 @@ export default [
     route("characters", "routes/characters.tsx"),
     route("characters/:characterId", "routes/character.tsx"),
     route("friends", "routes/friends.tsx"),
+    route("images", "routes/images.tsx"),
     ...prefix("play", [
       layout("layouts/Play.layout.tsx", [
         index("routes/play/index.tsx"),

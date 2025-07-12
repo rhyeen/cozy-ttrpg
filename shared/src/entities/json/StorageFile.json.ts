@@ -6,6 +6,12 @@ export enum FileContentType {
   GIF = 'image/gif',
 }
 
+export const ImageContentTypes: readonly FileContentType[] = [
+  FileContentType.JPEG,
+  FileContentType.PNG,
+  FileContentType.GIF,
+];
+
 export interface RootStorageFileJson {
   uid: string;
   id: string;
@@ -14,8 +20,9 @@ export interface RootStorageFileJson {
   folderId: string | null;
   ownerUid: string;
   contentType: FileContentType;
-  size: number;
+  bytes: number;
   fileName: string;
+  bucketId: string;
 }
 
 export interface StorageImageJson {

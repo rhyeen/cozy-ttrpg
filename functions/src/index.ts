@@ -7,6 +7,7 @@ import { UserRoute } from './routes/User.route';
 import { FriendConnectionRoute } from './routes/FriendConnection.route';
 import { CharacterRoute } from './routes/Character.route';
 import { PlayRoute } from './routes/Play.route';
+import { FileRoute } from './routes/File.route';
 
 initializeApp();
 
@@ -24,6 +25,7 @@ const userRoute = new UserRoute(db);
 const friendConnectionRoute = new FriendConnectionRoute(db);
 const characterRoute = new CharacterRoute(db);
 const playRoute = new PlayRoute(db);
+const fileRoute = new FileRoute(db);
 
 export const setSelfPlay = onCall(async (request) => {
   return await playRoute.setSelfPlay(request);
@@ -111,6 +113,10 @@ export const updateFriendStatus = onCall(async (request) => {
 
 export const updateFriendContext = onCall(async (request) => {
   return await friendConnectionRoute.updateFriendContext(request);
+});
+
+export const getFiles = onCall(async (request) => {
+  return await fileRoute.getFiles(request);
 });
 
 export const helloWorld = onCall(async () => {
