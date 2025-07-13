@@ -12,13 +12,14 @@ interface ModalProps {
   primaryBtn?: {
     onClick: () => void;
     label?: string;
+    disabled?: boolean;
   } | boolean;
   children: React.ReactNode;
   preventOuterClickClose?: boolean;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   loading?: boolean;
-  size?: 'formMax';
+  size?: 'formMax' | 'widthMax';
 }
 
 const Modal: React.FC<ModalProps> = (props: ModalProps) => {
@@ -60,6 +61,7 @@ const Modal: React.FC<ModalProps> = (props: ModalProps) => {
                   props.onOpenChange(false);
                 }}
                 asComponent={Component.Close}
+                disabled={typeof props.primaryBtn === 'object' && props.primaryBtn.disabled}
               >
                 {(typeof props.primaryBtn === 'object' && props.primaryBtn.label) ? props.primaryBtn.label : 'Confirm'}
               </Button>
