@@ -1,11 +1,13 @@
 import React from 'react';
 import styles from './Card.module.css';
 import Divider from './Divider';
+import type { Color } from './Color';
 
 interface CardProps {
   children: React.ReactNode;
   noBorder?: boolean;
   onClick?: () => void;
+  color?: Color;
 }
 
 interface CardHeaderProps {
@@ -26,10 +28,15 @@ type CardComponent = React.FC<CardProps> & {
   Body: React.FC<CardBodyProps>;
 };
 
-const CardBase: React.FC<CardProps> = ({ children, onClick, noBorder }) => {
+const CardBase: React.FC<CardProps> = ({ children, onClick, noBorder, color }) => {
   return (
     <section
-      className={`${styles.wrapper} ${onClick ? styles.clickable : ''} ${noBorder ? styles.noBorder : ''}`}
+      className={`
+        ${styles.wrapper}
+        ${onClick ? styles.clickable : ''}
+        ${noBorder ? styles.noBorder : ''}
+        ${color ? styles[color] : ''}
+      `}
       onClick={onClick}
     >
       <div className={styles.innerWrapper}>

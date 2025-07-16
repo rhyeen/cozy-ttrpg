@@ -10,3 +10,11 @@
   color: var(--captionTextColor);
   margin-bottom: -1rem;
 }
+
+.error {
+  color: var(--errorTextColor);
+}
+
+.error.caption {
+  color: var(--errorCaptionTextColor);
+}

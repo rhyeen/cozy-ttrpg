@@ -1,0 +1,23 @@
+.dropzone {
+  width: 100%;
+  height: 8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--rowEvenBackgroundColor);
+  border-radius: 1rem;
+  padding: 1rem;
+  border: 3px dashed var(--borderColor);
+  transition: border .24s ease-in-out;
+  cursor: pointer;
+}
+
+.dropzone:hover {
+  border-color: var(--primaryBorderColor);
+}
+
+.dropzone:focus {
+  outline: none;
+  border-color: var(--borderFocusColor);
+  box-shadow: 0 0 0.5rem var(--boxShadowFocusColor);
+}

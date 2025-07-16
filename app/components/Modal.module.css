@@ -23,9 +23,8 @@
 }
 
 .widthMax.popup {
-  /* 20rem is normal form + 2 for the padding */
-  min-width: 100vw - 4rem;
-  min-height: 10rem;
+  width: 90%;
+  max-width: calc(var(--sectionMaxWidth) - 4rem);
 }
 
 .popup {

@@ -1,11 +1,28 @@
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { FileContentType, StorageFile } from '@rhyeen/cozy-ttrpg-shared';
 import Section from 'app/components/Section';
 import Modal from 'app/components/Modal';
-import { useDropzone, type DropEvent, type FileRejection } from 'react-dropzone';
-import sharp from 'sharp';
+import { useDropzone, type FileRejection } from 'react-dropzone';
+import imageCompression from 'browser-image-compression';
+import styles from './UploadFiles.module.css';
+import Paragraph from 'app/components/Paragraph';
+import Card from 'app/components/Card';
+import IconButton from 'app/components/IconButton';
+import CloseIcon from 'app/components/Icons/Close';
+import { Color } from 'app/components/Color';
 
 const MAX_FILE_BYTES = 5 * 1024 * 1024; // 5 MB
+
+interface ImageIf {
+  maxWidth?: number;
+  maxHeight?: number;
+
+  /**
+   * preserveRatioUseMin: Use the minimum of maxWidth and maxHeight to preserve aspect ratio.
+   * preserveRatioUseMax: Use the maximum of maxWidth and maxHeight to preserve aspect ratio.
+   */
+  resizeChoice: 'preserveRatioUseMin' | 'preserveRatioUseMax';
+}
 
 interface Props {
   open: boolean;
@@ -15,57 +32,36 @@ interface Props {
   fileContentTypes?: FileContentType[];
   // Defaults to MAX_FILE_BYTES if not provided
   overrideMaxFileBytes?: number;
-  ifImage?: {
-    maxWidth?: number;
-    maxHeight?: number;
-  }
+  ifImage?: ImageIf;
 }
 
-/**
- * Resizes the images to fit within the specified maxWidth and maxHeight,
- * preserving the aspect ratio.
- * If the image is smaller than the max dimensions, it will not be resized.
- */
 export async function resizeImages(
-  files: File[], ifImage?: { maxWidth?: number; maxHeight?: number },
+  files: File[],
+  ifImage?: ImageIf,
 ): Promise<File[]> {
-  return await Promise.all(files.map(async (file) => {
-    if (file.type.startsWith('image/') && (ifImage?.maxHeight || ifImage?.maxWidth)) {
-      const buffer = await file.arrayBuffer();
-      const imageWidth = await sharp(buffer).metadata().then(meta => meta.width);
-      const imageHeight = await sharp(buffer).metadata().then(meta => meta.height);
-      const imageRatio = imageWidth / imageHeight;
-      const maxHeight = ifImage.maxHeight || imageHeight;
-      const maxWidth = ifImage.maxWidth || imageWidth;
-      const percentOfMaxWidth = imageWidth / maxWidth;
-      const percentOfMaxHeight = imageHeight / maxHeight;
-      if (percentOfMaxWidth < 1 && percentOfMaxHeight < 1) {
-        // If both dimensions are smaller than the max, no need to resize
-        return file;
-      }
-      const conformedWidth = percentOfMaxWidth < percentOfMaxHeight
-        ? maxWidth
-        : maxHeight * imageRatio;
-      const conformedHeight = percentOfMaxWidth < percentOfMaxHeight
-        ? maxWidth / imageRatio
-        : maxHeight;
-      // @TODO: Need to determine if maxWidth or maxHeight relative to the images actual width and height is smaller based on aspect ratio
-      // then use the larger of the two differences to resize the image.
-      const resized = await sharp(buffer)
-        .resize({
-          width: conformedWidth,
-          height: conformedHeight,
-        });
-      return new File([await resized.toBuffer()], file.name, {
-        type: file.type,
-        lastModified: file.lastModified,
-      });
-    } else {
-      return file;
-    }
+  return Promise.all(files.map(async (file) => {
+    const isImage = file.type.startsWith('image/');
+    const needResize = !!(ifImage?.maxWidth || ifImage?.maxHeight);
+    if (!isImage || !needResize) return file;
+    const bitmap = await createImageBitmap(file);
+    const { width, height } = bitmap;
+    bitmap.close?.();
+    const maxW = ifImage?.maxWidth ?? width;
+    const maxH = ifImage?.maxHeight ?? height;
+    const scaleW = width / maxW;
+    const scaleH = height / maxH;
+    if (scaleW <= 1 && scaleH <= 1) return file;
+    const targetLongestEdge = scaleW > scaleH ? maxW : maxH;
+    const targetShortestEdge = scaleW > scaleH ? maxH : maxW;
+    const compressed: File = await imageCompression(file, {
+      maxWidthOrHeight: ifImage?.resizeChoice === 'preserveRatioUseMin' ?
+        targetLongestEdge : targetShortestEdge,
+      fileType: file.type,
+      useWebWorker: true,
+    });
+    return compressed;
   }));
 }
-
 
 export const UploadFilesModal: React.FC<Props> = ({
   open, onOpenChange, onFilesUploaded, singleFile, fileContentTypes, overrideMaxFileBytes, ifImage,
@@ -96,7 +92,6 @@ export const UploadFilesModal: React.FC<Props> = ({
       }
       return null;
     },
-    autoFocus: true,
     onDrop: (acceptedFiles: File[], fileRejections: FileRejection[]) => {
       acceptedFiles.forEach(file => {
         if (singleFile) {
@@ -147,7 +142,7 @@ export const UploadFilesModal: React.FC<Props> = ({
         { sortedFiles.length > 0 &&
           <Section>
             {sortedFiles.map(({ file }) => (
-              <div key={file.name}>
+              <Card key={file.name} noBorder>
                 <p>{file.name} ({(file.size / 1024).toFixed(2)} KB)</p>
                 <button onClick={() => {
                   setFiles(prev => {
@@ -156,33 +151,45 @@ export const UploadFilesModal: React.FC<Props> = ({
                     return newFiles;
                   });
                 }}>Delete</button>
-              </div>
+              </Card>
             ))}
           </Section>
         }
         { sortedRejections.length > 0 &&
           <Section>
             {sortedRejections.map(({ rejection }) => (
-              <div key={rejection.file.name}>
-                <p>{rejection.file.name} - {rejection.errors.map(e => e.message).join(', ')}</p>
-                <button onClick={() => {
-                  setRejections(prev => {
-                    const newRejections = { ...prev };
-                    delete newRejections[rejection.file.name];
-                    return newRejections;
-                  });
-                }}>Delete</button>
-              </div>
+              <Card key={rejection.file.name} noBorder color={Color.Error}>
+                <Card.Header>
+                  <Card.Header.Left>
+                    <Paragraph color={Color.Error}>{rejection.errors.map(e => e.message).join(', ')}</Paragraph>
+                    <Paragraph type="caption" color={Color.Error}>{rejection.file.name}</Paragraph>
+                  </Card.Header.Left>
+                  <Card.Header.Right>
+                    <IconButton
+                      onClick={() => {
+                        setRejections(prev => {
+                          const newRejections = { ...prev };
+                          delete newRejections[rejection.file.name];
+                          return newRejections;
+                        });
+                      }}
+                      color={Color.Error}
+                    >
+                      <CloseIcon />
+                    </IconButton>
+                  </Card.Header.Right>
+                </Card.Header>
+              </Card>
             ))}
           </Section>
         }
-        {(!singleFile || Object.keys(files).length === 0) &&
-          <div {...dropzone.getRootProps()}>
+        {(!singleFile || (!sortedFiles.length && !sortedRejections.length)) &&
+          <div className={styles.dropzone} {...dropzone.getRootProps()}>
             <input {...dropzone.getInputProps()} />
             {
               dropzone.isDragActive ?
-                <p>{singleFile ? 'Drop the file here...' : 'Drop the files here...'}</p> :
-                <p>{singleFile ? 'Drag and drop a file here, or click to select a file.' : 'Drag and drop some files here, or click to select files.'}</p>
+                <Paragraph align="center">{singleFile ? 'Drop the file here...' : 'Drop the files here...'}</Paragraph> :
+                <Paragraph align="center">{singleFile ? 'Drag and drop a file here, or click to select a file.' : 'Drag and drop some files here, or click to select files.'}</Paragraph>
             }
           </div>
         }

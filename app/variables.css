@@ -1,12 +1,15 @@
 :root {
   --formWidth: 20rem;
+  --sectionMaxWidth: 50rem;
   --baseBackgroundColor: #cfd1dc;
   --innerBaseBackgroundColor: #ffffff;
 
   --helperTextColor: #948c70;
   --captionTextColor: #a69f87;
   --errorTextColor: #d01a4a;
+  --errorCaptionTextColor: #904d5f;
   --errorBorderColor: var(--errorTextColor);
+  --errorBackgroundColor: #ffdfe5;
   --errorFillColor: var(--errorTextColor);
   --errorFocusBoxShadowColor: #d01a4a99;
 
