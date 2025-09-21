@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { use, useEffect, useMemo, useRef, useState } from 'react';
 import { FileContentType, StorageFile } from '@rhyeen/cozy-ttrpg-shared';
 import Section from 'app/components/Section';
 import Modal from 'app/components/Modal';
@@ -10,6 +10,8 @@ import Card from 'app/components/Card';
 import IconButton from 'app/components/IconButton';
 import CloseIcon from 'app/components/Icons/Close';
 import { Color } from 'app/components/Color';
+import ReactCrop, { type Crop, type PixelCrop } from 'react-image-crop';
+import 'react-image-crop/dist/ReactCrop.css';
 
 const MAX_FILE_BYTES = 5 * 1024 * 1024; // 5 MB
 
@@ -40,7 +42,7 @@ export async function resizeImages(
   ifImage?: ImageIf,
 ): Promise<File[]> {
   return Promise.all(files.map(async (file) => {
-    const isImage = file.type.startsWith('image/');
+    const isImage = isImageFile(file);
     const needResize = !!(ifImage?.maxWidth || ifImage?.maxHeight);
     if (!isImage || !needResize) return file;
     const bitmap = await createImageBitmap(file);
@@ -63,9 +65,69 @@ export async function resizeImages(
   }));
 }
 
+export function isImageFile(file: File): boolean {
+  return file.type.startsWith('image/');
+}
+
 export const UploadFilesModal: React.FC<Props> = ({
   open, onOpenChange, onFilesUploaded, singleFile, fileContentTypes, overrideMaxFileBytes, ifImage,
 }) => {
+  const [ files, setFiles ] = useState<Record<string, {
+    file: File;
+    updatedAt: Date;
+  }>>({});
+  const [ rejections, setRejections ] = useState<Record<string, {
+    rejection: FileRejection;
+    updatedAt: Date;
+  }>>({});
+  const [ loading, setLoading ] = useState(false);
+  const [crop, setCrop] = useState<Crop>({
+    x: 0, y: 0, width: 100, height: 100, unit: '%',
+  });
+  const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
+  const imgRef = useRef<HTMLImageElement>(null);
+  const [ selectedImageFile, setSelectedImageFile ] = useState<{
+    file: File;
+    index: number;
+  } | null>(null);
+
+  useEffect(() => {
+    if (
+      singleFile &&
+      Object.values(files).length === 1
+    ) {
+      const file = Object.values(files)[0]?.file;
+      if (file && isImageFile(file)) {
+        setSelectedImageFile({ file, index: 0 });
+      } else {
+        setSelectedImageFile(null);
+      }
+    } else {
+      setSelectedImageFile(null);
+    }
+  }, [files, singleFile]);
+
+  const selectedImageFileUrl = useMemo(() => {
+    return selectedImageFile ? URL.createObjectURL(selectedImageFile.file) : null;
+  }, [selectedImageFile]);
+
+  const [ imgInfo, setImageInfo ] = useState<{
+    naturalWidth: number;
+    naturalHeight: number;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!selectedImageFileUrl) {
+      setImageInfo(null);
+      return;
+    }
+    const img = new Image();
+    img.onload = () => {
+      setImageInfo({ naturalWidth: img.naturalWidth, naturalHeight: img.naturalHeight });
+    };
+    img.src = selectedImageFileUrl;
+  }, [selectedImageFileUrl]);
+
   if (!singleFile) throw new Error('Not implemented for multiple files yet.');
   if (!fileContentTypes) throw new Error('File content types are required for now.');
   const maxFileBytes = overrideMaxFileBytes || MAX_FILE_BYTES;
@@ -112,34 +174,98 @@ export const UploadFilesModal: React.FC<Props> = ({
     },
   });
 
-  const [ files, setFiles ] = useState<Record<string, {
-    file: File;
-    updatedAt: Date;
-  }>>({});
-  const [ rejections, setRejections ] = useState<Record<string, {
-    rejection: FileRejection;
-    updatedAt: Date;
-  }>>({});
+  const cropImageToFile = async (): Promise<File | null> => {
+    debugger;
+    if (!imgRef.current || !completedCrop || !selectedImageFile) {
+      return null;
+    }
+    const image = imgRef.current;
+    const scaleX = image.naturalWidth / image.width;
+    const scaleY = image.naturalHeight / image.height;
+    const canvas = new OffscreenCanvas(
+      completedCrop.width * scaleX,
+      completedCrop.height * scaleY,
+    );
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      return null;
+    }
+    ctx.drawImage(
+      image,
+      completedCrop.x * scaleX,
+      completedCrop.y * scaleY,
+      canvas.width,
+      canvas.height,
+      0,
+      0,
+      canvas.width,
+      canvas.height,
+    );
+    const blob = await canvas.convertToBlob({
+      type: selectedImageFile.file.type,
+      quality: 1,
+    });
+    const croppedFile = new File([blob], selectedImageFile.file.name, { type: selectedImageFile.file.type });
+    return croppedFile;
+  };
 
   const upload = async () => {
+    setLoading(true);
     const conformedFiles = await resizeImages(Object.values(files).map(({ file }) => file), ifImage);
+    // @NOTE: We need to handle an image file that is currently being cropped and therefore not saved
+    // in the files state yet.
+    const fileInProcessing = selectedImageFile && completedCrop ? selectedImageFile : null;
+    if (fileInProcessing) {
+      const croppedImageFile = await cropImageToFile();
+      if (croppedImageFile) {
+        const _filesInProcessing = await resizeImages([croppedImageFile], ifImage);
+        if (_filesInProcessing[0]) {
+          conformedFiles[fileInProcessing.index] = _filesInProcessing[0];
+        }
+      }
+    }
+    // sleep 5 seconds
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    setLoading(false);
+  };
 
+  const handleOnOpenChange = (open: boolean) => {
+    if (!open) {
+      setFiles({});
+      setRejections({});
+      setCrop({
+        x: 0, y: 0, width: 100, height: 100, unit: '%',
+      });
+    }
+    onOpenChange(open);
   };
 
   const sortedFiles = Object.values(files).sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
   const sortedRejections = Object.values(rejections).sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
 
+  const IMAGE_PREVIEW_MAX_WIDTH = '100%';
+  const IMAGE_PREVIEW_MAX_HEIGHT = '60vh';
+  const imageAspectRatio = imgInfo ? imgInfo.naturalWidth / imgInfo.naturalHeight : undefined;
+
   return (
     <Modal
       open={open}
-      onOpenChange={onOpenChange}
+      onOpenChange={(open) => handleOnOpenChange(open)}
       title={onlyImages ? singleFile ? 'Upload Image' : 'Upload Images' : singleFile ? 'Upload File' : 'Upload Files'}
       secondaryBtn
-      primaryBtn={{ onClick: upload, label: 'Upload', disabled: Object.keys(files).length === 0 }}
+      primaryBtn={{
+        onClick: upload,
+        label: 'Upload',
+        disabled: Object.keys(files).length === 0,
+        preventClose: true,
+      }}
       size="widthMax"
+      loading={loading}
     >
       <Section>
-        { sortedFiles.length > 0 &&
+        {(
+          sortedFiles.length > 0 && !selectedImageFile
+        ) &&
           <Section>
             {sortedFiles.map(({ file }) => (
               <Card key={file.name} noBorder>
@@ -153,6 +279,34 @@ export const UploadFilesModal: React.FC<Props> = ({
                 }}>Delete</button>
               </Card>
             ))}
+          </Section>
+        }
+        { selectedImageFileUrl &&
+          <Section>
+            <div style={{
+              maxWidth: IMAGE_PREVIEW_MAX_WIDTH,
+              maxHeight: IMAGE_PREVIEW_MAX_HEIGHT,
+              margin: '0 auto',
+              aspectRatio: imageAspectRatio,
+            }}>
+              <ReactCrop
+                crop={crop}
+                onChange={setCrop}
+                onComplete={setCompletedCrop}
+                minHeight={50}
+                minWidth={50}
+              >
+                <img
+                  ref={imgRef}
+                  src={selectedImageFileUrl}
+                  style={{
+                    maxWidth: IMAGE_PREVIEW_MAX_WIDTH,
+                    maxHeight: IMAGE_PREVIEW_MAX_HEIGHT,
+                    aspectRatio: imageAspectRatio,
+                  }}
+                />
+              </ReactCrop>
+            </div>
           </Section>
         }
         { sortedRejections.length > 0 &&

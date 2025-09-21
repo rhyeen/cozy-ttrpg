@@ -13,6 +13,7 @@ interface ModalProps {
     onClick: () => void;
     label?: string;
     disabled?: boolean;
+    preventClose?: boolean;
   } | boolean;
   children: React.ReactNode;
   preventOuterClickClose?: boolean;
@@ -24,6 +25,8 @@ interface ModalProps {
 
 const Modal: React.FC<ModalProps> = (props: ModalProps) => {
   const Component = props.preventOuterClickClose ? AlertDialog : Dialog;
+
+  const preventPrimaryClose = typeof props.primaryBtn === 'object' && props.primaryBtn.preventClose;
 
   return (
     <Component.Root open={props.open} onOpenChange={props.onOpenChange}>
@@ -57,10 +60,14 @@ const Modal: React.FC<ModalProps> = (props: ModalProps) => {
                 onClick={() => {
                   if (typeof props.primaryBtn === 'object') {
                     props.primaryBtn.onClick();
+                    if (!preventPrimaryClose) {
+                      props.onOpenChange(false);
+                    }
+                  } else {
+                    props.onOpenChange(false);
                   }
-                  props.onOpenChange(false);
                 }}
-                asComponent={Component.Close}
+                asComponent={preventPrimaryClose ? undefined : Component.Close}
                 disabled={typeof props.primaryBtn === 'object' && props.primaryBtn.disabled}
               >
                 {(typeof props.primaryBtn === 'object' && props.primaryBtn.label) ? props.primaryBtn.label : 'Confirm'}
