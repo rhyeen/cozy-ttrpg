@@ -119,6 +119,10 @@ export const getFiles = onCall(async (request) => {
   return await fileRoute.getFiles(request);
 });
 
+export const setFile = onCall(async (request) => {
+  return await fileRoute.setFile(request);
+});
+
 export const helloWorld = onCall(async () => {
   const docRef = db.collection('tickerTest').doc('testDoc');
   

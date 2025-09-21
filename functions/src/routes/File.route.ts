@@ -31,4 +31,20 @@ export class FileRoute extends Route {
     );
     return this.handleJsonResponse({ items: files.map(file => file.clientJson()) });
   }
+
+  public async setFile(
+    request: CallableRequest<any>,
+  ): Promise<HttpsFunction> {
+    if (!request.data || !request.data.file) {
+      throw new HttpsError('invalid-argument', 'File is required');
+    }
+    const data = {
+      file: request.data.file,
+    };
+    const file = await this.service.setFile(
+      this.getUidFromRequest(request),
+      data.file,
+    );
+    return this.handleJsonResponse({ item: file.clientJson() });
+  }
 }

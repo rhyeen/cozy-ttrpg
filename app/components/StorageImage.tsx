@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styles from './StorageImage.module.css';
 import type { StorageFile } from '@rhyeen/cozy-ttrpg-shared';
-import { ref } from 'firebase/storage';
+import { getDownloadURL, ref } from 'firebase/storage';
 import { storage } from 'app/utils/firebase';
 
 interface Props {
@@ -11,11 +11,23 @@ interface Props {
 const StorageImage: React.FC<Props> = ({
   file,
 }) => {
+  const [url, setUrl] = React.useState<string | null>(null);
+
+  const getUrl = async () => {
+    const _url = await getDownloadURL(ref(storage, file.url));
+    setUrl(_url);
+  };
+
+  useEffect(() => {
+    getUrl();
+  }, [file]);
+
+  if (!url) return <div className={styles.wrapper} />;
 
   return (
     <div className={styles.wrapper}>
       <img
-        src={ref(storage, file.url).fullPath}
+        src={url}
         alt={file.fileName}
       />
     </div>

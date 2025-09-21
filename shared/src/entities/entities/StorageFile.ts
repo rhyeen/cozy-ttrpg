@@ -1,3 +1,4 @@
+import { generateId } from '../../utils/idGenerator';
 import { ClientStorageFileJson, FileContentType, PartialStorageImageJson, RootStorageFileJson, StorageImageJson, StoreStorageFileJson } from '../json/StorageFile.json';
 import { DocumentEntity } from './Entity';
 
@@ -60,7 +61,15 @@ undefined
   }
 
   public get url(): string {
-    return `/b/${this.bucketId}/o/users/${this.ownerUid}/images/${this.id}`;
+    return `users/${this.ownerUid}/images/${this.id}`;
+  }
+
+  public get fullPathUrl(): string {
+    return `/b/${this.bucketId}/o/${this.url}`;
+  }
+
+  public static generateId(): string {
+    return generateId(undefined, 22);
   }
 }
 

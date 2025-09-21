@@ -16,4 +16,14 @@ export class FileController extends Controller {
     >('getFiles', { filterTo });
     return result.items.map(i => storageFileFactory.clientJson(i));
   }
+
+  public async setFile(
+    file: StorageFile,
+  ): Promise<StorageFile> {
+    const result = await this.callFirebase<
+      { file: ClientStorageFileJson },
+      { item: ClientStorageFileJson }
+    >('setFile', { file: file.clientJson() });
+    return storageFileFactory.clientJson(result.item);
+  }
 }

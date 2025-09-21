@@ -12,6 +12,7 @@ import CloseIcon from 'app/components/Icons/Close';
 import { Color } from 'app/components/Color';
 import ReactCrop, { type Crop, type PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
+import { isImageFile, UploadFileProgress } from './UploadFileProgress';
 
 const MAX_FILE_BYTES = 5 * 1024 * 1024; // 5 MB
 
@@ -37,38 +38,6 @@ interface Props {
   ifImage?: ImageIf;
 }
 
-export async function resizeImages(
-  files: File[],
-  ifImage?: ImageIf,
-): Promise<File[]> {
-  return Promise.all(files.map(async (file) => {
-    const isImage = isImageFile(file);
-    const needResize = !!(ifImage?.maxWidth || ifImage?.maxHeight);
-    if (!isImage || !needResize) return file;
-    const bitmap = await createImageBitmap(file);
-    const { width, height } = bitmap;
-    bitmap.close?.();
-    const maxW = ifImage?.maxWidth ?? width;
-    const maxH = ifImage?.maxHeight ?? height;
-    const scaleW = width / maxW;
-    const scaleH = height / maxH;
-    if (scaleW <= 1 && scaleH <= 1) return file;
-    const targetLongestEdge = scaleW > scaleH ? maxW : maxH;
-    const targetShortestEdge = scaleW > scaleH ? maxH : maxW;
-    const compressed: File = await imageCompression(file, {
-      maxWidthOrHeight: ifImage?.resizeChoice === 'preserveRatioUseMin' ?
-        targetLongestEdge : targetShortestEdge,
-      fileType: file.type,
-      useWebWorker: true,
-    });
-    return compressed;
-  }));
-}
-
-export function isImageFile(file: File): boolean {
-  return file.type.startsWith('image/');
-}
-
 export const UploadFilesModal: React.FC<Props> = ({
   open, onOpenChange, onFilesUploaded, singleFile, fileContentTypes, overrideMaxFileBytes, ifImage,
 }) => {
@@ -76,6 +45,19 @@ export const UploadFilesModal: React.FC<Props> = ({
     file: File;
     updatedAt: Date;
   }>>({});
+  const [ filesToUpload, setFilesToUpload ] = useState<File[]>([]);
+  const [ filesUploaded, setFilesUploaded ] = useState<Record<number, StorageFile>>({});
+
+  useEffect(() => {
+    // All files uploaded
+    if (Object.keys(filesUploaded).length === filesToUpload.length && filesToUpload.length > 0) {
+      onFilesUploaded(Object.values(filesUploaded));
+      setFilesToUpload([]);
+      setFilesUploaded({});
+      setLoading(false);
+      handleOnOpenChange(false);
+    }
+  }, [filesUploaded]);
   const [ rejections, setRejections ] = useState<Record<string, {
     rejection: FileRejection;
     updatedAt: Date;
@@ -141,6 +123,7 @@ export const UploadFilesModal: React.FC<Props> = ({
     });
     return acceptedFileTypes;
   };
+
   const dropzone = useDropzone({
     accept: getAcceptedFileTypes(),
     maxFiles: singleFile ? 1 : undefined,
@@ -175,7 +158,6 @@ export const UploadFilesModal: React.FC<Props> = ({
   });
 
   const cropImageToFile = async (): Promise<File | null> => {
-    debugger;
     if (!imgRef.current || !completedCrop || !selectedImageFile) {
       return null;
     }
@@ -211,22 +193,18 @@ export const UploadFilesModal: React.FC<Props> = ({
 
   const upload = async () => {
     setLoading(true);
-    const conformedFiles = await resizeImages(Object.values(files).map(({ file }) => file), ifImage);
+    const _files = [...Object.values(files).map(({ file }) => file)];
     // @NOTE: We need to handle an image file that is currently being cropped and therefore not saved
     // in the files state yet.
     const fileInProcessing = selectedImageFile && completedCrop ? selectedImageFile : null;
     if (fileInProcessing) {
       const croppedImageFile = await cropImageToFile();
       if (croppedImageFile) {
-        const _filesInProcessing = await resizeImages([croppedImageFile], ifImage);
-        if (_filesInProcessing[0]) {
-          conformedFiles[fileInProcessing.index] = _filesInProcessing[0];
-        }
+        _files[fileInProcessing.index] = croppedImageFile;
       }
     }
-    // sleep 5 seconds
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setLoading(false);
+    // @NOTE: These will be uploaded in a useEffect of the UploadFileProgress component.
+    setFilesToUpload(_files);
   };
 
   const handleOnOpenChange = (open: boolean) => {
@@ -261,93 +239,111 @@ export const UploadFilesModal: React.FC<Props> = ({
       }}
       size="widthMax"
       loading={loading}
+      preventOuterClickClose
     >
-      <Section>
-        {(
-          sortedFiles.length > 0 && !selectedImageFile
-        ) &&
-          <Section>
-            {sortedFiles.map(({ file }) => (
-              <Card key={file.name} noBorder>
-                <p>{file.name} ({(file.size / 1024).toFixed(2)} KB)</p>
-                <button onClick={() => {
-                  setFiles(prev => {
-                    const newFiles = { ...prev };
-                    delete newFiles[file.name];
-                    return newFiles;
-                  });
-                }}>Delete</button>
-              </Card>
-            ))}
-          </Section>
-        }
-        { selectedImageFileUrl &&
-          <Section>
-            <div style={{
-              maxWidth: IMAGE_PREVIEW_MAX_WIDTH,
-              maxHeight: IMAGE_PREVIEW_MAX_HEIGHT,
-              margin: '0 auto',
-              aspectRatio: imageAspectRatio,
-            }}>
-              <ReactCrop
-                crop={crop}
-                onChange={setCrop}
-                onComplete={setCompletedCrop}
-                minHeight={50}
-                minWidth={50}
-              >
-                <img
-                  ref={imgRef}
-                  src={selectedImageFileUrl}
-                  style={{
-                    maxWidth: IMAGE_PREVIEW_MAX_WIDTH,
-                    maxHeight: IMAGE_PREVIEW_MAX_HEIGHT,
-                    aspectRatio: imageAspectRatio,
-                  }}
-                />
-              </ReactCrop>
+      {filesToUpload.length > 0 ?
+        <Section>
+          {filesToUpload.map((file, index) => (
+            <UploadFileProgress
+              key={`${file.name}-${index}`}
+              file={file}
+              onFileUploaded={(file) => {
+                setFilesUploaded(prev => {
+                  const newFiles = { ...prev, index: file };
+                  return newFiles;
+                });
+              }}
+            />
+          ))}
+        </Section>
+        :
+        <Section>
+          {(
+            sortedFiles.length > 0 && !selectedImageFile
+          ) &&
+            <Section>
+              {sortedFiles.map(({ file }) => (
+                <Card key={file.name} noBorder>
+                  <p>{file.name} ({(file.size / 1024).toFixed(2)} KB)</p>
+                  <button onClick={() => {
+                    setFiles(prev => {
+                      const newFiles = { ...prev };
+                      delete newFiles[file.name];
+                      return newFiles;
+                    });
+                  }}>Delete</button>
+                </Card>
+              ))}
+            </Section>
+          }
+          { selectedImageFileUrl &&
+            <Section>
+              <div style={{
+                maxWidth: IMAGE_PREVIEW_MAX_WIDTH,
+                maxHeight: IMAGE_PREVIEW_MAX_HEIGHT,
+                margin: '0 auto',
+                aspectRatio: imageAspectRatio,
+              }}>
+                <ReactCrop
+                  crop={crop}
+                  onChange={setCrop}
+                  onComplete={setCompletedCrop}
+                  minHeight={50}
+                  minWidth={50}
+                >
+                  <img
+                    ref={imgRef}
+                    src={selectedImageFileUrl}
+                    style={{
+                      maxWidth: IMAGE_PREVIEW_MAX_WIDTH,
+                      maxHeight: IMAGE_PREVIEW_MAX_HEIGHT,
+                      aspectRatio: imageAspectRatio,
+                    }}
+                  />
+                </ReactCrop>
+              </div>
+            </Section>
+          }
+          { sortedRejections.length > 0 &&
+            <Section>
+              {sortedRejections.map(({ rejection }) => (
+                <Card key={rejection.file.name} noBorder color={Color.Error}>
+                  <Card.Header>
+                    <Card.Header.Left>
+                      <Paragraph color={Color.Error}>{rejection.errors.map(e => e.message).join(', ')}</Paragraph>
+                      <Paragraph type="caption" color={Color.Error}>{rejection.file.name}</Paragraph>
+                    </Card.Header.Left>
+                    <Card.Header.Right>
+                      <IconButton
+                        onClick={() => {
+                          setRejections(prev => {
+                            const newRejections = { ...prev };
+                            delete newRejections[rejection.file.name];
+                            return newRejections;
+                          });
+                        }}
+                        color={Color.Error}
+                      >
+                        <CloseIcon />
+                      </IconButton>
+                    </Card.Header.Right>
+                  </Card.Header>
+                </Card>
+              ))}
+            </Section>
+          }
+          {(!singleFile || (!sortedFiles.length && !sortedRejections.length)) &&
+            <div className={styles.dropzone} {...dropzone.getRootProps()}>
+              <input {...dropzone.getInputProps()} />
+              {
+                dropzone.isDragActive ?
+                  <Paragraph align="center">{singleFile ? 'Drop the file here...' : 'Drop the files here...'}</Paragraph> :
+                  <Paragraph align="center">{singleFile ? 'Drag and drop a file here, or click to select a file.' : 'Drag and drop some files here, or click to select files.'}</Paragraph>
+              }
             </div>
-          </Section>
-        }
-        { sortedRejections.length > 0 &&
-          <Section>
-            {sortedRejections.map(({ rejection }) => (
-              <Card key={rejection.file.name} noBorder color={Color.Error}>
-                <Card.Header>
-                  <Card.Header.Left>
-                    <Paragraph color={Color.Error}>{rejection.errors.map(e => e.message).join(', ')}</Paragraph>
-                    <Paragraph type="caption" color={Color.Error}>{rejection.file.name}</Paragraph>
-                  </Card.Header.Left>
-                  <Card.Header.Right>
-                    <IconButton
-                      onClick={() => {
-                        setRejections(prev => {
-                          const newRejections = { ...prev };
-                          delete newRejections[rejection.file.name];
-                          return newRejections;
-                        });
-                      }}
-                      color={Color.Error}
-                    >
-                      <CloseIcon />
-                    </IconButton>
-                  </Card.Header.Right>
-                </Card.Header>
-              </Card>
-            ))}
-          </Section>
-        }
-        {(!singleFile || (!sortedFiles.length && !sortedRejections.length)) &&
-          <div className={styles.dropzone} {...dropzone.getRootProps()}>
-            <input {...dropzone.getInputProps()} />
-            {
-              dropzone.isDragActive ?
-                <Paragraph align="center">{singleFile ? 'Drop the file here...' : 'Drop the files here...'}</Paragraph> :
-                <Paragraph align="center">{singleFile ? 'Drag and drop a file here, or click to select a file.' : 'Drag and drop some files here, or click to select files.'}</Paragraph>
-            }
-          </div>
-        }
-      </Section>
+          }
+        </Section>
+      }
     </Modal>
   );
 }
