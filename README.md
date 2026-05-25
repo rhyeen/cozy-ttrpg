@@ -50,8 +50,12 @@ Read the terminal for each command to access the different parts.
 #### Test Users
 
 We have these test users:
-* test2@example.com (password what you think it is)
-* test3@example.com (password what you think it is)
+* test@example.com
+* test1@example.com
+* test2@example.com
+* test3@example.com
+
+Password for all test users are in .env: TEST_USER_PASSWORD
 
 Note that any test user is possible as we don't do email validation yet.
 Authentication is currently done against backend, even locally, instead of

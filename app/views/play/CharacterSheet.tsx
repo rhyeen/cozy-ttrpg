@@ -19,6 +19,7 @@ import { useFindFriend } from 'app/utils/hooks/useFriend';
 import { useIsPlaying } from 'app/utils/hooks/usePlaySessionToken';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import CharacterImage from './CharacterImage';
 
 interface Props {
   campaign?: Campaign;
@@ -180,6 +181,11 @@ export const CharacterSheet: React.FC<Props> = (props: Props) => {
           icon={tabItems.find(t => t.value === tab)?.icon}
           text={{ trigger: tabItems.find(t => t.value === tab)?.label || '???' }}
           items={tabItems}
+        />
+        <CharacterImage
+          character={character}
+          canEdit={canEdit}
+          onCharacterUpdate={onCharacterUpdate}
         />
       </Section>
       {tab === Tab.Background &&
