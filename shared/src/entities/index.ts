@@ -22,3 +22,7 @@ export * from './factory/Play.factory';
 export * from './json/PlayEvent.json';
 export * from './entities/PlayEvent';
 export * from './factory/PlayEvent.factory';
+
+export * from './json/StorageFile.json';
+export * from './entities/StorageFile';
+export * from './factory/StorageFile.factory';

@@ -1,0 +1,1 @@
+- [ ] CharacterImage should support editability.

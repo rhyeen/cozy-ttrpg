@@ -3,7 +3,7 @@ import { User } from '../entities/User';
 import type { ClientUserJson, StoreUserJson } from '../json/User.json';
 
 export class UserFactory extends EntityFactory<
-  User, StoreUserJson, ClientUserJson, undefined, undefined
+  User, StoreUserJson, ClientUserJson, undefined, undefined, undefined, undefined
 > {
   private rootJson(json: ClientUserJson | StoreUserJson): User {
     return new User(

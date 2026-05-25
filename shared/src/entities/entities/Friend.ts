@@ -3,7 +3,12 @@ import type { ClientFriendConnectionJson, ClientFriendJson, RootFriendConnection
 import type { DocumentJson } from '../json/Json';
 import { copyDate, DocumentEntity, Entity } from './Entity';
 
-export class Friend extends Entity<StoreFriendJson, ClientFriendJson> {
+export class Friend extends Entity<
+StoreFriendJson,
+ClientFriendJson,
+undefined,
+undefined
+> {
   public uid: string;
   public approvedAt: Date | null;
   public deniedAt: Date | null;
@@ -51,7 +56,12 @@ export class Friend extends Entity<StoreFriendJson, ClientFriendJson> {
   }
 }
 
-export class FriendConnection extends DocumentEntity<StoreFriendConnectionJson, ClientFriendConnectionJson> {
+export class FriendConnection extends DocumentEntity<
+StoreFriendConnectionJson,
+ClientFriendConnectionJson,
+undefined,
+undefined
+> {
   public invited: Friend;
   public invitedBy: Friend;
   public id: string;

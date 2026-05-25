@@ -16,7 +16,7 @@ import FaceIcon from 'app/components/Icons/Face';
 import DeleteIcon from 'app/components/Icons/Delete';
 import Modal from 'app/components/Modal';
 import { FriendCard } from './Friend.card';
-import { campaignController, characterController, playController } from 'app/utils/controller';
+import { characterController, playController } from 'app/utils/controller';
 import { Toast } from '@base-ui-components/react';
 import Book2Icon from 'app/components/Icons/Book2';
 import RadioButtonUncheckedIcon from 'app/components/Icons/RadioButtonUnchecked';

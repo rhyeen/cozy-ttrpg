@@ -55,7 +55,7 @@ export class PlayRoute extends Route {
       this.campaignService.getCampaign(
         `${data.campaignId}`,
         this.getUidFromRequest(request),
-      )
+      ),
     ]);
     const thisPlayer = campaign?.players.find(p => p.uid === this.getUidFromRequest(request));
     const thisPlayerIsGM = thisPlayer?.scopes.includes(PlayerScope.GameMaster);
@@ -67,7 +67,7 @@ export class PlayRoute extends Route {
       plays: plays.map(play => play.clientJson()),
       characters: filteredCharacters.map(character => {
         if (!thisPlayerIsGM && character.uid !== thisPlayer?.uid) {
-          character.private = {};
+          character.private = { background: null };
         }
         return character.clientJson();
       }),

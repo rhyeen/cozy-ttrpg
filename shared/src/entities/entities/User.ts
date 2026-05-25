@@ -2,7 +2,12 @@ import { type DocumentJson } from '../json/Json';
 import { ClientUserJson, RootUserJson, StoreUserJson, UserColorTheme } from '../json/User.json';
 import { DocumentEntity } from './Entity';
 
-export class User extends DocumentEntity<StoreUserJson, ClientUserJson> {
+export class User extends DocumentEntity<
+StoreUserJson,
+ClientUserJson,
+undefined,
+undefined
+> {
   public uid: string;
   public email: string;
   public displayName: string;

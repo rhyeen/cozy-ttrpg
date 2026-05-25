@@ -2,7 +2,7 @@ import { firestore } from 'firebase-admin';
 import { Route } from './Route';
 import { CharacterService } from '../services/Character.service';
 import { type CallableRequest, HttpsError, type HttpsFunction } from 'firebase-functions/https';
-import { type ClientCharacterJson } from '@rhyeen/cozy-ttrpg-shared';
+import { PartialClientCharacterJson, type ClientCharacterJson } from '@rhyeen/cozy-ttrpg-shared';
 
 export class CharacterRoute extends Route {
   private service: CharacterService;
@@ -46,7 +46,7 @@ export class CharacterRoute extends Route {
     request: CallableRequest<any>,
   ): Promise<HttpsFunction> {
     const data = {
-      partialCharacterJson: request.data.character as Partial<ClientCharacterJson>,
+      partialCharacterJson: request.data.character as PartialClientCharacterJson,
     };
     await this.service.updateCharacter(
       this.getUidFromRequest(request),

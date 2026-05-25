@@ -3,7 +3,7 @@ import { Friend, FriendConnection } from '../entities/Friend';
 import type { ClientFriendConnectionJson, StoreFriendConnectionJson } from '../json/Friend.json';
 
 export class FriendConnectionFactory extends EntityFactory<
-  FriendConnection, StoreFriendConnectionJson, ClientFriendConnectionJson, undefined, undefined
+  FriendConnection, StoreFriendConnectionJson, ClientFriendConnectionJson, undefined, undefined, undefined, undefined
 > {
   private rootJson(json: StoreFriendConnectionJson | ClientFriendConnectionJson): FriendConnection {
     return new FriendConnection(

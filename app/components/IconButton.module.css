@@ -24,6 +24,25 @@
   background-color: var(--secondaryBackgroundColor);
 }
 
+.error svg {
+  fill: var(--errorTextColor);
+}
+
+.error.active,
+.error:active {
+  border-color: var(--errorBorderColor);
+  background-color: var(--errorBackgroundColor);
+}
+
+.error:hover {
+  border-color: var(--errorBorderColor)55;
+}
+
+.error:focus {
+  border-color: var(--errorBorderColor);
+  box-shadow: 0 0 0.5rem var(--errorFocusBoxShadowColor);
+}
+
 .barWrapper {
   display: flex;
   align-items: center;

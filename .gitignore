@@ -10,3 +10,4 @@ firestore-debug.log
 tsconfig.tsbuildinfo
 /shared/esm/
 /shared/cjs/
+.env

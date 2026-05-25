@@ -14,6 +14,7 @@ import SupervisedUserCircleIcon from './Icons/SupervisedUserCircle';
 import { useSessionStorage } from '@uidotdev/usehooks';
 import { selectPlayCampaign, selectPlayCharacters } from 'app/store/playEvent.slice';
 import Button from './Button';
+import PhotoPrintsIcon from './Icons/PhotoPrints';
 
 const NavBar: React.FC = () => {
   const firebaseUser = useSelector(selectFirebaseUser);
@@ -39,27 +40,36 @@ const NavBar: React.FC = () => {
 
   const menuItems = [];
   if (firebaseUser) {
-    menuItems.push(...[{
-      label: 'Profile',
-      onClick: () => {
-        navigate('/profile');
+    menuItems.push(...[
+      {
+        label: 'Profile',
+        onClick: () => {
+          navigate('/profile');
+        },
+        icon: <AccountCircleIcon />,
       },
-      icon: <AccountCircleIcon />,
-    },
-    {
-      label: 'Characters',
-      onClick: () => {
-        navigate('/characters');
+      {
+        label: 'Characters',
+        onClick: () => {
+          navigate('/characters');
+        },
+        icon: <FaceIcon />,
       },
-      icon: <FaceIcon />,
-    },
-    {
-      label: 'Friends',
-      onClick: () => {
-        navigate('/friends');
+      {
+        label: 'Friends',
+        onClick: () => {
+          navigate('/friends');
+        },
+        icon: <SupervisedUserCircleIcon />,
       },
-      icon: <SupervisedUserCircleIcon />,
-    }]);
+      {
+        label: 'Images',
+        onClick: () => {
+          navigate('/images');
+        },
+        icon: <PhotoPrintsIcon />,
+      },
+  ]);
   }
 
   if (playCampaign) {

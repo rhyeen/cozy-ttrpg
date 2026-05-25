@@ -3,7 +3,7 @@ import { FullPlayEvent, PrivatePlayEvent, PublicPlayEvent } from '../entities/Pl
 import type { ClientPrivatePlayEventJson, ClientPublicPlayEventJson, StorePrivatePlayEventJson, StorePublicPlayEventJson } from '../json/PlayEvent.json';
 
 export class PublicPlayEventFactory extends EntityFactory<
-  PublicPlayEvent, StorePublicPlayEventJson, ClientPublicPlayEventJson, undefined, undefined
+  PublicPlayEvent, StorePublicPlayEventJson, ClientPublicPlayEventJson, undefined, undefined, undefined, undefined
 > {
   private rootJson(json: ClientPublicPlayEventJson | StorePublicPlayEventJson): PublicPlayEvent {
     return new PublicPlayEvent(
@@ -28,7 +28,7 @@ export class PublicPlayEventFactory extends EntityFactory<
 }
 
 export class PrivatePlayEventFactory extends EntityFactory<
-  PrivatePlayEvent, StorePrivatePlayEventJson, ClientPrivatePlayEventJson, undefined, undefined
+  PrivatePlayEvent, StorePrivatePlayEventJson, ClientPrivatePlayEventJson, undefined, undefined, undefined, undefined
 > {
   private rootJson(json: ClientPrivatePlayEventJson | StorePrivatePlayEventJson): PrivatePlayEvent {
     return new PrivatePlayEvent(

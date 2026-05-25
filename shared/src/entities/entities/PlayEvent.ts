@@ -1,7 +1,12 @@
 import { ClientFullPlayEventJson, ClientPrivatePlayEventJson, ClientPublicPlayEventJson, PlayEventOperation, RootFullPlayEventJson, RootPrivatePlayEventJson, RootPublicPlayEventJson, StoreFullPlayEventJson, StorePrivatePlayEventJson, StorePublicPlayEventJson, type PrivatePlayEventPushTo, type PublicPlayEventPushTo,type RootPlayEventJson } from '../json/PlayEvent.json';
 import { copyDate, Entity } from './Entity';
 
-export abstract class PlayEvent<StoreJson, ClientJson> extends Entity<StoreJson, ClientJson> {
+export abstract class PlayEvent<StoreJson, ClientJson> extends Entity<
+StoreJson,
+ClientJson,
+undefined,
+undefined
+> {
   public id: string;
   public operation: PlayEventOperation;
   public entityId: string;
@@ -244,7 +249,9 @@ export class FullPlayEvent extends PlayEvent<StoreFullPlayEventJson, ClientFullP
     );
   }
 
-  public extractPublic(): PublicPlayEvent {
+  public extractPublic(): PublicPlayEvent | null {
+    const publicPushTo = this.publicPushToJson();
+    if (!publicPushTo || !this.publicData) return null;
     return new PublicPlayEvent(
       this.createdBy,
       this.operation,
